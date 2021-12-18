@@ -6,9 +6,24 @@ layout: default
 
 <div class="row g-5 mb-5">
   <div>
-    <h3 class="fw-bold border-bottom pb-3 mb-5">Courses</h3>
+    <h3 class="fw-bold border-bottom pb-3 mb-5">courses</h3>
     {% for course in site.data.settings.courses %}
-      <p><a href="{{ site.github.url }}/courses/{{ course.url}}">{{ course.name }}</a></p>
+      <div class="row g-5 mb-5">
+        <h4>{{ course.name }}</h4>
+        <p><em>{{ course.info }}</em></p>
+        <p>{{ course.term }} | {{ course.num }}</p>
+        <p><a href="{{ course.url }}">syllabus</a></p>
+      </div>
+    {% endfor %}
+  </div>
+  <div>
+    <h3 class="fw-bold border-bottom pb-3 mb-5">ta appointments</h3>
+    {% for course in site.data.settings.taships %}
+    <div class="row g-5 mb-5">
+      <h4>{{ course.name }}</h4>
+      <p><em>{{ course.info }}</em></p>
+      <p>{{ course.term }} | {{ course.num }}</p>
+    </div>
     {% endfor %}
   </div>
 </div>
