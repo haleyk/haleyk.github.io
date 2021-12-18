@@ -26,7 +26,7 @@ layout: default
         {% for section in site.data.cv.labs %}
           <p class="fw-bold"><a href="{{ section.url }}">{{ section.title }}</a> | <i>{{section.description}}</i></p>
           <p>{{ section.location }} | <i>{{section.year}}</i></p>
-          <p>{{ section.description }}</p>
+          <p>{{ section.info }}</p>
         {% endfor %}
       </div>
     </div>
