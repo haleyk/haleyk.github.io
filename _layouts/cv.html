@@ -24,7 +24,8 @@ layout: default
       </div>
       <div class="col-md-10">
         {% for section in site.data.cv.labs %}
-          <p class="fw-bold">{{ section.title }}</p>
+          <p class="fw-bold"><a href="{{ section.url }}">{{ section.title }}</a> | <i>{{section.description}}</i></p>
+          <p>{{ section.location }} | <i>{{section.year}}</i></p>
           <p>{{ section.description }}</p>
         {% endfor %}
       </div>
