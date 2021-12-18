@@ -1,3 +1,3 @@
 index:
-- {name: 'Badre, D., Bhandari, A., _Keglovits, H._, & Kikumoto, A. (2021). The dimensionality of neural representations for control. Current Opinion in Behavioral Sciences, 38, 20-28.', url: '/publications/badre2021.pdf'}
-- {name: 'Galeano Weber, E. M., _Keglovits, H._, Fisher, A., & Bunge, S. A. (2020). Insights into visual working memory precision at the feature-and object-level from a hemispheric encoding manipulation. Quarterly Journal of Experimental Psychology, 73(11), 1949-1968.', url: '/publications/weber2020.pdf'}
+- {name: 'Badre, D., Bhandari, A., Keglovits, H., & Kikumoto, A. (2021). The dimensionality of neural representations for control. Current Opinion in Behavioral Sciences, 38, 20-28.', url: '/publications/badre2021.pdf'}
+- {name: 'Galeano Weber, E. M., Keglovits, H., Fisher, A., & Bunge, S. A. (2020). Insights into visual working memory precision at the feature-and object-level from a hemispheric encoding manipulation. Quarterly Journal of Experimental Psychology, 73(11), 1949-1968.', url: '/publications/weber2020.pdf'}
