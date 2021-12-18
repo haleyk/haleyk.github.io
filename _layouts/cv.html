@@ -9,7 +9,7 @@ layout: default
     <h3 class="fw-bold border-bottom pb-3 mb-5">CV</h3>
     <div class="row g-5 mb-5">
       <div class="col-md-2">
-        <h4>Education</h4>
+        <h4>education</h4>
       </div>
       <div class="col-md-10">
         {% for section in site.data.cv.education %}
@@ -20,11 +20,22 @@ layout: default
     </div>
     <div class="row g-5 mb-5">
       <div class="col-md-2">
-        <h4>Academic Experience</h4>
+        <h4>laboratory experience</h4>
+      </div>
+      <div class="col-md-10">
+        {% for section in site.data.cv.labs %}
+          <p class="fw-bold">{{ section.title }}</p>
+          <p>{{ section.description }}</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="row g-5 mb-5">
+      <div class="col-md-2">
+        <h4>service activities</h4>
       </div>
       <div class="col-md-10">
         {% for section in site.data.cv.service %}
-          <p class="fw-bold">{{ section.title }}</p>
+          <p class="fw-bold">{{ section.title }} | <i>{{ section.year }}</i></p>
           <p>{{ section.description }}</p>
         {% endfor %}
       </div>
