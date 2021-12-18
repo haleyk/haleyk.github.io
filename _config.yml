@@ -1,12 +1,4 @@
-title: haleys blog
-author: haley keglovits
-email: halk@brown.edu
-description: > # this means to ignore newlines until "baseurl:"
-  testing inline editor
-
-# social links
-twitter_username: haleykegl # DO NOT include the @ character, or else the build will fail!
-github_username:  haleyk # DO NOT include the @ character, or else the build will fail!
-
-show_excerpts: true # set to false to remove excerpts on the homepage
-remote_theme: LeNPaul/academic
+url: "" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "" # the subpath of your site, e.g. /blog
+title: "academic" # the name of your site, e.g. ACME Corp.
+description: "a Jekyll theme for academia"
