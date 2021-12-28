@@ -4,8 +4,7 @@ publications:
 projects:
 - {
     name: 'structure of cognitive control representations',
-    info: 'hello'
-    }
+    info: 'hello'}
 - {
     name: 'measuring representational geometry with fmri',
     info: 'representational geometry, or the relationships among the firing patterns of a population of neurons across its inputs,
@@ -18,5 +17,4 @@ projects:
     limitations of various fmri designs for recovering dimensionality. factors like fmri and neural noise, correlated history effects
     of the bold signal, and task design all contribute to how accurately dimensionality can be recovered. we will use these simulations to
     design new estimation techniques which can be applied to human studies, and enhance our understanding of how geometry in
-    neural firing patterns contributes to controlled and automatic behavior.',
-    }
+    neural firing patterns contributes to controlled and automatic behavior.'}
