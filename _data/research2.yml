@@ -2,4 +2,6 @@
   description: 'hello'
 
 - title: 'measuring representational geometry with fmri'
-  description: 'representational geometry, or the relationships among the firing patterns of a population of neurons across its inputs'
+  description: >
+    'representational geometry, or the relationships among the firing patterns of a population of neurons across its inputs
+    and haley'
