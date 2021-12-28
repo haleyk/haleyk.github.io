@@ -4,6 +4,61 @@ layout: default
 
 {{ content }}
 
+<h3 class="fw-bold border-bottom pb-3 mb-5">other</h3>
+<table style="width:100%">
+  <tr>
+      {% for book in booklists[ixx] %}
+        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+  <tr>
+      {% for book in booklists[ixx] %}
+        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+  <tr>
+      {% for book in site.data.books.books3 %}
+        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+  <tr>
+      {% for book in site.data.books.books4 %}
+        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+  <tr>
+      {% for book in site.data.books.books5 %}
+        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+  <tr>
+      {% for book in site.data.books.books6 %}
+        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+  <tr>
+      {% for book in site.data.books.books7 %}
+        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+  <tr>
+      {% for book in site.data.books.books8 %}
+        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+  <tr>
+      {% for book in site.data.books.books9 %}
+        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+  <tr>
+      {% for book in site.data.books.books10 %}
+        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+</table>
+
+
 <script>
 const booklists = [];
 booklists[0]= site.data.books.books1;
@@ -12,57 +67,3 @@ booklists[2]= site.data.books.books3;
 let ixx = Math.floor(Math.random() * 10) + 1;
 let choice1 = booklists[ixx]
 </script>
-
-<h3 class="fw-bold border-bottom pb-3 mb-5">other</h3>
-<table style="width:100%">
-  <tr>
-      {% for book in choice1 %}
-        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in choice1 %}
-        <td><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books3 %}
-        <td><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books4 %}
-        <td><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books5 %}
-        <td><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books6 %}
-        <td><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books7 %}
-        <td><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books8 %}
-        <td><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books9 %}
-        <td><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books10 %}
-        <td><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-</table>
