@@ -5,13 +5,15 @@ layout: default
 {{ content }}
 
 <h3 class="fw-bold border-bottom pb-3 mb-5">other</h3>
-{% for book in site.data.books %}
-<div class="row g-5 mb-5">
-  <div class="col-md-6">
-    <h5>{{ book.title }}</h5>
-  </div>
-  <div class="col-md-6">
-    <img src="{{ book.cover }}" alt="cover" width="100%">
-  </div>
-</div>
-{% endfor %}
+<table style="width:100%">
+  <tr>
+      {% for book in site.data.books.books1 %}
+        <td><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+  <tr>
+      {% for book in site.data.books.books2 %}
+        <td><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+      {% endfor %}
+  </tr>
+</table>
