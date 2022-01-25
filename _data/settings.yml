@@ -1,6 +1,6 @@
 menu:
 - {name: 'research', url: '/research'}
-- {name: 'courses', url: '/courses'}
+- {name: 'teaching', url: '/teaching'}
 - {name: 'cv', url: '/cv'}
 - {name: 'contact', url: '/contact'}
 - {name: 'other', url: '/other'}
@@ -8,8 +8,8 @@ menu:
 other:
 - {name: 'Primary Investigator', title: 'Researcher', department: 'Physics & Astronomy', institution: 'Some University', institution_address: '1 Main Street, Canada', phone: '(000) 000-0000', email: 'hello@university.edu', office: 'Science Building 505', image: 'assets/img/primary-investigator.jpg', url: 'primary-investigator'}
 
-courses:
-- {name: 'introduction to programming', url: 'courses/prog/syllabus.pdf', term: 'spring 2022', info: 'primary course instructor', num: 'clps0950'}
+teaching:
+- {name: 'introduction to programming', url: 'teaching/prog/syllabus.pdf', term: 'spring 2022', info: 'primary course instructor', num: 'clps0950'}
 
 taships:
 - {name: 'mind, brain, behavior', url: 'mbb', term: 'fall 2021', info: 'discussion section leader; invited lecture on cognitive control', num: 'clps0010'}

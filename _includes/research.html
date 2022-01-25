@@ -1,15 +1,15 @@
 <div class="row g-5 mb-5">
   <div>
-    <h3 class="fw-bold pb-3 mb-5">projects</h3>
-      {% for item in site.data.research2 %}
-        <p>{{ item.title }}</p>
-        <p><em>{{ item.description }}</em></p>
+    <h3 class="fw-bold pb-3">publications</h3>
+      {% for item in site.data.research.publications %}
+        <p>{{ item.name }}<a href="{{ item.url }}">[pdf]</a></p>
       {% endfor %}
   </div>
   <div>
-    <h3 class="fw-bold pb-3 mb-5">publications</h3>
-      {% for item in site.data.research.publications %}
-        <p>{{ item.name }}<a href="{{ item.url }}">[pdf]</a></p>
+    <h3 class="fw-bold pb-3">projects</h3>
+      {% for item in site.data.research2 %}
+        <p>{{ item.title }}</p>
+        <p><em>{{ item.description }}</em></p>
       {% endfor %}
   </div>
 </div>
