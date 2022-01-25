@@ -66,6 +66,16 @@ layout: default
     </div>
     <div class="row g-5 mb-5">
       <div class="col-md-2">
+        <h4>publications</h4>
+      </div>
+      <div class="col-md-10">
+        {% for section in site.data.cv.papers %}
+          <p><a href="{{ section.url }}">{{ section.title }}</a></p
+        {% endfor %}
+      </div>
+    </div>
+    <div class="row g-5 mb-5">
+      <div class="col-md-2">
         <h4>honors and funding</h4>
       </div>
       <div class="col-md-10">
