@@ -70,7 +70,7 @@ layout: default
       </div>
       <div class="col-md-10">
         {% for section in site.data.cv.papers %}
-          <p><a href="{{ section.url }}">{{ section.title }}</a></p
+          <p>{{ section.title }}<a href="{{ section.url }}">{{ section.url }}</a></p
         {% endfor %}
       </div>
     </div>
