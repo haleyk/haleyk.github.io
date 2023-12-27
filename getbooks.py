@@ -15,21 +15,21 @@ def get_dom_col(url):
     return dominant
 
 
-webs = 'https://www.goodreads.com/user/year_in_books/2021/126421221'
-# webs = 'https://www.goodreads.com/user/year_in_books/2023/126421221'
+# webs = 'https://www.goodreads.com/user/year_in_books/2021/126421221'
+webs = 'https://www.goodreads.com/user/year_in_books/2023/126421221'
 page = requests.get(webs)
 code = page.status_code
 if code == 200: soup = BeautifulSoup(page.content, 'html.parser')
 
 
-n_colors = 10
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, .1)
-flags = cv2.KMEANS_RANDOM_CENTERS
-
 books = {}
 for item in [x for x in soup.find_all('img')]:
     try: t = item['title']; im = item['src']; books[t] = im
     except: haley=1
+
+n_colors = 10
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, .1)
+flags = cv2.KMEANS_RANDOM_CENTERS
 
 
 colours = []
