@@ -3,6 +3,6 @@
 
 @import "main";
 
-.randomize > * {display: none;}
+// .randomize > * {display: none;}
 // .randomize > *:nth-child(1), .randomize > *:nth-child(2) {display: block;}
-// .randomize > *:nth-child(1) {display: block;}
+.randomize > *:nth-child(1) {display: block;}
