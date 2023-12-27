@@ -16,6 +16,7 @@ def get_dom_col(url):
 
 
 webs = 'https://www.goodreads.com/user/year_in_books/2021/126421221'
+# webs = 'https://www.goodreads.com/user/year_in_books/2023/126421221'
 page = requests.get(webs)
 code = page.status_code
 if code == 200: soup = BeautifulSoup(page.content, 'html.parser')
