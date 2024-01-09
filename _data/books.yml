@@ -1,4 +1,4 @@
-books_5s:
+books:
 - {title: "Lakewood by Megan Giddings", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1579612241l/51166519._SX318_SY475_.jpg"}
 - {title: "The Water Dancer by Ta-Nehisi Coates", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1549993860l/43982054.jpg"}
 - {title: "Just Mercy by Bryan Stevenson", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1635827409l/20342617.jpg"}
@@ -10,7 +10,6 @@ books_5s:
 - {title: "The Giver by Lois Lowry", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1342493368l/3636.jpg"}
 - {title: "Ripley Under Ground by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327977334l/3845356.jpg"}
 - {title: "Ripley's Game by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327977429l/3425503.jpg"}
-- {title: "On Task by David Badre", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1604992048l/53232144.jpg"}
 - {title: "The Boy Who Followed Ripley by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327977256l/3845354.jpg"}
 - {title: "The Kite Runner by Khaled Hosseini", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1579036753l/77203._SY475_.jpg"}
 - {title: "Into the Black Nowhere by Meg Gardiner", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1500911593l/35157879.jpg"}
