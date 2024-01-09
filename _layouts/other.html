@@ -4,22 +4,15 @@ layout: default
 
 {{ content }}
 
-<h3 class="fw-bold pb-3 mb-5">life outside the lab</h3>
+<h3 class="fw-bold pb-3 mb-5">life outside the lab!</h3>
 
 <h4 class="fw-bold pb-3">recent reading</h4>
-<p> i love to read, and made my 2021 goal to get through 100 new books! see some of my list below--
-    if you have recommendations or like talking about books,
-    friend me on <a href="https://www.goodreads.com/haleykeg">goodreads</a>.
-    i love trying new authors.
+<p> I love to read, and if you reload this page you'll see a random selection of books I've read recently and rated 5 stars!
+  if you have recommendations or like talking about books,
+  friend me on <a href="https://www.goodreads.com/haleykeg">goodreads</a>. I love trying new authors.
 </p>
 
 <ul class="randomize">
-  <!-- <li>Item 0</li>
-  <li>Item 1</li>
-  <li>Item a</li>
-  <li>Item b</li>
-  <li>Item c</li> -->
-  <!-- <li>Item 2 <img data-src="https://jekyllcodex.org/uploads/grumpycat2.jpg" /></li> -->
   {% for book in site.data.books.books_5s %}
     <li> {{ book.title }} <br> <img data-src="{{ book.cover }}" alt="{{ book.title }}" width="30%"></li>
   {% endfor %}
@@ -31,97 +24,4 @@ layout: default
 
 
 
-<!-- 
-<h4 class="fw-bold pb-3">recent reading</h4>
-<p>i love to read, and made my 2021 goal to get through 100 new books! see some of my list below--
-    if you have recommendations or like talking about books,
-    friend me on <a href="https://www.goodreads.com/haleykeg">goodreads</a>.
-    i love trying new authors. </p>
-<table style="width:100%">
-  <tr>
-      {% for book in site.data.books.books1 %}
-        <td style="width:10%"> <img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr> -->
-  <!-- <tr>
-      {% for book in site.data.books.books2 %}
-        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books3 %}
-        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books4 %}
-        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books5 %}
-        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books6 %}
-        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books7 %}
-        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books8 %}
-        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books9 %}
-        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr>
-  <tr>
-      {% for book in site.data.books.books10 %}
-        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
-      {% endfor %}
-  </tr> -->
-<!-- </table>
-<br>
-<br>
-<br> -->
-
-<!-- <h4 class="fw-bold pb-3 mb-5">favorite sights while biking in rhode island</h4>
-<p><b>beaches</b></p>
-<div class="row g-5 mb-5">
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/beach1.jpg" alt="contact" width="100%"></div>
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/beach2.jpg" alt="contact" width="100%"></div>
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/beach3.jpg" alt="contact" width="100%"></div>
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/beach4.jpg" alt="contact" width="100%"></div>
-</div>
-<p><b>fresh produce</b></p>
-<div class="row g-5 mb-5">
-  <div class="col-md-12"><img src="{{ site.github.url }}/assets/img/farm1.jpg" alt="contact" width="100%"></div>
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/farm2.jpg" alt="contact" width="100%"></div>
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/farm3.jpg" alt="contact" width="100%"></div>
-</div>
-<p><b>state parks</b></p>
-<div class="row g-5 mb-5">
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/park1.jpg" alt="contact" width="100%"></div>
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/park2.jpg" alt="contact" width="100%"></div>
-</div>
-<p><b>beautiful skylines</b></p>
-<div class="row g-5 mb-5">
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/sky2.jpg" alt="contact" width="100%"> <img src="{{ site.github.url }}/assets/img/sky3.jpg" alt="contact" width="100%"> </div>
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/sky1.jpg" alt="contact" width="100%"></div>
-</div>
-<p><b>east bay bike trail</b></p>
-<div class="row g-5 mb-5">
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/bike1.jpg" alt="contact" width="100%"></div>
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/bike2.jpg" alt="contact" width="100%"></div>
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/bike3.jpg" alt="contact" width="100%"></div>
-  <div class="col-md-6"><img src="{{ site.github.url }}/assets/img/bike4.jpg" alt="contact" width="100%"></div>
-</div> -->
 
