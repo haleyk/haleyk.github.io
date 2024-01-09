@@ -6,30 +6,43 @@ layout: default
 
 <h3 class="fw-bold pb-3 mb-5">life outside the lab</h3>
 
+<h4 class="fw-bold pb-3">recent reading</h4>
+<p> i love to read, and made my 2021 goal to get through 100 new books! see some of my list below--
+    if you have recommendations or like talking about books,
+    friend me on <a href="https://www.goodreads.com/haleykeg">goodreads</a>.
+    i love trying new authors.
+</p>
+
 <ul class="randomize">
-  <li>Item 0</li>
+  <!-- <li>Item 0</li>
   <li>Item 1</li>
   <li>Item a</li>
   <li>Item b</li>
-  <li>Item c</li>
+  <li>Item c</li> -->
   <!-- <li>Item 2 <img data-src="https://jekyllcodex.org/uploads/grumpycat2.jpg" /></li> -->
+  {% for book in site.data.books.books_5s %}
+    <li> "{{ book.title }}" <img src="{{ book.cover }}" alt="{{ book.title }}" width="30%"></li>
+  {% endfor %}
 </ul>
 
 <br>
 <br>
 <br>
 
+
+
+<!-- 
 <h4 class="fw-bold pb-3">recent reading</h4>
 <p>i love to read, and made my 2021 goal to get through 100 new books! see some of my list below--
     if you have recommendations or like talking about books,
-    friend me on <a href="https://www.goodreads.com/haleykeg">goodreads</a> or <a href="https://app.thestorygraph.com/profile/haleykegl">storygraph</a>.
+    friend me on <a href="https://www.goodreads.com/haleykeg">goodreads</a>.
     i love trying new authors. </p>
 <table style="width:100%">
   <tr>
       {% for book in site.data.books.books1 %}
-        <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
+        <td style="width:10%"> <img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
       {% endfor %}
-  </tr>
+  </tr> -->
   <!-- <tr>
       {% for book in site.data.books.books2 %}
         <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
@@ -75,10 +88,10 @@ layout: default
         <td style="width:10%"><img src="{{ book.cover }}" alt="{{ book.title }}" width="100%"></td>
       {% endfor %}
   </tr> -->
-</table>
+<!-- </table>
 <br>
 <br>
-<br>
+<br> -->
 
 <!-- <h4 class="fw-bold pb-3 mb-5">favorite sights while biking in rhode island</h4>
 <p><b>beaches</b></p>

@@ -1,119 +1,72 @@
-books1:
-- {title: "Moonflower Murders by Anthony Horowitz", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1591032382l/51179955.jpg"}
-- {title: "The Giver by Lois Lowry", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1342493368l/3636.jpg"}
-- {title: "The Sympathizer by Viet Thanh Nguyen", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1423543886l/23168277.jpg"}
-- {title: "The Autobiography of Malcolm X by Malcolm X", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1434682864l/92057.jpg"}
-- {title: "The Haunting of Hill House by Shirley Jackson", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327871336l/89717._SY475_.jpg"}
-- {title: "Death's End by Liu Cixin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1430330507l/25451264.jpg"}
-- {title: "The Talented Mr. Ripley by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1634841836l/2247142._SY475_.jpg"}
-- {title: "Here for It; Or, How to Save Your Soul in America by R. Eric Thomas", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1575341409l/45915136.jpg"}
-- {title: "Neverwhere by Neil Gaiman", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1348747943l/14497.jpg"}
-- {title: "The Boy Who Followed Ripley by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327977256l/3845354.jpg"}
-
-books2:
-- {title: "Race, Racism and Psychology by Graham Richards", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1347548223l/9647056.jpg"}
-- {title: "The Dark Forest by Liu Cixin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1412064931l/23168817.jpg"}
-- {title: "Into the Black Nowhere by Meg Gardiner", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1500911593l/35157879.jpg"}
-- {title: "The Kite Runner by Khaled Hosseini", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1579036753l/77203._SY475_.jpg"}
-- {title: "Sharp Objects by Gillian Flynn", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1475695315l/18045891.jpg"}
-- {title: "Medical Apartheid by Harriet A. Washington", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1387667004l/114192.jpg"}
-- {title: "The Woman in the Window by A.J. Finn", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1528225499l/40389527._SY475_.jpg"}
-- {title: "Kafka on the Shore by Haruki Murakami", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1529183566l/6564051._SY475_.jpg"}
-- {title: "Dawn by Octavia E. Butler", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388290339l/60929.jpg"}
-- {title: "The Vanishing Half by Brit Bennett", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1577090827l/51791252._SX318_SY475_.jpg"}
-
-books3:
-- {title: "Black Skin, White Masks by Frantz Fanon", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1605297203l/274392._SY475_.jpg"}
-- {title: "Circe by Madeline Miller", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1565909496l/35959740._SY475_.jpg"}
-- {title: "While Justice Sleeps by Stacey Abrams", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1610386381l/55671327.jpg"}
-- {title: "The Dark Corners of the Night by Meg Gardiner", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1580190781l/38726283.jpg"}
-- {title: "Catch-22 by Joseph Heller", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1463157317l/168668.jpg"}
-- {title: "The Three-Body Problem by Liu Cixin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1415428227l/20518872.jpg"}
-- {title: "Dark Places by Gillian Flynn", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1354988288l/5886881.jpg"}
-- {title: "The Black House by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1335994621l/97123.jpg"}
-- {title: "Strangers on a Train by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1634841748l/15677._SY475_.jpg"}
-- {title: "The War of the Worlds by H.G. Wells", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1320391644l/8909.jpg"}
-
-books4:
-- {title: "The Stationery Shop by Marjan Kamali", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1630944026l/42201995._SY475_.jpg"}
-- {title: "Eleven by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1336450695l/385077.jpg"}
+books_5s:
+- {title: "Lakewood by Megan Giddings", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1579612241l/51166519._SX318_SY475_.jpg"}
+- {title: "The Water Dancer by Ta-Nehisi Coates", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1549993860l/43982054.jpg"}
+- {title: "Just Mercy by Bryan Stevenson", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1635827409l/20342617.jpg"}
+- {title: "A Storm of Swords by George R.R. Martin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1660621921l/13253102._SY475_.jpg"}
+- {title: "The Hobbit by J.R.R. Tolkien", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1546071216l/5907.jpg"}
 - {title: "Know My Name by Chanel Miller", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1567612158l/50196744._SX318_SY475_.jpg"}
-- {title: "The Price of Salt by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1628139806l/52258._SY475_.jpg"}
-- {title: "The Dragon Republic by R.F. Kuang", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1539963703l/41118857._SY475_.jpg"}
-- {title: "Acceptance by Jeff VanderMeer", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1403941598l/18077752.jpg"}
-- {title: "The Hobbit, or There and Back Again by J.R.R. Tolkien", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1546071216l/5907.jpg"}
-- {title: "Hidden Valley Road by Robert Kolker", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1569289026l/50088631._SX318_SY475_.jpg"}
-- {title: "A Storm of Swords by George R.R. Martin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1396958446l/13253102.jpg"}
-- {title: "Bitter Orange by Claire Fuller", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1519083306l/38589871.jpg"}
-
-books5:
-- {title: "Neuromancer by William Gibson", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1554437249l/6088007._SY475_.jpg"}
-- {title: "The Screwtape Letters by C.S. Lewis", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1476379778l/8130077._SY475_.jpg"}
-- {title: "The Hidden Girl and Other Stories by Ken Liu", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1565279404l/52163147._SX318_SY475_.jpg"}
-- {title: "A Disability History of the United States by Kim E. Nielsen", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1364250864l/17262462.jpg"}
-- {title: "The Outsider by Stephen King", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1524596540l/36124936._SY475_.jpg"}
-- {title: "Atonement by Ian McEwan", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1320449708l/6867.jpg"}
-- {title: "Everything I Never Told You by Celeste Ng", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1386795198l/18693763._SY475_.jpg"}
-- {title: "Cat's Cradle by Kurt Vonnegut Jr.", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327867150l/135479.jpg"}
-- {title: "The Burning God by R.F. Kuang", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1584965579l/45857086._SY475_.jpg"}
-- {title: "The Brief Wondrous Life of Oscar Wao by Junot Díaz", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1391409748l/297673.jpg"}
-
-books6:
-- {title: "Recursion by Blake Crouch", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1543687940l/42046112.jpg"}
-- {title: "A Thousand Splendid Suns by Khaled Hosseini", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1345958969l/128029.jpg"}
-- {title: "Hood Feminism by Mikki Kendall", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1577489813l/36687229.jpg"}
-- {title: "A Queer History of the United States by Michael Bronski", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1348187712l/10065595.jpg"}
-- {title: "Homegoing by Yaa Gyasi", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1448108591l/27071490.jpg"}
-- {title: "Annihilation by Jeff VanderMeer", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1403941587l/17934530.jpg"}
-- {title: "Ready Player One by Ernest Cline", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1500930947l/9969571._SY475_.jpg"}
-- {title: "On Task by David Badre", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1604992048l/53232144.jpg"}
-- {title: "What It Means When a Man Falls from the Sky by Lesley Nneka Arimah", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1474622115l/31522415.jpg"}
-- {title: "The Giver of Stars by Jojo Moyes", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1572879113l/43925876._SX318_.jpg"}
-
-books7:
-- {title: "Authority by Jeff VanderMeer", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1403941730l/18077769.jpg"}
-- {title: "A Game of Thrones by George R.R. Martin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1562726234l/13496.jpg"}
-- {title: "The Warmth of Other Suns by Isabel Wilkerson", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1433354252l/8171378._SY475_.jpg"}
-- {title: "The Paper Menagerie and Other Stories by Ken Liu", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1511290092l/24885533._SY475_.jpg"}
-- {title: "The Mysterious Affair at Styles by Agatha Christie", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1585632445l/52843028._SY475_.jpg"}
-- {title: "A Clash of Kings by George R.R. Martin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1567840212l/10572.jpg"}
-- {title: "Pushout by Monique W. Morris", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1455172864l/25159334.jpg"}
-- {title: "Mr. Mercedes by Stephen King", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1468705326l/18775247._SY475_.jpg"}
-- {title: "Never Let Me Go by Kazuo Ishiguro", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1353048590l/6334.jpg"}
-- {title: "Dune by Frank Herbert", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1555447414l/44767458.jpg"}
-
-books8:
-- {title: "A Black Women's History of the United States by Daina Ramey Berry", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1575339748l/45153160.jpg"}
-- {title: "A Spot of Bother by Mark Haddon", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1428506021l/4701.jpg"}
-- {title: "Killing the Black Body by Dorothy Roberts", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388801372l/229445.jpg"}
-- {title: "An Indigenous Peoples' History of the United States by Roxanne Dunbar-Ortiz", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1395003842l/20588662.jpg"}
-- {title: "An African American and Latinx History of the United States by Paul Ortiz", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1498794345l/34564996.jpg"}
-- {title: "The Girl Who Lived Twice by David Lagercrantz", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1542407915l/42846882._SX318_.jpg"}
-- {title: "Roots by Alex Haley", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1329398936l/546018.jpg"}
-- {title: "Transcendent Kingdom by Yaa Gyasi", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1571925550l/48570454.jpg"}
-- {title: "I, Robot by Isaac Asimov", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1609035271l/41804.jpg"}
-- {title: "A Feast for Crows by George R.R. Martin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1429538615l/13497.jpg"}
-
-books9:
 - {title: "Future Tense Fiction by Kirsten Berg", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1562778277l/50809276._SX318_SY475_.jpg"}
-- {title: "Ten Little Indians by Sherman Alexie", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1397719807l/52879.jpg"}
-- {title: "The Holdout by Graham Moore", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1569911903l/51211417._SX318_SY475_.jpg"}
-- {title: "The New Jim Crow by Michelle Alexander", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1328751532l/6792458.jpg"}
-- {title: "Are Prisons Obsolete? by Angela Y. Davis", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1320521835l/108428.jpg"}
-- {title: "The Fire Next Time by James Baldwin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1632509721l/464260._SY475_.jpg"}
-- {title: "If It Bleeds by Stephen King", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1571399830l/46015758._SY475_.jpg"}
-- {title: "Ripley's Game by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327977429l/3425503.jpg"}
+- {title: "The Talented Mr. Ripley by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1634841836l/2247142._SY475_.jpg"}
+- {title: "The Giver by Lois Lowry", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1342493368l/3636.jpg"}
 - {title: "Ripley Under Ground by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327977334l/3845356.jpg"}
+- {title: "Ripley's Game by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327977429l/3425503.jpg"}
+- {title: "On Task by David Badre", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1604992048l/53232144.jpg"}
+- {title: "The Boy Who Followed Ripley by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327977256l/3845354.jpg"}
+- {title: "The Kite Runner by Khaled Hosseini", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1579036753l/77203._SY475_.jpg"}
+- {title: "Into the Black Nowhere by Meg Gardiner", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1500911593l/35157879.jpg"}
+- {title: "Catch-22 by Joseph Heller", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1463157317l/168668.jpg"}
+- {title: "Killing the Black Body by Dorothy Roberts", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388801372l/229445.jpg"}
+- {title: "A Thousand Splendid Suns by Khaled Hosseini", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1655336738l/128029._SY475_.jpg"}
+- {title: "The Three-Body Problem by Liu Cixin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1415428227l/20518872.jpg"}
+- {title: "Authority by Jeff VanderMeer", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1403941730l/18077769.jpg"}
+- {title: "Medical Apartheid by Harriet A. Washington", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1387667004l/114192.jpg"}
+- {title: "The New Jim Crow by Michelle Alexander", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1328751532l/6792458.jpg"}
+- {title: "The Paper Menagerie and Other Stories by Ken Liu", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1511290092l/24885533._SY475_.jpg"}
+- {title: "Pushout by Monique W. Morris", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1455172864l/25159334.jpg"}
+- {title: "A Black Women's History of the United States by Daina Ramey Berry", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1575339748l/45153160.jpg"}
+- {title: "A Disability History of the United States by Kim E. Nielsen", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1364250864l/17262462.jpg"}
+- {title: "The Only Good Indians by Stephen Graham Jones", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1601545259l/52180399._SY475_.jpg"}
+- {title: "The Autobiography of Malcolm X by Malcolm X", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1434682864l/92057.jpg"}
+- {title: "Sharp Objects by Gillian Flynn", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1475695315l/18045891.jpg"}
+- {title: "A Game of Thrones by George R.R. Martin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1562726234l/13496.jpg"}
 - {title: "Citizen by Claudia Rankine", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1420944502l/20613761.jpg"}
-
-books10:
-- {title: "Ripley Under Water by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327977011l/3845355.jpg"}
-- {title: "The Remains of the Day by Kazuo Ishiguro", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1311092844l/12073240.jpg"}
-- {title: "The Poppy War by R.F. Kuang", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1515691735l/35068705.jpg"}
-- {title: "A Dance with Dragons by George R.R. Martin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1581625286l/10664113._SX318_.jpg"}
-- {title: "Stories of Your Life and Others by Ted Chiang", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1356138316l/223380.jpg"}
-- {title: "Ninth House by Leigh Bardugo", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1553102141l/43263680.jpg"}
+- {title: "A Clash of Kings by George R.R. Martin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1567840212l/10572.jpg"}
+- {title: "An African American and Latinx History of the United States by Paul Ortiz", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1498794345l/34564996.jpg"}
+- {title: "Strangers on a Train by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1634841748l/15677._SY475_.jpg"}
+- {title: "The Woman in the Window by A.J. Finn", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1528225499l/40389527._SY475_.jpg"}
+- {title: "The Hidden Girl and Other Stories by Ken Liu", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1565279404l/52163147._SX318_SY475_.jpg"}
+- {title: "Death's End by Liu Cixin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1430330507l/25451264.jpg"}
+- {title: "Transcendent Kingdom by Yaa Gyasi", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1571925550l/48570454.jpg"}
+- {title: "Neverwhere by Neil Gaiman", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1348747943l/14497.jpg"}
 - {title: "Fatal Invention by Dorothy Roberts", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1328751704l/10055524.jpg"}
 - {title: "Exhalation by Ted Chiang", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1534388394l/41160292._SX318_.jpg"}
-- {title: "The Only Good Indians by Stephen Graham Jones", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1601545259l/52180399._SY475_.jpg"}
-- {title: "The 7½ Deaths of Evelyn Hardcastle by Stuart Turton", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1506896221l/36337550.jpg"}
+- {title: "Homegoing by Yaa Gyasi", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1448108591l/27071490.jpg"}
+- {title: "The Poppy War by R.F. Kuang", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1515691735l/35068705.jpg"}
+- {title: "Stories of Your Life and Others by Ted Chiang", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1356138316l/223380.jpg"}
+- {title: "The Dragon Republic by R.F. Kuang", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1539963703l/41118857._SY475_.jpg"}
+- {title: "The Burning God by R.F. Kuang", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1584965579l/45857086._SY475_.jpg"}
+- {title: "The Price of Salt, or Carol by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1628139806l/52258._SY475_.jpg"}
+- {title: "I, Robot by Isaac Asimov", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1609035271l/41804.jpg"}
+- {title: "What It Means When a Man Falls from the Sky by Lesley Nneka Arimah", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1474622115l/31522415.jpg"}
+- {title: "Lean Semesters by Sekile M. Nzinga", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1589820279l/51619282.jpg"}
+- {title: "Americanah by Chimamanda Ngozi Adichie", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1356654499l/15796700.jpg"}
+- {title: "Children of Dune by Frank Herbert", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1564783201l/44492286.jpg"}
+- {title: "Kindred by Octavia E. Butler", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1385158817l/18889555.jpg"}
+- {title: "Heretics of Dune by Frank Herbert", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1564027750l/44492287._SY475_.jpg"}
+- {title: "Crying in H Mart by Michelle Zauner", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1601937850l/54814676.jpg"}
+- {title: "Interior Chinatown by Charles Yu", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1639073843l/44436221._SX318_.jpg"}
+- {title: "Watchmen by Alan Moore", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1442239711l/472331.jpg"}
+- {title: "Kaikeyi by Vaishnavi Patel", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1671146784l/57127277._SY475_.jpg"}
+- {title: "A Little Life by Hanya Yanagihara", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1446469353l/22822858._SY475_.jpg"}
+- {title: "Babel by R.F. Kuang", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1677361825l/57945316._SY475_.jpg"}
+- {title: "README.txt by Chelsea Manning", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1656312637l/45734815.jpg"}
+- {title: "Interpreter of Maladies by Jhumpa Lahiri", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1442586143l/5439._SY475_.jpg"}
+- {title: "I'm Glad My Mom Died by Jennette McCurdy", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1649279922l/60763786._SY475_.jpg"}
+- {title: "Even the Rat Was White by Robert V. Guthrie", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388195594l/54722.jpg"}
+- {title: "The Master and Margarita by Mikhail Bulgakov", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327867963l/117833.jpg"}
+- {title: "The Namesake by Jhumpa Lahiri", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1480106986l/33917._SY475_.jpg"}
+- {title: "My Body by Emily Ratajkowski", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1646821613l/57145833._SY475_.jpg"}
+- {title: "Yellowface by R.F. Kuang", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1671336608l/62047984.jpg"}
+- {title: "Folklorn by Angela Mi Young Hur", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1608035107l/54864318.jpg"}
+- {title: "The Priory of the Orange Tree by Samantha    Shannon", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1700221964l/40275288._SY475_.jpg"}
+- {title: "Piranesi by Susanna Clarke", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1609095173l/50202953._SY475_.jpg"}
