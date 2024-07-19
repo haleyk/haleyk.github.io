@@ -1,0 +1,17 @@
+current directory: /Users/hkeglovi/Documents/GitHub/haleyk.github.io/vendor/bundle/ruby/3.1.0/gems/strscan-3.1.0/ext/strscan
+/Users/hkeglovi/.rubies/ruby-3.1.3/bin/ruby -I /Users/hkeglovi/.rubies/ruby-3.1.3/lib/ruby/3.1.0 extconf.rb
+checking for onig_region_memsize() in ruby.h... yes
+checking for rb_reg_onig_match() in ruby.h... no
+creating Makefile
+
+current directory: /Users/hkeglovi/Documents/GitHub/haleyk.github.io/vendor/bundle/ruby/3.1.0/gems/strscan-3.1.0/ext/strscan
+make DESTDIR\= sitearchdir\=./.gem.20240719-86051-tmp30s sitelibdir\=./.gem.20240719-86051-tmp30s clean
+
+current directory: /Users/hkeglovi/Documents/GitHub/haleyk.github.io/vendor/bundle/ruby/3.1.0/gems/strscan-3.1.0/ext/strscan
+make DESTDIR\= sitearchdir\=./.gem.20240719-86051-tmp30s sitelibdir\=./.gem.20240719-86051-tmp30s
+compiling strscan.c
+linking shared-object strscan.bundle
+
+current directory: /Users/hkeglovi/Documents/GitHub/haleyk.github.io/vendor/bundle/ruby/3.1.0/gems/strscan-3.1.0/ext/strscan
+make DESTDIR\= sitearchdir\=./.gem.20240719-86051-tmp30s sitelibdir\=./.gem.20240719-86051-tmp30s install
+/usr/bin/install -c -m 0755 strscan.bundle ./.gem.20240719-86051-tmp30s
