@@ -1,11 +1,54 @@
 <!DOCTYPE html>
 <html lang="{{ site.lang | default: "en-US" }}">
-  {% include head.html %}
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>{{ page.title }} | {{ site.title }}</title>
+    <link rel="stylesheet" href="{{ site.github.url }}/assets/libs/bootstrap/bootstrap.min.css">
+    <script defer src="{{ site.github.url }}/assets/libs/fontawesome/all.min.js"></script>
+    <link rel="stylesheet" href="{{ site.github.url }}/assets/css/main.css">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ site.github.url }}/assets/apple-icon-152x152.png">
+    <link rel="shortcut icon" href="{{ site.github.url }}/assets/favicon.ico">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+  </head>
+  
   <body>
     <div class="col-lg-8 mx-auto p-3 py-md-5">
-      {% include header.html %}
+      <header class="d-flex flex-column flex-md-row align-items-center pb-3 mb-5 border-bottom">
+        <div>
+          <a href="{{ site.github.url }}/" class="d-flex align-items-center text-decoration-none">
+            <span class="fs-4 fw-bold">{{ site.title }}</span>
+          </a>
+          <a href="{{ site.github.url }}/" class="d-flex align-items-center text-decoration-none">
+            <span>{{ site.description }}</span>
+          </a>
+        </div>
+        <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
+          {% for item in site.data.settings.menu %}
+            <a class="me-3 py-2 text-decoration-none" href="{{ site.github.url }}{{ item.url }}">{{ item.name }}</a>
+          {% endfor %}
+        </nav>
+        <div class="row">
+          <div class="row-md-6 text-end social-media-icons">
+            {% for item in site.data.settings.social %}
+              <a href="{{ item.link }}" class="ms-3 fs-5"><i class="fab fa-{{ item.icon }}"></i></a>
+            {% endfor %}
+          </div>
+        </div>
+      </header>
+      
       {{ content }}
-      {% include footer.html %}
+      <footer class="pt-5 my-5 text-muted border-top">
+        <div class="row">
+          <!-- <div class="col-md-6 text-end social-media-icons">
+            {% for item in site.data.settings.social %}
+              <a href="{{ item.link }}" class="ms-3 fs-5"><i class="fab fa-{{ item.icon }}"></i></a>
+            {% endfor %}
+          </div> -->
+          <p>website theme edited from <a href="https://github.com/LeNPaul/academic">lenpaul/academic</a></p>
+        </div>
+      </footer>
     </div>
     {% include randomize.html %}
 
