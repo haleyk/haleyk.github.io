@@ -3,7 +3,7 @@ books:
 - {title: "The Water Dancer by Ta-Nehisi Coates", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1549993860l/43982054.jpg"}
 - {title: "Just Mercy by Bryan Stevenson", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1635827409l/20342617.jpg"}
 - {title: "A Storm of Swords by George R.R. Martin", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1660621921l/13253102._SY475_.jpg"}
-- {title: "The Hobbit by J.R.R. Tolkien", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1546071216l/5907.jpg"}
+- {title: "The Hobbit, or There and Back Again by J.R.R. Tolkien", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1546071216l/5907.jpg"}
 - {title: "Know My Name by Chanel Miller", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1567612158l/50196744._SX318_SY475_.jpg"}
 - {title: "Future Tense Fiction by Kirsten Berg", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1562778277l/50809276._SX318_SY475_.jpg"}
 - {title: "The Talented Mr. Ripley by Patricia Highsmith", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1634841836l/2247142._SY475_.jpg"}
@@ -50,7 +50,7 @@ books:
 - {title: "Lean Semesters by Sekile M. Nzinga", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1589820279l/51619282.jpg"}
 - {title: "Americanah by Chimamanda Ngozi Adichie", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1356654499l/15796700.jpg"}
 - {title: "Children of Dune by Frank Herbert", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1564783201l/44492286.jpg"}
-- {title: "Kindred by Octavia E. Butler", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1385158817l/18889555.jpg"}
+- {title: "Kindred by Octavia E. Butler", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1385158817l/18889555._SX318_.jpg"}
 - {title: "Heretics of Dune by Frank Herbert", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1564027750l/44492287._SY475_.jpg"}
 - {title: "Crying in H Mart by Michelle Zauner", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1601937850l/54814676.jpg"}
 - {title: "Interior Chinatown by Charles Yu", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1639073843l/44436221._SX318_.jpg"}
@@ -69,3 +69,16 @@ books:
 - {title: "Folklorn by Angela Mi Young Hur", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1608035107l/54864318.jpg"}
 - {title: "The Priory of the Orange Tree by Samantha    Shannon", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1700221964l/40275288._SY475_.jpg"}
 - {title: "Piranesi by Susanna Clarke", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1609095173l/50202953._SY475_.jpg"}
+- {title: "Sister Outsider by Audre Lorde", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1168407974l/32951.jpg"}
+- {title: "This Is How You Lose the Time War by Amal El-Mohtar", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1653185078l/43352954._SX318_.jpg"}
+- {title: "Never Whistle at Night by Shane Hawk", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1685990593l/75293507.jpg"}
+- {title: "Our Women on the Ground by Zahra Hankir", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1542488427l/42853221._SY475_.jpg"}
+- {title: "The Grace of Kings by Ken Liu", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1403024981l/18952341.jpg"}
+- {title: "The Best We Could Do by Thi Bui", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1461818306l/29936927.jpg"}
+- {title: "Lady Tan’s Circle of Women by Lisa See", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1683735261l/62919732.jpg"}
+- {title: "A Day of Fallen Night by Samantha Shannon", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1675653942l/60766189._SY475_.jpg"}
+- {title: "Presumed Incompetent II by Yolanda Flores Niemann", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1580612567l/49675203.jpg"}
+- {title: "Germinal by Émile Zola", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1628462562l/28407._SY475_.jpg"}
+- {title: "Better, Not Bitter by Yusef Salaam", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1617719606l/55426158.jpg"}
+- {title: "The Cuckoo's Egg by Clifford Stoll", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1437836070l/18154._SY475_.jpg"}
+- {title: "Just Us by Claudia Rankine", cover: "https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1579090422l/50403499.jpg"}
