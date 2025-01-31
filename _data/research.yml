@@ -1,8 +1,17 @@
 publications:
-- {name: 'Yoo, A. H., Keglovits, H., Collins, A. (2022). Lowered inter-stimulus discriminability hurts incremental contributions to learning.', url: '/research/yoo2022.pdf'}
-- {name: 'Badre, D., Bhandari, A., Keglovits, H., & Kikumoto, A. (2021). The dimensionality of neural representations for control. Current Opinion in Behavioral Sciences, 38, 20-28.', url: '/research/badre2021.pdf'}
-- {name: 'Galeano Weber, E. M., Keglovits, H., Fisher, A., & Bunge, S. A. (2020). Insights into visual working memory precision at the feature-and object-level from a hemispheric encoding manipulation. Quarterly Journal of Experimental Psychology, 73(11), 1949-1968.', url: '/research/weber2020.pdf'}
-labs:
-- {name: 'badre Lab', url: 'https://sites.brown.edu/badrelab'}
-- {name: 'bunge Lab', url: 'https://bungelab.berkeley.edu'}
-- {name: 'collins Lab', url: 'https://ccn.berkeley.edu'}
+- {name: 'Bhandari, A., Keglovits, H., & Badre, D. (2024). Task structure tailors the geometry of neural representations in human lateral prefrontal cortex. BioRXiv, under review.', url: '/research/bhandari2024.pdf', link: https://doi.org/10.1101/2024.03.06.583429}
+- {name: 'Yoo, A. H., Keglovits, H., & Collins, A. (2023). Lowered inter-stimulus discriminability hurts incremental contributions to learning. Cognitive, Affective, & Behavioral Neuroscience, 23(5), 1346-1364.', url: '/research/yoo2023.pdf', link: https://doi.org/10.3758/s13415-023-01104-5}
+- {name: 'Badre, D., Bhandari, A., Keglovits, H., & Kikumoto, A. (2021). The dimensionality of neural representations for control. Current Opinion in Behavioral Sciences, 38, 20-28.', url: '/research/badre2021.pdf', link: https://doi.org/10.1016/j.cobeha.2020.07.002}
+- {name: 'Galeano Weber, E. M., Keglovits, H., Fisher, A., & Bunge, S. A. (2020). Insights into visual working memory precision at the feature-and object-level from a hemispheric encoding manipulation. Quarterly Journal of Experimental Psychology, 73(11), 1949-1968.', url: '/research/weber2020.pdf', link: https://doi.org/10.1177/1747021820934990}
+
+posters:
+- {name: 'Palsamudram, T., Keglovits, H., & Badre, D. (2025). How Does Task Structure Impact Metacognitive Judgment? Cognitive Neuroscience Society Annual Meeting. Poster, Boston, MA.'}
+- {name: 'Keglovits, H., Zielinski, R., Bhandari, A., & Badre, D. (2025). The functional organization of task-tailored neural representations for control in human neocortex. Cognitive Neuroscience Society Annual Meeting. Poster, Boston, MA.'}
+- {name: 'Doss, E., Keglovits, H., Bhandari, A., Badre, D. (2024). Evaluating RETROICOR & aCompCor-based denoising for improving multi-voxel pattern analysis. Cognitive Neuroscience Society Annual Meeting. Poster, Toronto, Canada.'}
+- {name: 'Buyukyazgan, D., Bhandari, A., Keglovits, H., Badre, D. (2023). Practice-related effects of dorsolateral prefrontal cortex representational geometry on context-dependent behavior. Annual Society for Neuroscience Meeting. Poster, Washington DC.'}
+- {name: 'Keglovits, H., Bhandari, A., Chicklis, E., & Badre, D. (2023). Task structure shapes the geometry of control representations in PFC. Cognitive Neuroscience Society Annual Meeting. Poster, San Francisco, CA.'}
+- {name: 'Keglovits, H., Bhandari, A., Chicklis, E., & Badre, D. (2022). The relationship between task demands and the dimensionality of control representations. Annual Society for Neuroscience Meeting. Nanosymposium Talk, San Diego, CA.'}
+- {name: 'Keglovits, H., Bhandari, A., Chicklis, E., & Badre, D. (2021). Evaluating methods for estimating geometry of neural representations. Society for Neuroscience Global Connectome. Poster, Virtual.'}
+- {name: 'Keglovits, H. (2020). Estimating Dimensionality of Neural Firing. Brown Unconference. Talk, Brown University.'}
+
+
