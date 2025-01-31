@@ -7,19 +7,19 @@ layout: default
 <div class="row g-5 mb-5">
   <div>
     <h3 class="fw-bold border-bottom pb-3">courses</h3>
-    {% for course in site.data.settings.teaching %}
+    {% for course in site.data.teaching.instructor %}
       <div class="col-md-6">
         <h4>{{ course.name }}</h4>
         <p><em>{{ course.info }}</em></p>
         <p>{{ course.term }} | {{ course.num }}</p>
-        <p><a href="{{ course.url }}">syllabus</a></p>
+        <p><a href="{{ site.github.url }}/{{ course.url }}">syllabus</a></p>
         <p><em>lecture content and videos available upon request</em></p>
       </div>
     {% endfor %}
   </div>
   <div>
     <h3 class="fw-bold border-bottom pb-3">ta appointments</h3>
-    {% for course in site.data.settings.taships %}
+    {% for course in site.data.teaching.taships %}
     <div class="row g-1 mb-1">
       <h4>{{ course.name }}</h4>
       <p><em>{{ course.info }}</em></p>

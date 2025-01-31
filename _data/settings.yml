@@ -5,17 +5,6 @@ menu:
 - {name: 'contact', url: '/contact'}
 - {name: 'other', url: '/other'}
 
-teaching:
-- {name: 'introduction to programming', url: 'teaching/prog/syllabus.pdf', term: 'spring 2022', info: 'primary course instructor', num: 'clps0950'}
-
-taships:
-- {name: 'mind, brain, behavior', url: 'mbb', term: 'fall 2021', info: 'discussion section leader; invited lecture on cognitive control', num: 'clps0010'}
-- {name: 'mind, brain, behavior', url: 'mbb', term: 'summer 2021', info: 'discussion section leader', num: 'clps0010'}
-- {name: 'the psychology and philosophy of happiness', url: 'happy', term: 'spring 2021', info: 'discussion section leader', num: 'clps0710'}
-
-external:
-- {name: 'the coding school'}
-
 social:
 - {icon: 'github', link: 'https://github.com/haleyk'}
 - {icon: 'linkedin', link: 'https://www.linkedin.com/in/haley-keglovits/'}
