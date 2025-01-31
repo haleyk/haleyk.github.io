@@ -5,9 +5,6 @@ menu:
 - {name: 'contact', url: '/contact'}
 - {name: 'other', url: '/other'}
 
-other:
-- {name: 'Primary Investigator', title: 'Researcher', department: 'Physics & Astronomy', institution: 'Some University', institution_address: '1 Main Street, Canada', phone: '(000) 000-0000', email: 'hello@university.edu', office: 'Science Building 505', image: 'assets/img/primary-investigator.jpg', url: 'primary-investigator'}
-
 teaching:
 - {name: 'introduction to programming', url: 'teaching/prog/syllabus.pdf', term: 'spring 2022', info: 'primary course instructor', num: 'clps0950'}
 
@@ -24,4 +21,4 @@ social:
 - {icon: 'linkedin', link: 'https://www.linkedin.com/in/haley-keglovits/'}
 
 contacts:
-- {name: 'haley keglovits', title: 'phd student', department: 'cognitive, linguistic, and psychological sciences (clps)', institution: 'brown university', institution_address: 'providence, rhode island, united states', email: 'halk at brown.edu', office: 'metcalf research building 403', image: 'assets/img/haley.png'}
+- {name: 'haley keglovits', title: 'phd candidate', department: 'cognitive and psychological sciences', institution: 'brown university', institution_address: 'providence, rhode island, united states', email: 'halk at brown dot edu', office: 'metcalf research building 403', image: 'assets/img/haley.png'}

@@ -1,0 +1,19 @@
+body {
+  background: #ffffff;
+  color: #212529;
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+body a {
+  color: #212529 !important;
+}
+
+.randomize > * {
+  display: none;
+}
+
+.randomize > *:nth-child(1) {
+  display: block;
+}
+
+/*# sourceMappingURL=main.css.map */

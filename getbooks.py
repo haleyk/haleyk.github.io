@@ -8,13 +8,20 @@ from skimage import io
 import matplotlib.pyplot as plt
 import colorsys
 
-df = pd.read_csv('goodreads_library_export.csv')
+with requests.Session() as se:
+    se.headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    }
+
+
+df = pd.read_csv('goodreads_library_export24.csv')
 books = {}; books5s = {}
-for year in ['2020','2021','2022','2023']:
+for year in ['2020','2021','2022','2023','2024']:
     webs = 'https://www.goodreads.com/user/year_in_books/'+year+'/126421221'
-    page = requests.get(webs)
+    page = se.get(webs)
     code = page.status_code
-    if code == 200: soup = BeautifulSoup(page.content, 'html.parser')
+    if code == 200:
+        soup = BeautifulSoup(page.content, 'html.parser')
     for item in [x for x in soup.find_all('img')]:
         try:
             t = item['title']; im = item['src']
