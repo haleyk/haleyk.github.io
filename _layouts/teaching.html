@@ -5,26 +5,41 @@ layout: default
 {{ content }}
 
 <div class="row g-5 mb-5">
+
+<!-- want to emphasize formal and informal teaching -->
+ <!-- pedagogy development work -->
+<!-- mentorship highlights -->
+ <!-- student reviews available upon request -->
+
   <div>
-    <h3 class="fw-bold border-bottom pb-3">courses</h3>
-    {% for course in site.data.teaching.instructor %}
-      <div class="col-md-6">
+    <h3 class="fw-bold pb-3">brown university courses</h3>
+    <!-- todo: add a description of what we do -->
+    {% for course in site.data.teaching.brown %}
         <h4>{{ course.name }}</h4>
-        <p><em>{{ course.info }}</em></p>
-        <p>{{ course.term }} | {{ course.num }}</p>
-        <p><a href="{{ site.github.url }}/{{ course.url }}">syllabus</a></p>
-        <p><em>lecture content and videos available upon request</em></p>
-      </div>
+        <p><em>{{ course.info }} | {{ course.term }}</em>
+        {% if course.url %}
+        {{" | "}}<a href="{{ site.github.url }}/{{ course.url }}">Syllabus</a>
+        {% endif %}
+        {% if course.extra %}
+        <br><i>{{course.extra}}</i>
+        {% endif %}
+        </p>
     {% endfor %}
   </div>
+
+
   <div>
-    <h3 class="fw-bold border-bottom pb-3">ta appointments</h3>
-    {% for course in site.data.teaching.taships %}
-    <div class="row g-1 mb-1">
-      <h4>{{ course.name }}</h4>
-      <p><em>{{ course.info }}</em></p>
-      <p>{{ course.term }} | {{ course.num }}</p>
-    </div>
+    <h3 class="fw-bold pb-3">the coding school <a href="https://the-cs.org/">[link]</a></h3>
+    <!-- todo: description of how I have been involved -->
+    {% for course in site.data.teaching.codingschool %}
+      <h4>{{ course.title }}</h4>
+      <p><em>{{ course.description }} | {{ course.dates }}</em>
+        <br>
+      <i>{{ course.info }}</i></p>
     {% endfor %}
   </div>
+
+
+
+
 </div>
