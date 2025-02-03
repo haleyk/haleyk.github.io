@@ -1,6 +1,23 @@
-- title: 'badre lab'
-  description: 'supervise and train six undergraduate students in research practice, coding, and data analysis. one student was awarded summer grant money (2021) for continuing her work with me, and is pursuing a senior thesis on the project'
-  dates: 'january 2020 - present'
-- title: 'bunge lab'
-  description: 'hired, trained, and supervised a team of five undergraduate researchers to assist in data collection on a project using eyetracking. led weekly coding classes for the group so they could learn data analysis'
-  dates: 'september 2018 - may 2019'
+- student: 'Tanvi Palsamudram'
+  year: '2021-present'
+  info: 'Awarded UTRA Fall 2023 and Summer 2024; Currently completing Honors Thesis in Neuroscience: "Metacognitive Judgments as Predictors of Learning Proficiency in Cognitive Control Task Instruction"'
+
+- student: 'Elizabeth Doss'
+  year: '2021-2024'
+  info: 'Research project on improving fMRI methods using physiological signal; Presented first author poster at international discipline conference; Awarded UTRA Summer 2022; Current: Medical Student at Brown University'
+
+- student: 'Roshan Parikh'
+  year: '2021-2024'
+  info: 'Awarded UTRA Summer 2022; Completed Honors Thesis in Applied Mathematics: "Neural Connectivity as a Tool for Decoding Analyses"; Current: Data Science Masters Student at Brown University'
+
+- student: 'Camille Aquino'
+  year: '2021-2024'
+  info: 'Awarded UTRA Summer 2022; Completed Honors Thesis in Cognitive Neuroscience: "Analyzing differences in hippocampal-prefrontal cortex functional connectivity as a function of cognitive control task structure"; Current: Medical Assistant'
+
+- student: 'Shuah (Shay) Yu'
+  year: '2022-2023'
+  info: 'Research project on measuring neural representations of cognitive control with fMRI; Current: Medical Student at Brown University'
+
+- student: 'Emily Smith-Feldman'
+  year: '2019-2021'
+  info: 'Research project on working memory input gating; Awarded UTRA Summer 2020; Current: Masters Student at University of Denver'

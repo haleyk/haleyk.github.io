@@ -7,10 +7,12 @@ layout: default
 <div class="row g-5 mb-5">
   <div>
     <h3 class="fw-bold border-bottom pb-3 mb-5">curriculum vitae <a href="assets/cv.pdf">[pdf version]</a></h3>
+    
+    
+    
+    
     <div class="row g-5 mb-5">
-      <div class="col-md-2">
-        <h4>education</h4>
-      </div>
+      <div class="col-md-2"><h4>education</h4></div>
       <div class="col-md-10">
         {% for section in site.data.cv.education %}
           <p class="fw-bold">{{ section.title }}</p>
@@ -18,62 +20,111 @@ layout: default
         {% endfor %}
       </div>
     </div>
-    <!-- <div class="row g-5 mb-5">
-      <div class="col-md-2">
-        <h4>laboratory experience</h4>
-      </div>
-      <div class="col-md-10">
-        {% for section in site.data.cv.labs %}
-          <p class="fw-bold"><a href="{{ section.url }}">{{ section.title }}</a> | <i>{{section.description}}</i></p>
-          <p>{{ section.location }} | <i>{{section.year}}</i></p>
-          <p>{{ section.info }}</p>
-        {% endfor %}
-      </div>
-    </div> -->
-    <div class="row g-5 mb-5">
-      <div class="col-md-2">
-        <h4>research mentoring</h4>
-      </div>
-      <div class="col-md-10">
-        {% for section in site.data.cv.mentoring %}
-          <p class="fw-bold">{{ section.title }} | <i>{{ section.dates }}</i></p>
-          <p>{{ section.description }}</p>
-        {% endfor %}
-      </div>
-    </div>
+
+
+
     <div class="row g-5 mb-5">
       <div class="col-md-2">
         <h4>teaching</h4>
       </div>
       <div class="col-md-10">
         {% for section in site.data.cv.teaching %}
-          <p class="fw-bold">{{ section.title }}</p>
+          {% if section.link %}
+            <p class="fw-bold"><a href="{{ section.link }}">{{ section.title }}</a></p>
+          {% else %}
+            <p class="fw-bold">{{ section.title }}</p>
+          {% endif %}
           <p><i>{{ section.description }} | {{ section.dates }}</i></p>
           <p>{{ section.info }}</p>
         {% endfor %}
       </div>
     </div>
+
+
+
     <div class="row g-5 mb-5">
       <div class="col-md-2">
-        <h4>service activities</h4>
+        <h4>pedagogy development</h4>
       </div>
       <div class="col-md-10">
-        {% for section in site.data.cv.service %}
-          <p class="fw-bold">{{ section.title }} | <i>{{ section.year }}</i></p>
-          <p>{{ section.description }}</p>
+        {% for section in site.data.cv.pedagogy %}
+        {% if section.link %}
+          <p class="fw-bold"><a href="{{ section.link }}">{{ section.title }}</a></p>
+        {% else %}
+          <p class="fw-bold">{{ section.title }}</p>
+        {% endif %}
+          
+          {% for num in (1..10) %}
+            {% assign entry_key = 'entry' | append: num %}
+            {% assign date_key = 'date' | append: num %}
+            {% assign info_key = 'info' | append: num %}
+            
+            {% if section[entry_key] %}
+
+            <p><i>{{ section[entry_key] }} | {{ section[date_key] }}</i></p>
+            <p>{{ section[info_key] }}</p>
+
+            {% else %}
+              {% break %}
+            {% endif %}
+          {% endfor %}
+          
         {% endfor %}
       </div>
     </div>
+    
+
     <div class="row g-5 mb-5">
       <div class="col-md-2">
-        <h4>publications</h4>
+        <h4>service and leadership</h4>
       </div>
+      <div class="col-md-10">
+        {% for section in site.data.cv.service %}
+          <p class="fw-bold">{{ section.title }}</p>
+          <i> {{ section.name }} | {{ section.locdate }}</i>
+          <p>{{ section.info }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+
+
+    <div class="row g-5 mb-5">
+      <div class="col-md-2"><h4>publications</h4></div>
       <div class="col-md-10">
         {% for section in site.data.cv.papers %}
           <p>{{ section.title }} <a href="{{ section.url }}">{{ section.url }}</a> <a href="{{ section.pdf }}">{{ "PDF" }}</a> </p>
         {% endfor %}
       </div>
     </div>
+
+
+
+    <div class="row g-5 mb-5">
+      <div class="col-md-2"><h4>conference posters and talks</h4></div>
+      <div class="col-md-10">
+        {% for section in site.data.research.posters %}
+          <p>{{ section.name }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+
+
+    <div class="row g-5 mb-5">
+      <div class="col-md-2"><h4>invited talks and panels</h4></div>
+      <div class="col-md-10">
+        {% for section in site.data.cv.talks %}
+        <p class="fw-bold">{{ section.title }}</p>
+        <p>{{ section.location }} | <i>{{ section.year }}</i></p>
+        {% endfor %}
+      </div>
+    </div>
+
+
+
+
+
     <div class="row g-5 mb-5">
       <div class="col-md-2">
         <h4>honors and funding</h4>
@@ -81,9 +132,40 @@ layout: default
       <div class="col-md-10">
         {% for section in site.data.cv.honors %}
           <p class="fw-bold">{{ section.title }}</p>
-          <p>{{ section.location }} | <i>{{ section.year }}</i></p>
+          <p>{{ section.location }} | <i>{{ section.year }}</i>
+
+          {% if section.link %}
+            {{"| " }}<a href="{{ section.link }}">{{ "Article" }}</a>
+          {% endif %}
+
+        </p>
+
         {% endfor %}
       </div>
     </div>
+
+
+
+    <div class="row g-5 mb-5">
+      <div class="col-md-2">
+        <h4>student mentorship</h4>
+      </div>
+      <div class="col-md-10">
+        {{"Brown University: supervise and train undergraduate students in research practice, coding, and data
+          analysis. Selected projects and achievements highlighted below. UTRA: Undergraduate Teaching and
+          Research Award, competitive funding from Brown University for full time (summer) or part time
+          (fall/spring) research pursuit."}} <br><br>
+
+        {% for section in site.data.cv.mentoring %}
+          <p class="fw-bold">{{ section.student }} | <i>{{ section.year }}</i></p>
+          <p>{{ section.info }}</p>
+        {% endfor %}
+      </div>
+    </div>
+
+
+
+
+
   </div>
 </div>
