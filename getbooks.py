@@ -28,23 +28,28 @@ for year in ['2020','2021','2022','2023','2024']:
             books[t] = im
             tit,auth = t.split(' by ')
             stars = df.loc[(df.Title.str.contains(tit))&(df.Author==auth)]['My Rating'].values[0]
+            num = df.loc[(df.Title.str.contains(tit))&(df.Author==auth)]['Book Id'].values[0]
             if stars==5:
-                books5s[t] = im
+                books5s[t] = (im,num)
         except:
             haley=1
 # this new version just prints them all in one group to be randomized
 print('books:')
-for t,i in books5s.items():
-    print("- {title: \""+t+"\", cover: \""+i+"\"}")
+for t,ii in books5s.items():
+    i = ii[0]
+    n = str(ii[1])
+    print("- {title: \""+t+"\", id: \""+n+"\", cover: \""+i+"\"}\n")
 # write this to a file called books.yml which should go in _data
 with open("_data/books.yml", "w") as bfile:
     # Writing data to a file
     bfile.write("books:\n")
-    for t,i in books5s.items():
-        bfile.write("- {title: \""+t+"\", cover: \""+i+"\"}\n")
+    for t,ii in books5s.items():
+        i = ii[0]
+        n = str(ii[1])
+        bfile.write("- {title: \""+t+"\", id: \""+n+"\", cover: \""+i+"\"}\n")
 
 
-
+# https://www.goodreads.com/book/show/186074
 
 
 

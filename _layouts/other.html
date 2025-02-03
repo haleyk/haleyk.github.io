@@ -4,17 +4,18 @@ layout: default
 
 {{ content }}
 
-<h3 class="fw-bold pb-3 mb-5">life outside the lab!</h3>
-
+<h3 class="fw-bold pb-3">life outside the lab!</h3>
 <h4 class="fw-bold pb-3">recent reading</h4>
 <p> I love to read, and if you reload this page you'll see a random selection of books I've read recently and rated 5 stars!
   if you have recommendations or like talking about books,
   friend me on <a href="https://www.goodreads.com/haleykeg">goodreads</a>. I love trying new authors.
 </p>
-
+<br>
 <ul class="randomize">
   {% for book in site.data.books.books %}
-    <li> {{ book.title }} <br> <img data-src="{{ book.cover }}" alt="{{ book.title }}" width="30%"></li>
+    <li> <a href="https://www.goodreads.com/book/show/{{ book.id }}">{{ book.title }}</a> <br><br>
+      <img data-src="{{ book.cover }}" alt="{{ book.title }}" width="30%">
+    </li>
   {% endfor %}
 </ul>
 
