@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AX-CPT (AX Continuous Performance Task)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        .stimulus-area {
+            width: 400px;
+            height: 300px;
+            border: 3px solid #ddd;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 120px;
+            font-weight: bold;
+            background-color: #fafafa;
+            position: relative;
+        }
+        
+        .fixation {
+            color: #666;
+        }
+        
+        .cue {
+            color: #2196F3;
+        }
+        
+        .probe {
+            color: #F44336;
+        }
+        
+        .instructions {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #e8f4f8;
+            border-radius: 5px;
+        }
+        
+        .key-instructions {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff3cd;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .stats {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            text-align: left;
+        }
+        
+        .progress {
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .phase-indicator {
+            font-size: 16px;
+            color: #666;
+            margin: 10px 0;
+            min-height: 20px;
+        }
+        
+        .feedback {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            min-height: 25px;
+        }
+        
+        .correct { color: #4CAF50; }
+        .incorrect { color: #F44336; }
+        .no-response { color: #FF9800; }
+        
+        .key-reminder {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .model-gui {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f0f8ff;
+            border-radius: 10px;
+            border: 2px solid #4CAF50;
+            display: none;
+        }
+        
+        .slider-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .slider-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .slider-item label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .slider-item input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .slider-value {
+            font-size: 16px;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 5px;
+            padding: 20px;
+        }
+        
+        .error-display {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-radius: 5px;
+            border-left: 5px solid #ff6b35;
+        }
+        
+        .model-title {
+            color: #2196F3;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Letter Recognition Task</h1>
+        
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <p><strong>Only respond "TARGET" if you see the letter A followed by the letter X.</strong></p>
+            <p><strong>For all other combinations (like B→X, A→Y, B→Y), respond "NON-TARGET".</strong></p>
+            <p>You'll see letters one at a time. Remember the first letter, then respond when you see the second letter.</p>
+        </div>
+        
+        <div class="key-instructions">
+            <strong>Controls:</strong><br>
+            Press <strong>J</strong> for TARGET (A→X only)<br>
+            Press <strong>F</strong> for NON-TARGET (everything else)
+        </div>
+        
+        <div class="stimulus-area" id="stimulusArea">
+            <div id="stimulus">Ready</div>
+        </div>
+        
+        <div class="phase-indicator" id="phaseIndicator"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="progress" id="progress">Ready to start</div>
+        
+        <div class="controls">
+            <button onclick="startTask()" id="startBtn">Start Task</button>
+            <button onclick="exportData()" id="exportBtn" disabled>Export Data</button>
+        </div>
+        
+        <div class="stats" id="stats" style="display: none;">
+            <h3>Results:</h3>
+            <div id="statsContent"></div>
+        </div>
+        
+        <!-- Model GUI -->
+        <div class="model-gui" id="modelGui">
+            <h2 class="model-title">🎮 RT Prediction Game</h2>
+            <p><strong>Try to predict your reaction times!</strong> Adjust the sliders to minimize the error between your actual RTs and the predicted RTs.</p>
+            
+            <div class="slider-container">
+                <div class="slider-item">
+                    <label for="globalBias">Global Control Bias</label>
+                    <input type="range" id="globalBias" min="0" max="1" step="0.05" value="0.3">
+                    <div class="slider-value" id="globalBiasValue">0.30</div>
+                </div>
+                
+                <div class="slider-item">
+                    <label for="forgetting">Forgetting Rate</label>
+                    <input type="range" id="forgetting" min="0" max="0.5" step="0.01" value="0.1">
+                    <div class="slider-value" id="forgettingValue">0.10</div>
+                </div>
+                
+                <div class="slider-item">
+                    <label for="noise">Noise Level</label>
+                    <input type="range" id="noise" min="0" max="0.3" step="0.01" value="0.1">
+                    <div class="slider-value" id="noiseValue">0.10</div>
+                </div>
+                
+                <div class="slider-item">
+                    <label for="globalWeight">Global Weight</label>
+                    <input type="range" id="globalWeight" min="0" max="1" step="0.05" value="0.7">
+                    <div class="slider-value" id="globalWeightValue">0.70</div>
+                </div>
+                
+                <div class="slider-item">
+                    <label for="proactiveWeight">Proactive Weight</label>
+                    <input type="range" id="proactiveWeight" min="0" max="1" step="0.05" value="0.1">
+                    <div class="slider-value" id="proactiveWeightValue">0.10</div>
+                </div>
+                
+                <div class="slider-item">
+                    <label for="reactiveWeight">Reactive Weight</label>
+                    <input type="range" id="reactiveWeight" min="0" max="1" step="0.05" value="0.2">
+                    <div class="slider-value" id="reactiveWeightValue">0.20</div>
+                </div>
+            </div>
+            
+            <div class="error-display" id="errorDisplay">
+                Average Error: <span id="avgError">--</span> ms per trial
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="rtChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="key-reminder" id="keyReminder">
+        <strong>Controls:</strong><br>
+        J = TARGET (A→X)<br>
+        F = NON-TARGET (other)
+    </div>
+
+    <script>
+        // Task parameters
+        const TOTAL_TRIALS = 40;
+        const AX_PROBABILITY = 0.70; // 70% AX trials
+        const AY_PROBABILITY = 0.10; // 10% AY trials  
+        const BX_PROBABILITY = 0.10; // 10% BX trials
+        const BY_PROBABILITY = 0.10; // 10% BY trials
+        
+        const FIXATION_TIME = 300;
+        const CUE_TIME = 300;
+        const DELAY_TIME = 1000;
+        const PROBE_TIME = 300;
+        const ITI_TIME = 500;
+        const RESPONSE_TIMEOUT = 2000;
+        const FEEDBACK_TIME = 300;
+        
+        // Possible letters (excluding A and X)
+        const OTHER_LETTERS = ['B','Y'];
+        
+        // Task variables
+        let currentTrial = 0;
+        let taskRunning = false;
+        let trialData = [];
+        let currentCue = '';
+        let currentProbe = '';
+        let currentTrialType = '';
+        let trialStartTime = 0;
+        let responseAllowed = false;
+        let trialTimeout = null;
+        let currentPhase = '';
+        
+        // Model variables
+        let rtChart = null;
+        
+        // Generate trial sequence
+        let trialSequence = [];
+        
+        // DOM elements
+        const stimulus = document.getElementById('stimulus');
+        const stimulusArea = document.getElementById('stimulusArea');
+        const phaseIndicator = document.getElementById('phaseIndicator');
+        const feedback = document.getElementById('feedback');
+        const progress = document.getElementById('progress');
+        const keyReminder = document.getElementById('keyReminder');
+        const startBtn = document.getElementById('startBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const stats = document.getElementById('stats');
+        const statsContent = document.getElementById('statsContent');
+        const modelGui = document.getElementById('modelGui');
+        
+        // Function to generate variable timing with normal distribution
+        function getVariableTiming(mean = 1000, min = 300, max = 1700) {
+            // Calculate standard deviation to fit most values in range
+            const std = (max - min) / 6; // ~99.7% of values within range
+            
+            // Box-Muller transform for normal distribution
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random(); // Converting [0,1) to (0,1)
+            while(v === 0) v = Math.random();
+            const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+            
+            // Convert to desired mean and std, then clamp to range
+            const value = mean + z * std;
+            return Math.max(min, Math.min(max, Math.round(value)));
+        }
+        
+        function generateTrialSequence() {
+            trialSequence = [];
+            
+            // Calculate number of each trial type
+            const numAX = Math.round(TOTAL_TRIALS * AX_PROBABILITY);
+            const numAY = Math.round(TOTAL_TRIALS * AY_PROBABILITY);
+            const numBX = Math.round(TOTAL_TRIALS * BX_PROBABILITY);
+            const numBY = TOTAL_TRIALS - numAX - numAY - numBX;
+            
+            // Create trials
+            for (let i = 0; i < numAX; i++) trialSequence.push('AX');
+            for (let i = 0; i < numAY; i++) trialSequence.push('AY');
+            for (let i = 0; i < numBX; i++) trialSequence.push('BX');
+            for (let i = 0; i < numBY; i++) trialSequence.push('BY');
+            
+            // Shuffle the sequence
+            for (let i = trialSequence.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [trialSequence[i], trialSequence[j]] = [trialSequence[j], trialSequence[i]];
+            }
+        }
+        
+        function startTask() {
+            currentTrial = 0;
+            trialData = [];
+            taskRunning = true;
+            startBtn.disabled = true;
+            exportBtn.disabled = true;
+            stats.style.display = 'none';
+            modelGui.style.display = 'none';
+            keyReminder.style.display = 'block';
+            
+            generateTrialSequence();
+            runTrial();
+        }
+        
+        function runTrial() {
+            if (currentTrial >= TOTAL_TRIALS) {
+                endTask();
+                return;
+            }
+            
+            currentTrial++;
+            progress.textContent = `Trial ${currentTrial} of ${TOTAL_TRIALS}`;
+            
+            // Get trial type and generate stimuli
+            currentTrialType = trialSequence[currentTrial - 1];
+            generateStimuli(currentTrialType);
+            
+            responseAllowed = false;
+            feedback.textContent = '';
+            feedback.className = 'feedback';
+            
+            // Start trial sequence
+            showFixation();
+        }
+        
+        function generateStimuli(trialType) {
+            switch(trialType) {
+                case 'AX':
+                    currentCue = 'A';
+                    currentProbe = 'X';
+                    break;
+                case 'AY':
+                    currentCue = 'A';
+                    currentProbe = OTHER_LETTERS[Math.floor(Math.random() * OTHER_LETTERS.length)];
+                    break;
+                case 'BX':
+                    currentCue = OTHER_LETTERS[Math.floor(Math.random() * OTHER_LETTERS.length)];
+                    currentProbe = 'X';
+                    break;
+                case 'BY':
+                    currentCue = OTHER_LETTERS[Math.floor(Math.random() * OTHER_LETTERS.length)];
+                    currentProbe = OTHER_LETTERS[Math.floor(Math.random() * OTHER_LETTERS.length)];
+                    break;
+            }
+        }
+        
+        function showFixation() {
+            currentPhase = 'fixation';
+            phaseIndicator.textContent = '';
+            stimulus.textContent = '';
+            stimulus.className = 'fixation';
+            
+            setTimeout(() => {
+                if (taskRunning) showCue();
+            }, FIXATION_TIME);
+        }
+        
+        function showCue() {
+            currentPhase = 'cue';
+            phaseIndicator.textContent = '';
+            stimulus.textContent = currentCue;
+            stimulus.className = 'cue';
+            
+            setTimeout(() => {
+                if (taskRunning) showDelay();
+            }, CUE_TIME);
+        }
+        
+        function showDelay() {
+            currentPhase = 'delay';
+            phaseIndicator.textContent = '';
+            stimulus.textContent = '';
+            stimulus.className = 'fixation';
+            
+            // Use variable delay time
+            const variableDelayTime = getVariableTiming();
+            setTimeout(() => {
+                if (taskRunning) showProbe();
+            }, variableDelayTime);
+        }
+        
+        function showProbe() {
+            currentPhase = 'probe';
+            phaseIndicator.textContent = ``;
+            stimulus.textContent = currentProbe;
+            stimulus.className = 'probe';
+            
+            trialStartTime = performance.now();
+            responseAllowed = true;
+            
+            // Set timeout for response
+            trialTimeout = setTimeout(() => {
+                if (responseAllowed) {
+                    recordResponse(null);
+                }
+            }, RESPONSE_TIMEOUT);
+        }
+        
+        function makeResponse(responseType) {
+            if (!responseAllowed || !taskRunning) return;
+            
+            const reactionTime = performance.now() - trialStartTime;
+            recordResponse(responseType, reactionTime);
+        }
+        
+        function recordResponse(responseType, reactionTime = null) {
+            responseAllowed = false;
+            clearTimeout(trialTimeout);
+            
+            // Determine correct response
+            const correctResponse = currentTrialType === 'AX' ? 'target' : 'non-target';
+            const isCorrect = responseType === correctResponse;
+            const responded = responseType !== null;
+            
+            const trialResult = {
+                trial: currentTrial,
+                trialType: currentTrialType,
+                cue: currentCue,
+                probe: currentProbe,
+                correctResponse: correctResponse,
+                actualResponse: responseType,
+                reactionTime: reactionTime,
+                correct: isCorrect,
+                responded: responded
+            };
+            
+            trialData.push(trialResult);
+            
+            // Show feedback
+            phaseIndicator.textContent = '';
+            if (!responded) {
+                feedback.textContent = 'Too slow! Please respond faster.';
+                feedback.className = 'feedback no-response';
+            } else if (isCorrect) {
+                feedback.textContent = 'Correct!';
+                feedback.className = 'feedback correct';
+            } else {
+                feedback.textContent = `Incorrect. ${currentCue}→${currentProbe} should be ${correctResponse.toUpperCase()}`;
+                feedback.className = 'feedback incorrect';
+            }
+            
+            // ITI with variable timing
+            setTimeout(() => {
+                stimulus.textContent = '';
+                stimulus.className = '';
+                feedback.textContent = '';
+                phaseIndicator.textContent = '';
+                
+                // Use variable ITI time
+                const variableITITime = getVariableTiming();
+                setTimeout(runTrial, variableITITime);
+            }, FEEDBACK_TIME);
+        }
+        
+        function endTask() {
+            taskRunning = false;
+            progress.textContent = 'Task completed!';
+            phaseIndicator.textContent = '';
+            feedback.textContent = '';
+            startBtn.disabled = false;
+            exportBtn.disabled = false;
+            keyReminder.style.display = 'none';
+            stimulus.textContent = 'Done!';
+            calculateStats();
+            initializeModelGui();
+        }
+        
+        function calculateStats() {
+            const axTrials = trialData.filter(t => t.trialType === 'AX');
+            const ayTrials = trialData.filter(t => t.trialType === 'AY');
+            const bxTrials = trialData.filter(t => t.trialType === 'BX');
+            const byTrials = trialData.filter(t => t.trialType === 'BY');
+            
+            function getStats(trials, trialName) {
+                const responded = trials.filter(t => t.responded);
+                const correct = trials.filter(t => t.correct);
+                const accuracy = trials.length > 0 ? (correct.length / trials.length) * 100 : 0;
+                const meanRT = correct.length > 0 ? 
+                    correct.reduce((sum, t) => sum + t.reactionTime, 0) / correct.length : 0;
+                return { accuracy, meanRT, total: trials.length, name: trialName };
+            }
+            
+            const axStats = getStats(axTrials, 'A→X (Target)');
+            const ayStats = getStats(ayTrials, 'A→Y');
+            const bxStats = getStats(bxTrials, 'B→X');
+            const byStats = getStats(byTrials, 'B→Y');
+            
+            const overallAccuracy = (trialData.filter(t => t.correct).length / trialData.length) * 100;
+            const respondedTrials = trialData.filter(t => t.responded);
+            const overallRT = respondedTrials.length > 0 ? 
+                respondedTrials.reduce((sum, t) => sum + t.reactionTime, 0) / respondedTrials.length : 0;
+            
+            statsContent.innerHTML = `
+                <h4>Overall Performance:</h4>
+                <ul>
+                    <li><strong>Overall Accuracy:</strong> ${overallAccuracy.toFixed(1)}%</li>
+                    <li><strong>Average Reaction Time:</strong> ${overallRT.toFixed(0)} ms</li>
+                    <li><strong>Total Trials:</strong> ${trialData.length}</li>
+                </ul>
+                
+                <h4>Performance by Trial Type:</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    ${[axStats, ayStats, bxStats, byStats].map(stat => `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                            <strong>${stat.name}:</strong><br>
+                            Accuracy: ${stat.accuracy.toFixed(1)}% (${trialData.filter(t => t.trialType === stat.name.split('→')[0] + stat.name.split('→')[1].charAt(0)).filter(t => t.correct).length}/${stat.total})<br>
+                            Mean RT: ${stat.meanRT.toFixed(0)} ms
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            stats.style.display = 'block';
+        }
+        
+        // Model GUI Functions
+        function initializeModelGui() {
+            modelGui.style.display = 'block';
+            
+            // Setup sliders
+            setupSlider('globalBias', 'globalBiasValue');
+            setupSlider('globalWeight', 'globalWeightValue');
+            setupSlider('forgetting', 'forgettingValue');
+            setupSlider('proactiveWeight', 'proactiveWeightValue');
+            setupSlider('noise', 'noiseValue');
+            setupSlider('reactiveWeight', 'reactiveWeightValue');
+            
+            // Initialize chart
+            initializeChart();
+            updateModel();
+        }
+        
+        function setupSlider(sliderId, valueId) {
+            const slider = document.getElementById(sliderId);
+            const valueDisplay = document.getElementById(valueId);
+            
+            slider.addEventListener('input', function() {
+                valueDisplay.textContent = parseFloat(this.value).toFixed(2);
+                updateModel();
+            });
+        }
+        
+        function initializeChart() {
+            const ctx = document.getElementById('rtChart').getContext('2d');
+            
+            // Get actual RTs from responded trials only
+            const respondedTrials = trialData.filter(t => t.responded);
+            const actualRTs = respondedTrials.map(t => t.reactionTime);
+            const trialNumbers = respondedTrials.map(t => t.trial);
+            
+            rtChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: trialNumbers,
+                    datasets: [{
+                        label: 'Actual RTs',
+                        data: actualRTs,
+                        borderColor: '#F44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 4
+                    }, {
+                        label: 'Predicted RTs',
+                        data: [],
+                        borderColor: '#2196F3',
+                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                        borderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Reaction Time (ms)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Trial Number'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Actual vs Predicted Reaction Times'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateModel() {
+            // Get slider values
+            const globalBias = parseFloat(document.getElementById('globalBias').value);
+            const forgetting = parseFloat(document.getElementById('forgetting').value);
+            const noise = parseFloat(document.getElementById('noise').value);
+            const globalWeight = parseFloat(document.getElementById('globalWeight').value);
+            const proactiveWeight = parseFloat(document.getElementById('proactiveWeight').value);
+            const reactiveWeight = parseFloat(document.getElementById('reactiveWeight').value);
+            const rtStart = 2000;
+            
+            // Calculate predicted RTs
+            let proactiveControlLevel = 0.5;
+            let reactiveControlLevel = 0;
+            const predictedRTs = [];
+            const actualRTs = [];
+            
+            const respondedTrials = trialData.filter(t => t.responded);
+
+            if (Math.abs(globalWeight + proactiveWeight + reactiveWeight - 1.0) > 0.01) {
+                console.warn('Weights do not sum to 1!');
+            }
+            
+            for (let i = 0; i < respondedTrials.length; i++) {
+                const trial = respondedTrials[i];
+                const trialType = trial.trialType;
+                const accurate = trial.correct;
+                
+                // Calculate hard trial indicator
+                const hardTrial = ((trialType !== 'AX') || !accurate) ? 0.5 : -0.5;
+                
+                // Update proactive control level
+                proactiveControlLevel = (proactiveControlLevel * (1 - forgetting)) + (hardTrial * forgetting);
+                
+                // Update reactive control level  
+                reactiveControlLevel = hardTrial > 0 ? 1 : 0;
+                
+                // Calculate predicted RT
+                const estimatedRT = (globalBias * (rtStart * globalWeight)) + 
+                                  (proactiveControlLevel * (rtStart * proactiveWeight)) + 
+                                  (reactiveControlLevel * (rtStart * reactiveWeight)) + 
+                                  (noise * rtStart * (Math.random() - 0.5) * 2);
+                
+                predictedRTs.push(estimatedRT);
+                actualRTs.push(trial.reactionTime);
+            }
+            
+            // Update chart
+            if (rtChart) {
+                rtChart.data.datasets[1].data = predictedRTs;
+                rtChart.update();
+                
+                // Calculate and display error
+                const totalError = predictedRTs.reduce((sum, pred, i) => 
+                    sum + Math.abs(pred - actualRTs[i]), 0);
+                const avgError = totalError / predictedRTs.length;
+                
+                document.getElementById('avgError').textContent = avgError.toFixed(1);
+            }
+        }
+        
+        function exportData() {
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "Trial,TrialType,Cue,Probe,CorrectResponse,ActualResponse,ReactionTime,Correct,Responded\n" +
+                trialData.map(row => 
+                    `${row.trial},${row.trialType},${row.cue},${row.probe},${row.correctResponse},${row.actualResponse || 'null'},${row.reactionTime || 'null'},${row.correct},${row.responded}`
+                ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `axcpt_data_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Keyboard event listener
+        document.addEventListener('keydown', function(event) {
+            if (!responseAllowed || !taskRunning) return;
+            
+            if (event.key.toLowerCase() === 'j') {
+                makeResponse('target');
+            } else if (event.key.toLowerCase() === 'f') {
+                makeResponse('non-target');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task-Switching: Rogers & Monsell Paradigm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        .wheel-container {
+            width: 400px;
+            height: 400px;
+            margin: 30px auto;
+            position: relative;
+            border: 3px solid #333;
+            border-radius: 50%;
+            background-color: #fafafa;
+        }
+        
+        .wheel-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .divider-line {
+            position: absolute;
+            background-color: #666;
+            transform-origin: center;
+        }
+        
+        .vertical-line {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+        
+        .horizontal-line {
+            width: 100%;
+            height: 2px;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .diagonal-line-1 {
+            width: 2px;
+            height: 141.42%; /* sqrt(2) * 100% to span the circle diagonally */
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+        
+        .diagonal-line-2 {
+            width: 2px;
+            height: 141.42%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+        
+        .cell {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #666;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            font-weight: bold;
+            background-color: white;
+            transition: all 0.2s;
+        }
+        
+        .cell.active {
+            background-color: #FFE082;
+            border-color: #FF8F00;
+            border-width: 3px;
+            transform: scale(1.1);
+        }
+        
+        .cell.number-side {
+            color: #1976D2;
+        }
+        
+        .cell.letter-side {
+            color: #D32F2F;
+        }
+        
+        .wheel-feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: #F44336;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+        
+        .wheel-feedback.show {
+            opacity: 1;
+        }
+        
+        .instructions {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #e8f4f8;
+            border-radius: 5px;
+            text-align: left;
+        }
+        
+        .task-rules {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .rule-box {
+            padding: 15px;
+            border-radius: 5px;
+            border: 2px solid;
+        }
+        
+        .number-rules {
+            border-color: #1976D2;
+            background-color: #E3F2FD;
+        }
+        
+        .letter-rules {
+            border-color: #D32F2F;
+            background-color: #FFEBEE;
+        }
+        
+        .controls {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .slider-control {
+            margin: 15px 0;
+        }
+        
+        .slider-control label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="range"] {
+            width: 200px;
+            margin: 0 10px;
+        }
+        
+        .value-display {
+            font-size: 16px;
+            color: #666;
+            margin-left: 10px;
+        }
+        
+        input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .progress {
+            margin: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .stats {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            text-align: left;
+        }
+        
+        .plots-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .plot-box {
+            text-align: center;
+        }
+        
+        .plot-canvas {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Task-Switching Experiment</h1>
+        
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <p>You will see numbers and letters appearing in different positions around a wheel. The position rotates clockwise on each trial.</p>
+            
+            <div class="task-rules">
+                <div class="rule-box number-rules">
+                    <h4>When you see a NUMBER (right side):</h4>
+                    <ul>
+                        <li><strong>Press F</strong> if the number is EVEN</li>
+                        <li><strong>Press J</strong> if the number is ODD</li>
+                    </ul>
+                </div>
+                
+                <div class="rule-box letter-rules">
+                    <h4>When you see a LETTER (left side):</h4>
+                    <ul>
+                        <li><strong>Press F</strong> if it's a CONSONANT</li>
+                        <li><strong>Press J</strong> if it's a VOWEL</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <p><strong>Key Point:</strong> F = Even numbers OR Consonants | J = Odd numbers OR Vowels</p>
+        </div>
+        
+        <div class="controls">
+            <div>
+                <label for="numTrials">Number of trials:</label>
+                <input type="number" id="numTrials" min="16" max="500" value="80" step="8">
+            </div>
+            
+            <div class="slider-control">
+                <label for="itiSlider">Inter-trial interval:</label>
+                <input type="range" id="itiSlider" min="100" max="2000" value="500" step="100">
+                <span class="value-display" id="itiValue">500 ms</span>
+            </div>
+            
+            <button onclick="startTask()" id="startBtn">Start Task</button>
+            <button onclick="exportData()" id="exportBtn" disabled>Export Data</button>
+        </div>
+        
+        <div class="wheel-container" id="wheelContainer">
+            <!-- Dividing lines -->
+            <div class="wheel-lines">
+                <div class="divider-line vertical-line"></div>
+                <div class="divider-line horizontal-line"></div>
+                <div class="divider-line diagonal-line-1"></div>
+                <div class="divider-line diagonal-line-2"></div>
+            </div>
+            
+            <!-- Center feedback for errors -->
+            <div class="wheel-feedback" id="wheelFeedback">ERROR</div>
+            
+            <!-- Cells will be positioned by JavaScript -->
+        </div>
+        
+        <div class="progress" id="progress">Ready to start</div>
+        
+        <div class="stats" id="stats" style="display: none;">
+            <h3>Results:</h3>
+            <div id="statsContent"></div>
+            
+            <div class="plots-container">
+                <div class="plot-box">
+                    <h4>Reaction Time by Position in Task</h4>
+                    <canvas id="rtPlot" class="plot-canvas" width="300" height="200"></canvas>
+                </div>
+                <div class="plot-box">
+                    <h4>Error Rate by Position in Task</h4>
+                    <canvas id="errorPlot" class="plot-canvas" width="300" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Task parameters
+        let TOTAL_TRIALS = 80;
+        let ITI_TIME = 1000;
+        
+        const STIMULUS_TIME = 2000;
+        const ERROR_FEEDBACK_TIME = 200;
+        
+        // Stimuli
+        const NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        const VOWELS = ['A', 'E', 'I', 'U', 'O'];
+        const CONSONANTS = ['H', 'N', 'S', 'D', 'T']; //['G', 'K', 'R', 'M',];
+        
+        // Task variables
+        let currentTrial = 0;
+        let currentPosition = 0; // 0-7, rotates clockwise
+        let taskRunning = false;
+        let trialData = [];
+        let trialStartTime = 0;
+        let responseAllowed = false;
+        let trialTimeout = null;
+        
+        // DOM elements
+        const wheelContainer = document.getElementById('wheelContainer');
+        const wheelFeedback = document.getElementById('wheelFeedback');
+        const progress = document.getElementById('progress');
+        const startBtn = document.getElementById('startBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const stats = document.getElementById('stats');
+        const statsContent = document.getElementById('statsContent');
+        const numTrialsInput = document.getElementById('numTrials');
+        const itiSlider = document.getElementById('itiSlider');
+        const itiValue = document.getElementById('itiValue');
+        
+        // Update ITI display
+        itiSlider.addEventListener('input', function() {
+            ITI_TIME = parseInt(this.value);
+            itiValue.textContent = ITI_TIME + ' ms';
+        });
+        
+        // Function to map wheel position to position in task
+        function getPositionInTask(wheelPosition) {
+            const positionMap = {
+                2: 1, 6: 1,  // Switch trials
+                3: 2, 7: 2,  // First repeat
+                4: 3, 0: 3,  // Second repeat
+                5: 4, 1: 4   // Third repeat
+            };
+            return positionMap[wheelPosition];
+        }
+        
+        // Create wheel cells
+        function createWheel() {
+            // Remove any existing cells
+            const existingCells = wheelContainer.querySelectorAll('.cell');
+            existingCells.forEach(cell => cell.remove());
+            
+            const radius = 140;
+            const centerX = 200;
+            const centerY = 200;
+            
+            for (let i = 0; i < 8; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.id = `cell-${i}`;
+                
+                // Position cells BETWEEN the dividing lines
+                // Start at 22.5° (like 3.75 minutes on a clock) and increment by 45°
+                const angle = (22.5 + i * 45) * (Math.PI / 180);
+                const x = centerX + radius * Math.cos(angle) - 25; // -25 to center the cell
+                const y = centerY + radius * Math.sin(angle) - 25;
+                
+                cell.style.left = x + 'px';
+                cell.style.top = y + 'px';
+                
+                // Determine task type based on position
+                // Right side (numbers): positions where x > centerX
+                // Left side (letters): positions where x < centerX
+                const cellX = centerX + radius * Math.cos(angle);
+                if (cellX > centerX) {
+                    cell.classList.add('number-side');
+                } else {
+                    cell.classList.add('letter-side');
+                }
+                
+                wheelContainer.appendChild(cell);
+            }
+        }
+        
+        function startTask() {
+            TOTAL_TRIALS = parseInt(numTrialsInput.value);
+            currentTrial = 0;
+            currentPosition = 0;
+            trialData = [];
+            taskRunning = true;
+            startBtn.disabled = true;
+            exportBtn.disabled = true;
+            stats.style.display = 'none';
+            
+            createWheel();
+            runTrial();
+        }
+        
+        function runTrial() {
+            if (currentTrial >= TOTAL_TRIALS) {
+                endTask();
+                return;
+            }
+            
+            currentTrial++;
+            progress.textContent = `Trial ${currentTrial} of ${TOTAL_TRIALS}`;
+            
+            // Clear all cells and feedback
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('active');
+                cell.textContent = '';
+            });
+            wheelFeedback.classList.remove('show');
+            
+            // Determine task type based on position
+            const angle = (22.5 + currentPosition * 45) * (Math.PI / 180);
+            const cellX = 200 + 140 * Math.cos(angle);
+            const isNumberTask = cellX > 200; // Right side of wheel
+            
+            let stimulus, correctResponse, taskType;
+            
+            if (isNumberTask) {
+                stimulus = NUMBERS[Math.floor(Math.random() * NUMBERS.length)];
+                correctResponse = (stimulus % 2 === 0) ? 'f' : 'j'; // even = f, odd = j
+                taskType = 'number';
+            } else {
+                const useVowel = Math.random() < 0.5;
+                stimulus = useVowel ? 
+                    VOWELS[Math.floor(Math.random() * VOWELS.length)] :
+                    CONSONANTS[Math.floor(Math.random() * CONSONANTS.length)];
+                correctResponse = VOWELS.includes(stimulus) ? 'j' : 'f'; // vowel = j, consonant = f
+                taskType = 'letter';
+            }
+            
+            // Determine if this is a task switch
+            const previousTaskType = currentTrial > 1 ? 
+                (trialData[currentTrial - 2].taskType) : null;
+            const isTaskSwitch = previousTaskType !== null && previousTaskType !== taskType;
+            
+            // Show stimulus in current position
+            const currentCell = document.getElementById(`cell-${currentPosition}`);
+            currentCell.classList.add('active');
+            currentCell.textContent = stimulus;
+            
+            // Start response period
+            trialStartTime = performance.now();
+            responseAllowed = true;
+            
+            // Set timeout
+            trialTimeout = setTimeout(() => {
+                if (responseAllowed) {
+                    recordResponse(null, stimulus, correctResponse, taskType, isTaskSwitch);
+                }
+            }, STIMULUS_TIME);
+        }
+        
+        function makeResponse(key) {
+            if (!responseAllowed || !taskRunning) return;
+            
+            const reactionTime = performance.now() - trialStartTime;
+            const stimulus = document.querySelector('.cell.active').textContent;
+            
+            // Determine task type based on current position
+            const angle = (22.5 + currentPosition * 45) * (Math.PI / 180);
+            const cellX = 200 + 140 * Math.cos(angle);
+            const isNumberTask = cellX > 200;
+            const taskType = isNumberTask ? 'number' : 'letter';
+            
+            let correctResponse;
+            if (taskType === 'number') {
+                correctResponse = (parseInt(stimulus) % 2 === 0) ? 'f' : 'j';
+            } else {
+                correctResponse = VOWELS.includes(stimulus) ? 'j' : 'f';
+            }
+            
+            const previousTaskType = currentTrial > 1 ? 
+                trialData[currentTrial - 2].taskType : null;
+            const isTaskSwitch = previousTaskType !== null && previousTaskType !== taskType;
+            
+            recordResponse(key, stimulus, correctResponse, taskType, isTaskSwitch, reactionTime);
+        }
+        
+        function recordResponse(response, stimulus, correctResponse, taskType, isTaskSwitch, reactionTime = null) {
+            responseAllowed = false;
+            clearTimeout(trialTimeout);
+            
+            const isCorrect = response === correctResponse;
+            const responded = response !== null;
+            
+            // Record trial data
+            const trialResult = {
+                trial: currentTrial,
+                position: currentPosition,
+                taskType: taskType,
+                stimulus: stimulus,
+                correctResponse: correctResponse,
+                actualResponse: response,
+                reactionTime: reactionTime,
+                correct: isCorrect,
+                responded: responded,
+                taskSwitch: isTaskSwitch
+            };
+            
+            trialData.push(trialResult);
+            
+            // Show brief error feedback in center if incorrect
+            if (responded && !isCorrect) {
+                wheelFeedback.classList.add('show');
+                setTimeout(() => {
+                    wheelFeedback.classList.remove('show');
+                }, ERROR_FEEDBACK_TIME);
+            }
+            
+            // Move to next position (clockwise)
+            currentPosition = (currentPosition + 1) % 8;
+            
+            // Continue after ITI
+            setTimeout(() => {
+                runTrial();
+            }, ITI_TIME);
+        }
+        
+        function endTask() {
+            taskRunning = false;
+            progress.textContent = 'Task completed!';
+            startBtn.disabled = false;
+            exportBtn.disabled = false;
+            
+            // Clear wheel
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('active');
+                cell.textContent = '';
+            });
+            
+            calculateStats();
+        }
+        
+        function drawPlot(canvasId, data, yLabel, color, maxY = null) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Set up margins
+            const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+            const plotWidth = width - margin.left - margin.right;
+            const plotHeight = height - margin.top - margin.bottom;
+            
+            // Calculate scales
+            const maxValue = Math.max(...data) + 10;
+            const minValue = Math.max(0, Math.min(...data)-10);
+            const valueRange = maxValue - minValue;
+            
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            // Y-axis
+            ctx.moveTo(margin.left, margin.top);
+            ctx.lineTo(margin.left, margin.top + plotHeight);
+            // X-axis
+            ctx.lineTo(margin.left + plotWidth, margin.top + plotHeight);
+            ctx.stroke();
+            
+            // Draw data points and lines
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 30;
+            
+            // for (let i = 0; i < data.length; i++) {
+            //     const x = margin.left + (i / (data.length - 1)) * plotWidth;
+            //     const y = margin.top + plotHeight - ((data[i] - minValue) / valueRange) * plotHeight;
+                
+            //     if (i === 0) {
+            //         ctx.beginPath();
+            //         ctx.moveTo(x, y);
+            //     } else {
+            //         ctx.lineTo(x, y);
+            //     }
+                
+            //     // Draw point
+            //     ctx.save();
+            //     ctx.fillStyle = color;
+            //     ctx.beginPath();
+            //     ctx.arc(x, y, 4, 0, 2 * Math.PI);
+            //     ctx.fill();
+            //     ctx.restore();
+            // }
+            // ctx.stroke();
+
+            // Build and draw the line first
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+
+            for (let i = 0; i < data.length; i++) {
+                const x = margin.left + (i / (data.length - 1)) * plotWidth;
+                const y = margin.top + plotHeight - ((data[i] - minValue) / valueRange) * plotHeight;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // Now draw the points
+            ctx.fillStyle = color;
+            for (let i = 0; i < data.length; i++) {
+                const x = margin.left + (i / (data.length - 1)) * plotWidth;
+                const y = margin.top + plotHeight - ((data[i] - minValue) / valueRange) * plotHeight;
+                
+                ctx.beginPath(); // Now it's safe to call beginPath for each circle
+                ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            // Draw labels
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            
+            // X-axis labels (Position in Task)
+            for (let i = 1; i <= 4; i++) {
+                const x = margin.left + ((i - 1) / 3) * plotWidth;
+                const y = margin.top + plotHeight + 20;
+                ctx.fillText(i.toString(), x, y);
+            }
+            
+            // X-axis title
+            ctx.fillText('Position in Task', margin.left + plotWidth / 2, margin.top + plotHeight + 35);
+            
+            // Y-axis title
+            ctx.save();
+            ctx.translate(15, margin.top + plotHeight / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText(yLabel, 0, 0);
+            ctx.restore();
+            
+            // Y-axis tick marks and labels
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 4; i++) {
+                const value = minValue + (i / 4) * valueRange;
+                const y = margin.top + plotHeight - (i / 4) * plotHeight;
+                
+                // Tick mark
+                ctx.beginPath();
+                ctx.moveTo(margin.left - 5, y);
+                ctx.lineTo(margin.left, y);
+                ctx.stroke();
+                
+                // Label
+                ctx.fillText(value.toFixed(0), margin.left - 8, y + 4);
+            }
+        }
+        
+        function calculateStats() {
+            const respondedTrials = trialData.filter(t => t.responded);
+            const correctTrials = trialData.filter(t => t.correct);
+            
+            // Overall stats
+            const overallAccuracy = (correctTrials.length / trialData.length) * 100;
+            const overallRT = respondedTrials.reduce((sum, t) => sum + t.reactionTime, 0) / respondedTrials.length;
+            
+            // Task switch vs repeat
+            const switchTrials = trialData.filter(t => t.taskSwitch);
+            const repeatTrials = trialData.filter(t => !t.taskSwitch && t.trial > 1);
+            
+            const switchCorrect = switchTrials.filter(t => t.correct);
+            const repeatCorrect = repeatTrials.filter(t => t.correct);
+            
+            const switchAccuracy = switchTrials.length > 0 ? (switchCorrect.length / switchTrials.length) * 100 : 0;
+            const repeatAccuracy = repeatTrials.length > 0 ? (repeatCorrect.length / repeatTrials.length) * 100 : 0;
+            
+            const switchRT = switchCorrect.length > 0 ? switchCorrect.reduce((sum, t) => sum + t.reactionTime, 0) / switchCorrect.length : 0;
+            const repeatRT = repeatCorrect.length > 0 ? repeatCorrect.reduce((sum, t) => sum + t.reactionTime, 0) / repeatCorrect.length : 0;
+            
+            const switchCost = switchRT - repeatRT;
+            
+            // Task type analysis
+            const numberTrials = trialData.filter(t => t.taskType === 'number');
+            const letterTrials = trialData.filter(t => t.taskType === 'letter');
+            
+            const numberAccuracy = (numberTrials.filter(t => t.correct).length / numberTrials.length) * 100;
+            const letterAccuracy = (letterTrials.filter(t => t.correct).length / letterTrials.length) * 100;
+            
+            // Position in task analysis
+            const positionData = {1: [], 2: [], 3: [], 4: []};
+            
+            trialData.forEach(trial => {
+                const posInTask = getPositionInTask(trial.position);
+                if (posInTask && trial.responded) {
+                    positionData[posInTask].push(trial);
+                }
+            });
+            
+            // Calculate RT and error rate by position
+            const rtByPosition = [];
+            const errorByPosition = [];
+            
+            for (let pos = 1; pos <= 4; pos++) {
+                const trials = positionData[pos];
+                if (trials.length > 0) {
+                    const avgRT = trials.reduce((sum, t) => sum + t.reactionTime, 0) / trials.length;
+                    const errorRate = ((trials.length - trials.filter(t => t.correct).length) / trials.length) * 100;
+                    rtByPosition.push(avgRT);
+                    errorByPosition.push(errorRate);
+                } else {
+                    rtByPosition.push(0);
+                    errorByPosition.push(0);
+                }
+            }
+            
+            statsContent.innerHTML = `
+                <h4>Overall Performance:</h4>
+                <ul>
+                    <li><strong>Overall Accuracy:</strong> ${overallAccuracy.toFixed(1)}%</li>
+                    <li><strong>Overall RT:</strong> ${overallRT.toFixed(0)} ms</li>
+                    <li><strong>Total Trials:</strong> ${trialData.length}</li>
+                </ul>
+                
+                <h4>Task Switching Effects:</h4>
+                <ul>
+                    <li><strong>Switch Trials:</strong> ${switchTrials.length} (Accuracy: ${switchAccuracy.toFixed(1)}%, RT: ${switchRT.toFixed(0)} ms)</li>
+                    <li><strong>Repeat Trials:</strong> ${repeatTrials.length} (Accuracy: ${repeatAccuracy.toFixed(1)}%, RT: ${repeatRT.toFixed(0)} ms)</li>
+                    <li><strong>Switch Cost:</strong> ${switchCost.toFixed(0)} ms</li>
+                </ul>
+                
+                <h4>Task Type Performance:</h4>
+                <ul>
+                    <li><strong>Number Task:</strong> ${numberTrials.length} trials, ${numberAccuracy.toFixed(1)}% accuracy</li>
+                    <li><strong>Letter Task:</strong> ${letterTrials.length} trials, ${letterAccuracy.toFixed(1)}% accuracy</li>
+                </ul>
+                
+                <p><em><strong>Switch Cost</strong> represents the additional time needed when switching between tasks compared to repeating the same task. This reflects the cognitive control processes involved in reconfiguring mental task sets.</em></p>
+                
+                <p><em><strong>Position in Task:</strong> Position 1 = Switch trial, Positions 2-4 = Subsequent repeat trials. The plots show how performance changes as you settle into the new task.</em></p>
+            `;
+            
+            stats.style.display = 'block';
+            
+            // Draw the plots
+            setTimeout(() => {
+                drawPlot('rtPlot', rtByPosition, 'Reaction Time (ms)', '#2196F3');
+                drawPlot('errorPlot', errorByPosition, 'Error Rate (%)', '#F44336');
+            }, 100);
+        }
+        
+        function exportData() {
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "Trial,Position,TaskType,Stimulus,CorrectResponse,ActualResponse,ReactionTime,Correct,Responded,TaskSwitch\n" +
+                trialData.map(row => 
+                    `${row.trial},${row.position},${row.taskType},${row.stimulus},${row.correctResponse},${row.actualResponse || 'null'},${row.reactionTime || 'null'},${row.correct},${row.responded},${row.taskSwitch}`
+                ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `task_switching_data_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // Keyboard event listener
+        document.addEventListener('keydown', function(event) {
+            if (!taskRunning) return;
+            
+            const key = event.key.toLowerCase();
+            if (key === 'f' || key === 'j') {
+                makeResponse(key);
+            }
+        });
+        
+        // Initialize wheel on load
+        createWheel();
+    </script>
+</body>
+</html>

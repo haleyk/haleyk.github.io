@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stop-Signal Reaction Time Task</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        .stimulus-area {
+            width: 400px;
+            height: 300px;
+            border: 2px solid #ddd;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            background-color: #fafafa;
+            position: relative;
+        }
+        
+        .stop-signal {
+            width: 80px;
+            height: 80px;
+            background-color: red;
+            border-radius: 50%;
+            display: none;
+            margin-bottom: 20px;
+            animation: stopPulse 0.1s ease-in;
+        }
+        
+        @keyframes stopPulse {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .arrow {
+            font-size: 72px;
+            color: #333;
+        }
+        
+        .instructions {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e8f4f8;
+            border-radius: 5px;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .stats {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            text-align: left;
+        }
+        
+        .progress {
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .adaptive-info {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stop-Signal Reaction Time Task</h1>
+        
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <p><strong>Go Trials:</strong> Press the <strong>LEFT</strong> arrow key (←) when you see a left arrow, or the <strong>RIGHT</strong> arrow key (→) when you see a right arrow.</p>
+            <p><strong>Stop Trials:</strong> If you see a RED CIRCLE appear above the arrow, try to stop yourself from pressing any key!</p>
+            <p>Respond as quickly and accurately as possible on go trials, but try your best to stop when you see the red circle.</p>
+            <p><em>The task will adapt to your performance - it starts easy and gets harder when you successfully stop, but gets easier when you fail to stop.</em></p>
+        </div>
+        
+        <div class="stimulus-area" id="stimulusArea">
+            <div class="stop-signal" id="stopSignal"></div>
+            <div class="arrow" id="arrow"></div>
+        </div>
+        
+        <div class="progress" id="progress">Ready to start</div>
+        <div class="adaptive-info" id="adaptiveInfo">Stop signal delay will start at 250</div>
+        
+        <div class="controls">
+            <button onclick="startTask()" id="startBtn">Start Task</button>
+            <button onclick="exportData()" id="exportBtn" disabled>Export Data</button>
+        </div>
+        
+        <div class="stats" id="stats" style="display: none;">
+            <h3>Results:</h3>
+            <div id="statsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Task parameters
+        const TOTAL_TRIALS = 80;
+        const STOP_SIGNAL_PROBABILITY = 0.25;
+        const FIXATION_TIME = 500;
+        const STIMULUS_TIME = 1500;
+        
+        // ITI parameters for truncated normal distribution
+        const ITI_MEAN = 2000; // 2 seconds
+        const ITI_SD = 500;    // Standard deviation (500ms)
+        const ITI_MIN = 1000;  // 1 second minimum
+        const ITI_MAX = 3000;  // 3 seconds maximum
+        
+        // Adaptive staircase parameters
+        const INITIAL_SSD = 100; // Initial stop signal delay (easy)
+        const SSD_STEP = 20; // Step size for adjustments
+        const MIN_SSD = 20; // Minimum delay
+        const MAX_SSD = 800; // Maximum delay
+        
+        // Task variables
+        let currentTrial = 0;
+        let taskRunning = false;
+        let trialData = [];
+        let trialStartTime = 0;
+        let responseAllowed = false;
+        let stopSignalPresent = false;
+        let trialTimeout = null;
+        let currentSSD = INITIAL_SSD; // Current stop signal delay
+        let staircaseHistory = []; // Track SSD changes
+        
+        // DOM elements
+        const stimulusArea = document.getElementById('stimulusArea');
+        const arrow = document.getElementById('arrow');
+        const stopSignal = document.getElementById('stopSignal');
+        const progress = document.getElementById('progress');
+        const adaptiveInfo = document.getElementById('adaptiveInfo');
+        const startBtn = document.getElementById('startBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const stats = document.getElementById('stats');
+        const statsContent = document.getElementById('statsContent');
+        
+        // Event listeners
+        document.addEventListener('keydown', handleKeyPress);
+        
+        // Simpler and more robust random ITI function
+        function getRandomITI() {
+            // Generate multiple samples and pick one that fits (much safer than do-while)
+            const samples = [];
+            for (let i = 0; i < 20; i++) {
+                const u1 = Math.random();
+                const u2 = Math.random();
+                const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+                const value = ITI_MEAN + z * ITI_SD;
+                if (value >= ITI_MIN && value <= ITI_MAX) {
+                    samples.push(value);
+                }
+            }
+            
+            // If we got samples, return one; otherwise fall back to uniform distribution
+            if (samples.length > 0) {
+                return Math.round(samples[Math.floor(Math.random() * samples.length)]);
+            } else {
+                // Fallback: uniform distribution in range
+                return Math.round(ITI_MIN + Math.random() * (ITI_MAX - ITI_MIN));
+            }
+        }
+        
+        function startTask() {
+            currentTrial = 0;
+            trialData = [];
+            taskRunning = true;
+            startBtn.disabled = true;
+            exportBtn.disabled = true;
+            stats.style.display = 'none';
+            currentSSD = INITIAL_SSD;
+            staircaseHistory = [currentSSD];
+            updateAdaptiveInfo();
+            runTrial();
+        }
+        
+        function updateAdaptiveInfo() {
+            adaptiveInfo.textContent = `Current stop signal delay: ${currentSSD}ms`;
+        }
+        
+        function runTrial() {
+            if (currentTrial >= TOTAL_TRIALS) {
+                endTask();
+                return;
+            }
+            
+            currentTrial++;
+            progress.textContent = `Trial ${currentTrial} of ${TOTAL_TRIALS}`;
+            
+            // Determine trial type
+            const isStopTrial = Math.random() < STOP_SIGNAL_PROBABILITY;
+            const arrowDirection = Math.random() < 0.5 ? 'left' : 'right';
+            
+            // Reset display
+            arrow.textContent = '';
+            stopSignal.style.display = 'none';
+            responseAllowed = false;
+            stopSignalPresent = false;
+            
+            // Fixation period
+            setTimeout(() => {
+                // Show stimulus
+                arrow.textContent = arrowDirection === 'left' ? '←' : '→';
+                trialStartTime = performance.now();
+                responseAllowed = true;
+                
+                // Set up stop signal if needed
+                if (isStopTrial) {
+                    setTimeout(() => {
+                        if (responseAllowed) {
+                            stopSignal.style.display = 'block';
+                            stopSignalPresent = true;
+                        }
+                    }, currentSSD);
+                }
+                
+                // Set trial timeout
+                trialTimeout = setTimeout(() => {
+                    if (responseAllowed) {
+                        recordResponse(null, arrowDirection, isStopTrial);
+                    }
+                }, STIMULUS_TIME);
+                
+            }, FIXATION_TIME);
+        }
+        
+        function handleKeyPress(event) {
+            if (!responseAllowed || !taskRunning) return;
+            
+            const key = event.key;
+            let response = null;
+            
+            if (key === 'ArrowLeft') {
+                response = 'left';
+            } else if (key === 'ArrowRight') {
+                response = 'right';
+            } else {
+                return; // Ignore other keys
+            }
+            
+            const reactionTime = performance.now() - trialStartTime;
+            recordResponse(response, arrow.textContent === '←' ? 'left' : 'right', stopSignalPresent, reactionTime);
+        }
+        
+        function recordResponse(response, correctResponse, wasStopTrial, reactionTime = null) {
+            responseAllowed = false;
+            clearTimeout(trialTimeout);
+            
+            // Get random ITI for this trial
+            const randomITI = getRandomITI();
+            
+            const trialResult = {
+                trial: currentTrial,
+                correctResponse: correctResponse,
+                actualResponse: response,
+                reactionTime: reactionTime,
+                wasStopTrial: wasStopTrial,
+                stopSignalPresent: stopSignalPresent,
+                stopSignalDelay: currentSSD,
+                iti: randomITI,
+                correct: response === correctResponse,
+                responded: response !== null,
+                successfulStop: wasStopTrial && response === null
+            };
+            
+            trialData.push(trialResult);
+            
+            // Update staircase if this was a stop trial
+            if (wasStopTrial) {
+                updateStaircase(trialResult.successfulStop);
+            }
+            
+            // Inter-trial interval with random timing
+            setTimeout(() => {
+                arrow.textContent = '';
+                stopSignal.style.display = 'none';
+                setTimeout(runTrial, randomITI);
+            }, 200);
+        }
+        
+        function updateStaircase(successfulStop) {
+            const oldSSD = currentSSD;
+            
+            if (successfulStop) {
+                // Successful stop - make it harder (decrease delay)
+                currentSSD = Math.min(MAX_SSD, currentSSD + SSD_STEP);
+            } else {
+                // Failed stop - make it easier (increase delay)
+                currentSSD = Math.max(MIN_SSD, currentSSD - SSD_STEP);
+            }
+            
+            // Record staircase change
+            if (currentSSD !== oldSSD) {
+                staircaseHistory.push(currentSSD);
+                updateAdaptiveInfo();
+            }
+        }
+        
+        function endTask() {
+            taskRunning = false;
+            progress.textContent = 'Task completed!';
+            adaptiveInfo.textContent = '';
+            startBtn.disabled = false;
+            exportBtn.disabled = false;
+            arrow.textContent = '';
+            stopSignal.style.display = 'none';
+            calculateStats();
+        }
+        
+        function calculateStats() {
+            const goTrials = trialData.filter(t => !t.wasStopTrial);
+            const stopTrials = trialData.filter(t => t.wasStopTrial);
+            
+            const correctGoTrials = goTrials.filter(t => t.correct && t.responded);
+            const meanGoRT = correctGoTrials.reduce((sum, t) => sum + t.reactionTime, 0) / correctGoTrials.length;
+            const goAccuracy = (correctGoTrials.length / goTrials.length) * 100;
+            
+            const successfulStops = stopTrials.filter(t => t.successfulStop).length;
+            const stopAccuracy = (successfulStops / stopTrials.length) * 100;
+            
+            const failedStops = stopTrials.filter(t => !t.successfulStop && t.responded);
+            const meanFailedStopRT = failedStops.length > 0 ? 
+                failedStops.reduce((sum, t) => sum + t.reactionTime, 0) / failedStops.length : 0;
+            
+            // Calculate mean SSD (from second half of trials for stability)
+            const secondHalfStopTrials = stopTrials.filter(t => t.trial > TOTAL_TRIALS / 2);
+            const meanSSD = secondHalfStopTrials.length > 0 ?
+                secondHalfStopTrials.reduce((sum, t) => sum + t.stopSignalDelay, 0) / secondHalfStopTrials.length : currentSSD;
+            
+            // Estimate stop-signal reaction time (SSRT)
+            const ssrt = meanGoRT - meanSSD;
+            
+            const finalSSD = staircaseHistory[staircaseHistory.length - 1];
+            const ssdRange = `${Math.min(...staircaseHistory)} - ${Math.max(...staircaseHistory)}`;
+            
+            // Calculate ITI statistics
+            const meanITI = trialData.reduce((sum, t) => sum + t.iti, 0) / trialData.length;
+            const minITI = Math.min(...trialData.map(t => t.iti));
+            const maxITI = Math.max(...trialData.map(t => t.iti));
+            
+            statsContent.innerHTML = `
+                <p><strong>Go Trials:</strong></p>
+                <ul>
+                    <li>Total: ${goTrials.length}</li>
+                    <li>Accuracy: ${goAccuracy.toFixed(1)}%</li>
+                    <li>Mean RT (correct): ${meanGoRT.toFixed(0)} ms</li>
+                </ul>
+                
+                <p><strong>Stop Trials:</strong></p>
+                <ul>
+                    <li>Total: ${stopTrials.length}</li>
+                    <li>Successful stops: ${successfulStops}/${stopTrials.length} (${stopAccuracy.toFixed(1)}%)</li>
+                    <li>Mean RT (failed stops): ${meanFailedStopRT.toFixed(0)} ms</li>
+                </ul>
+                
+                <p><strong>Adaptive Staircase:</strong></p>
+                <ul>
+                    <li>Started at: ${INITIAL_SSD} ms</li>
+                    <li>Ended at: ${finalSSD} ms</li>
+                    <li>Range: ${ssdRange} ms</li>
+                    <li>Mean SSD (2nd half): ${meanSSD.toFixed(0)} ms</li>
+                </ul>
+                
+                <p><strong>Timing:</strong></p>
+                <ul>
+                    <li>Mean ITI: ${meanITI.toFixed(0)} ms</li>
+                    <li>ITI range: ${minITI} - ${maxITI} ms</li>
+                </ul>
+                
+                <p><strong>Stop-Signal Reaction Time (SSRT):</strong> ${ssrt.toFixed(0)} ms</p>
+                <p><em>SSRT = Mean go RT - Mean stop signal delay</em></p>
+            `;
+            
+            stats.style.display = 'block';
+        }
+        
+        function exportData() {
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "Trial,CorrectResponse,ActualResponse,ReactionTime,WasStopTrial,StopSignalPresent,StopSignalDelay,ITI,Correct,Responded,SuccessfulStop\n" +
+                trialData.map(row => 
+                    `${row.trial},${row.correctResponse},${row.actualResponse || 'null'},${row.reactionTime || 'null'},${row.wasStopTrial},${row.stopSignalPresent},${row.stopSignalDelay},${row.iti},${row.correct},${row.responded},${row.successfulStop}`
+                ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `stop_signal_adaptive_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
