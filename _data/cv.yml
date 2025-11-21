@@ -1,0 +1,380 @@
+employment:
+  - title: 'Psychology Department College Fellow'
+    institution: 'Harvard University'
+    location: 'Boston, MA'
+    dates: '2025-2026 AY'
+
+education:
+  - degree: 'Doctor of Philosophy in Cognitive Science'
+    institution: 'Brown University'
+    location: 'Providence, RI'
+    dates: 'August 2019 - June 2025'
+  
+  - degree: 'Bachelor of Arts in Computer Science, Bachelor of Arts in Cognitive Science'
+    institution: 'University of California, Berkeley'
+    location: 'Berkeley, CA'
+    dates: 'August 2015 - May 2019'
+
+publications:
+  - authors: 'Bhandari, A.*, Keglovits, H.*, & Badre, D.'
+    year: '2024'
+    title: 'Task structure tailors the geometry of neural representations in human lateral prefrontal cortex.'
+    journal: 'BioRXiv, under review at eLife'
+    url: 'https://doi.org/10.1101/2024.03.06.583429'
+    note: '* Indicates Co-First Author'
+  
+  - authors: 'Yoo, A.H., Keglovits, H., & Collins, A.G.E.'
+    year: '2023'
+    title: 'Lowered inter-stimulus discriminability hurts incremental contributions to learning.'
+    journal: 'Cognitive, Affective, & Behavioral Neuroscience, 23(5), 1346-1364'
+    url: 'https://doi.org/10.3758/s13415-023-01104-5'
+  
+  - authors: 'Badre, D., Bhandari, A., Keglovits, H., & Kikumoto, A.'
+    year: '2021'
+    title: 'The dimensionality of neural representations for control.'
+    journal: 'Current Opinion in Behavioral Sciences, 38, 20–28'
+    url: 'https://doi.org/10.1016/j.cobeha.2020.07.002'
+  
+  - authors: 'Galeano Weber, E. M., Keglovits, H., Fisher, A., & Bunge, S. A.'
+    year: '2020'
+    title: 'Insights into visual working memory precision at the feature- and object-level from a hemispheric encoding manipulation.'
+    journal: 'Quarterly Journal of Experimental Psychology, 73(11), 1949–1968'
+    url: 'https://doi.org/10.1177/1747021820934990'
+
+conference_presentations:
+  - authors: 'Keglovits, H., Zielinski, R., Bhandari, A., Badre, D.'
+    year: '2025'
+    title: 'The functional organization of task-tailored neural representations for control in human neocortex.'
+    event: 'Cognitive Neuroscience Society Annual Meeting 2025'
+    location: 'Boston, MA'
+    type: 'Poster'
+  
+  - authors: 'Palsamudram, T., Keglovits, H., Badre, D.'
+    year: '2025'
+    title: 'How Does Task Structure Impact Metacognitive Judgment?'
+    event: 'Cognitive Neuroscience Society Annual Meeting 2025'
+    location: 'Boston, MA'
+    type: 'Poster'
+    note: 'Trainee first author'
+  
+  - authors: 'Doss, E., Keglovits, H., Bhandari, A., Badre, D.'
+    year: '2024'
+    title: 'Evaluating RETROICOR & aCompCor-based denoising for improving multi-voxel pattern analysis.'
+    event: 'Cognitive Neuroscience Society Annual Meeting 2024'
+    location: 'Toronto, Canada'
+    type: 'Poster'
+    note: 'Trainee first author'
+  
+  - authors: 'Buyukyazgan, D., Bhandari, A., Keglovits, H., Badre, D.'
+    year: '2023'
+    title: 'Practice-related effects of dorsolateral prefrontal cortex representational geometry on context-dependent behavior.'
+    event: 'Annual Society for Neuroscience Meeting'
+    location: 'Washington, DC'
+    type: 'Poster'
+  
+  - authors: 'Keglovits, H., Bhandari, A., Chicklis, E., & Badre, D.'
+    year: '2023'
+    title: 'Task structure shapes the geometry of control representations in PFC.'
+    event: 'Cognitive Neuroscience Society Annual Meeting'
+    location: 'San Francisco, CA'
+    type: 'Poster'
+  
+  - authors: 'Keglovits, H., Bhandari, A., Chicklis, E., & Badre, D.'
+    year: '2022'
+    title: 'The relationship between task demands and the dimensionality of control representations.'
+    event: 'Annual Society for Neuroscience Meeting'
+    location: 'San Diego, CA'
+    type: 'Nanosymposium Talk'
+  
+  - authors: 'Keglovits, H., Bhandari, A., Chicklis, E., & Badre, D.'
+    year: '2021'
+    title: 'Evaluating methods for estimating geometry of neural representations.'
+    event: 'Society for Neuroscience Global Connectome'
+    location: 'Virtual'
+    type: 'Poster'
+  
+  - authors: 'Keglovits, H.'
+    year: '2020'
+    title: 'Estimating Dimensionality of Neural Firing.'
+    event: 'Brown Unconference'
+    location: 'Brown University'
+    type: 'Talk'
+  
+  - authors: 'Keglovits, H. & Collins, A.G.E.'
+    year: '2019'
+    title: 'Effects of stimulus linguistic and visual confusability on learning.'
+    event: 'California Cognitive Science Conference'
+    location: 'Berkeley, CA'
+    type: 'Poster'
+  
+  - authors: 'Keglovits, H. & Collins, A.G.E.'
+    year: '2018'
+    title: 'Computational Modeling of Reinforcement Learning and Working Memory Systems.'
+    event: 'Summer Undergraduate Research Fellowship Conference'
+    location: 'Berkeley, CA'
+    type: 'Talk'
+
+invited_talks:
+  - title: 'Quantifying Student Engagement with Online Lecture Content'
+    event: 'CIRTL Network Teaching-as-Research Presentations'
+    date: 'April 2025'
+  
+  - title: 'Research at Brown Panel'
+    event: 'Girls Who Code Brown College Loop'
+    date: 'April 2024'
+  
+  - title: 'Graduate School Information Panel'
+    event: 'Brown University Departmental Undergraduate Group'
+    date: 'November 2023'
+  
+  - title: 'Multitasking: Facts and Fictions'
+    event: 'Brown Brain Fair'
+    date: 'March 2023'
+  
+  - title: 'Task structure shapes the geometry of control representations in PFC'
+    event: 'Brown MRI Research Facility Users Meeting'
+    date: 'March 2023'
+  
+  - title: 'Getting Into Research'
+    event: 'Brown University Departmental Undergraduate Group'
+    date: 'November 2022'
+  
+  - title: 'Evaluating methods for measuring geometry of neural representations'
+    event: 'Brown CLPS First-Year Project Series'
+    date: 'January 2021'
+  
+  - title: 'Introduction to Psychopy for fMRI'
+    event: 'Brown MRI Research Facility Users Meeting'
+    date: 'March 2020'
+  
+  - title: 'Graduate School Panel'
+    event: 'Brown University CareerLAB'
+    date: 'October 2019'
+
+teaching:
+  - role: 'Lecture Instructor'
+    course: 'AI Bootcamp for College Faculty'
+    institution: 'The Coding School'
+    dates: 'Fall 2024'
+    description: 'Taught month-long intensive boot camp for community college, HBCU & MSI faculty, leading both part 1 (Introduction to Machine Learning) and part 2 (Applications of AI to Images and Text Data) sessions.'
+    previous: 'Teaching Assistant for lab sections of both sessions, 2023-2024'
+    link: 'https://the-cs.org/'
+  
+  - role: 'Lecture Instructor'
+    course: 'AI Professional Development Program for High School Educators'
+    institution: 'The Coding School'
+    dates: 'Summer 2024'
+    description: 'Taught two week professional development intensive focused on equipping educators with the necessary knowledge and skills they need to bring machine learning into their classrooms.'
+    link: 'https://the-cs.org/'
+  
+  - role: 'Laboratory Instructor'
+    course: 'Introduction to Artificial Intelligence Course'
+    institution: 'The Coding School'
+    dates: 'AY 2023-2024'
+    description: 'Lead two year-long labs of high school students in the principles of machine learning and artificial intelligence using the python programming language.'
+    link: 'https://the-cs.org/'
+  
+  - role: 'Instructor'
+    course: 'Camp Code: Learn to think Like a Programmer'
+    institution: 'Brown University Pre-College Program'
+    dates: 'Summer 2023'
+    description: 'Designed and taught two-week intensive course on introductory computer science principles, covering logical thinking, python syntax, and basic data science principles. Supervised two graduate student teaching assistants.'
+    syllabus: 'https://haleyk.github.io/assets/campcode23.pdf'
+    link: 'https://precollege.brown.edu/'
+  
+  - role: 'Teaching Consultant'
+    course: 'Sheridan Teaching Seminar'
+    institution: 'Brown University'
+    dates: 'Fall 2023'
+    description: 'Lead semester-long section of workshop on interdisciplinary, inclusive teaching practices and improving personal pedagogy for Brown graduate students and postdocs.'
+    link: 'https://www.brown.edu/sheridan/programs-services/certificates/sheridan-teaching-seminar'
+  
+  - role: 'Instructor'
+    course: 'Introduction to Programming'
+    institution: 'Brown University'
+    dates: 'Spring 2022'
+    description: 'Primary course instructor for departmental introductory programming course (25 students). Lectured three times a week, plus lab-session two hours a week. Oversaw 2 undergraduate teaching assistants. Received Excellence in Teaching Award for this course.'
+    award_link: 'https://graduateschool.brown.edu/news/2023-05-18/teaching-award-keglovits'
+  
+  - role: 'Teaching Assistant'
+    course: 'Mind, Brain and Behavior: An Interdisciplinary Approach'
+    institution: 'Brown University'
+    dates: 'Summer 2021 and Fall 2021'
+    description: 'Supervised 20 students, taught one weekly discussion section. Fall 2021 taught one invited lecture to full class (300 students).'
+  
+  - role: 'Teaching Assistant'
+    course: 'Happiness in Philosophy and Psychology'
+    institution: 'Brown University'
+    dates: 'Spring 2021'
+    description: 'Supervised 40 students, taught two weekly discussion sections.'
+
+pedagogy_development:
+  - category: 'Center for the Integration of Research, Teaching, and Learning (CIRTL)'
+    items:
+      - name: 'An Introduction to Evidence-Based Undergraduate STEM Teaching'
+        date: 'Summer 2024'
+        description: '8 week course completed with distinction'
+      - name: 'Change Leadership for Inclusive Teaching and Learning'
+        date: 'Summer 2024'
+        description: '5 week course'
+    link: 'https://cirtl.net/'
+  
+  - category: 'Brown University Sheridan Center for Teaching and Learning'
+    items:
+      - name: 'Teaching Consultant Program'
+        date: 'Fall 2023'
+      - name: 'Course Design Seminar'
+        date: 'Spring 2023'
+      - name: 'Inclusive Teaching Seminar'
+        date: 'Fall 2022'
+    link: 'https://sheridan.brown.edu/'
+  
+  - category: 'External Conferences'
+    items:
+      - name: 'Ivy+ Teaching Transformations Summit'
+        date: '2024 and 2025'
+      - name: 'Teaching at Teaching Intensive Institutions Conference'
+        date: '2022, 2023, 2024'
+        link: 'https://www.umass.edu/graduate/professional-development/teaching-teaching-intensive-institutions'
+  
+  - category: 'Other Programs'
+    items:
+      - name: 'Mentoring to Make a Difference Learning Intensive'
+        date: 'February 2025'
+        institution: 'Brown University'
+
+service:
+  - role: 'Committee Member'
+    organization: 'Diversity and Inclusion Action Plan, CLPS Department'
+    institution: 'Brown University'
+    dates: '2020-2025'
+    description: 'Work on Curriculum Subcommittee to assess and improve the curriculum of CLPS Department courses through planning reading groups, syllabi assessments, and workshops on difficult topics in teaching.'
+  
+  - role: 'Undergraduate Curriculum Committee'
+    organization: 'CLPS Department'
+    institution: 'Brown University'
+    dates: '2023-2024 AY'
+    description: 'Elected as departmental graduate student representative to serve on the faculty undergraduate curriculum committee to discuss coursework, honors requirements, curriculum needs, and majors offered by the department.'
+  
+  - role: 'Discipline Activity Organizer'
+    organization: 'College Day at Brown'
+    institution: 'Carney Institute at Brown University'
+    dates: '2023, 2024, & 2025'
+    description: 'Proposed, organized, and lead neuroscience activities for local high school students to encourage them in pursuit of higher education.'
+    link: 'https://www.brown.edu/news/2023-04-06/collegeday'
+  
+  - role: 'Lab Ambassador'
+    organization: 'Brown Brain Fair'
+    institution: 'Brown University'
+    dates: '2023, 2024, & 2025'
+    description: 'Organized activity table to explore brain function with local community members as a part of Brain Waves RI.'
+  
+  - role: 'Activity Leader - Elementary School Field Trips'
+    organization: 'Carney Institute'
+    institution: 'Brown University'
+    dates: '2023'
+    description: 'Assisted with two outreach events to engage local elementary school students with psychology and neuroscience activities.'
+  
+  - role: 'Brown University Ambassador'
+    organization: 'Leadership Alliance National Symposium'
+    dates: '2022'
+    description: 'Presented information on Brown University graduate programs and answered potential student questions.'
+  
+  - role: 'Diversity and Inclusion Liaison'
+    organization: 'CLPS Department'
+    institution: 'Brown University'
+    dates: '2021-2022 AY'
+    description: 'Elected as departmental representative to bring diversity and inclusion related issues to faculty, and implement departmental trainings and workshops as necessary.'
+  
+  - role: 'Outreach Panel Organizer'
+    organization: 'CLPS Department'
+    institution: 'Brown University'
+    dates: 'Fall 2021'
+    description: 'Organized panel to answer questions about graduate training in our department targeted at students from schools that are traditionally underrepresented in our applicant pool. Coordinated program advertisement with advising staff at nationwide universities for successful online event.'
+  
+  - role: 'Diversity and Inclusion Reading Group Organizer'
+    organization: 'CLPS Department'
+    institution: 'Brown University'
+    dates: '2021-2025'
+    description: 'Founded and organize yearly three-book reading and discussion series on racism and discrimination in psychology.'
+  
+  - role: 'Peer Mentor'
+    organization: 'International Student Orientation'
+    institution: 'Brown University'
+    dates: '2021-2024'
+    description: 'Served as peer mentor to incoming international graduate students during orientation.'
+  
+  - role: 'Careers Outside Academia Series Organizer'
+    organization: 'CLPS Department'
+    institution: 'Brown University'
+    dates: '2020-2021 AY'
+    description: 'Organized and hosted talk series open to undergraduates, graduate students, and postdocs across CLPS and Neuroscience departments featuring alumni who pursued careers outside of traditional academia.'
+  
+  - role: 'Graduate Representative'
+    organization: 'CLPS Department'
+    institution: 'Brown University'
+    dates: '2020-2021 AY'
+    description: 'Elected as one of two departmental representatives of graduate student body. Serve to bring student ideas and concerns to faculty and plan events like town-hall meetings and professional development seminars.'
+
+honors:
+  - title: 'Presidential Award for Excellence in Teaching'
+    institution: 'Brown University'
+    year: '2023'
+    link: 'https://graduateschool.brown.edu/news/2023-05-18/teaching-award-keglovits'
+  
+  - title: 'NIH Interdisciplinary Training in Computational, Cognitive, and Systems Neuroscience T32'
+    year: '2021-2023'
+  
+  - title: 'Graduate School Summer Fellowship'
+    institution: 'Brown University'
+    year: '2020'
+  
+  - title: 'Betty R.H. and James M. Pickett Fellowship Fund for Psychology'
+    institution: 'Brown University'
+    year: '2019-2020'
+  
+  - title: 'Highest Honors in Cognitive Science'
+    institution: 'University of California, Berkeley'
+    year: '2019'
+  
+  - title: 'Summer Undergraduate Research Fellowship'
+    institution: 'University of California, Berkeley'
+    year: '2018'
+  
+  - title: "Dean's List"
+    institution: 'University of California, Berkeley'
+    year: '2015-2016'
+  
+  - title: 'Academic Honor Roll'
+    institution: 'University of California, Berkeley'
+    year: '2015-2017'
+
+mentorship:
+  - student: 'Tanvi Palsamudram'
+    years: '2021-2025'
+    achievements: 'Awarded UTRA Fall 2023 and Summer 2024; Completed Honors Thesis in Neuroscience: Metacognitive Judgments as Predictors of Learning Proficiency in Cognitive Control Task Instruction'
+  
+  - student: 'Elizabeth Doss'
+    years: '2021-2024'
+    achievements: 'Research project on improving fMRI methods using physiological signal; Presented first author poster at international discipline conference; Awarded UTRA Summer 2022'
+    current: 'Medical Student at Brown University'
+  
+  - student: 'Roshan Parikh'
+    years: '2021-2024'
+    achievements: 'Awarded UTRA Summer 2022; Completed Honors Thesis in Applied Mathematics: Neural Connectivity as a Tool for Decoding Analyses'
+    current: 'Medical Student at Icahn School of Medicine'
+  
+  - student: 'Camille Aquino'
+    years: '2021-2024'
+    achievements: 'Awarded UTRA Summer 2022; Completed Honors Thesis in Cognitive Neuroscience: Analyzing differences in hippocampal-prefrontal cortex functional connectivity as a function of cognitive control task structure'
+    current: 'Medical Student at Zucker School of Medicine at Hofstra/Northwell'
+  
+  - student: 'Shuah (Shay) Yu'
+    years: '2022-2023'
+    achievements: 'Research project on measuring neural representations of cognitive control with fMRI'
+    current: 'Medical Student at Brown University'
+  
+  - student: 'Emily Smith-Feldman'
+    years: '2019-2021'
+    achievements: 'Research project on working memory input gating; Awarded UTRA Summer 2020'
+    current: 'Masters Student at University of Denver'
