@@ -16,13 +16,13 @@ education:
     dates: 'August 2015 - May 2019'
 
 publications:
-  - authors: 'Bhandari, A.*, Keglovits, H.*, & Badre, D.'
-    year: '2024'
+  - authors: 'Bhandari, A.*, Keglovits, H.*, Buyukyazgan, D., & Badre, D.'
+    year: '2025'
     title: 'Task structure tailors the geometry of neural representations in human lateral prefrontal cortex.'
-    journal: 'BioRXiv, under review at eLife'
-    url: 'https://doi.org/10.1101/2024.03.06.583429'
+    journal: 'eLife, 14:RP107356'
+    url: 'https://doi.org/10.7554/eLife.107356.1'
     note: '* Indicates Co-First Author'
-  
+
   - authors: 'Yoo, A.H., Keglovits, H., & Collins, A.G.E.'
     year: '2023'
     title: 'Lowered inter-stimulus discriminability hurts incremental contributions to learning.'
@@ -152,6 +152,24 @@ invited_talks:
     date: 'October 2019'
 
 teaching:
+  - role: 'Instructor'
+    course: 'Introduction to Statistics for Behavioral Sciences'
+    institution: 'Harvard University'
+    dates: 'Spring 2026'
+    description: 'Lead lecture course in introductory statistics and programming for approximately 100 students in behavioral science majors. Lead team of five teaching assistants.'
+  
+  - role: 'Instructor'
+    course: 'The Psychology of Large Language Models'
+    institution: 'Harvard University'
+    dates: 'Spring 2026'
+    description: 'Pitched, developed, and taught upper-level seminar course discussing large language models in the context of psychology.'
+  
+  - role: 'Instructor'
+    course: "The Brain's Conductor: The Psychology of Focus, Flexibility, and Control"
+    institution: 'Harvard University'
+    dates: 'Fall 2025'
+    description: 'Pitched, developed, and taught upper-level lecture course discussing cognitive control and executive function.'
+  
   - role: 'Lecture Instructor'
     course: 'AI Bootcamp for College Faculty'
     institution: 'The Coding School'
