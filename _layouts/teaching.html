@@ -11,6 +11,22 @@ layout: default
 <!-- mentorship highlights -->
  <!-- student reviews available upon request -->
 
+
+  <div>
+    <h3 class="fw-bold pb-3">harvard university courses</h3>
+    {% for course in site.data.teaching.harvard %}
+        <h4>{{ course.name }}</h4>
+        <p><em>{{ course.info }} | {{ course.term }}</em>
+        {% if course.url %}
+        {{" | "}}<a href="{{ site.github.url }}/{{ course.url }}">Syllabus</a>
+        {% endif %}
+        {% if course.extra %}
+        <br><i>{{course.extra}}</i>
+        {% endif %}
+        </p>
+    {% endfor %}
+  </div>
+
   <div>
     <h3 class="fw-bold pb-3">brown university courses</h3>
     <!-- todo: add a description of what we do -->

@@ -1,5 +1,13 @@
+harvard:
+- {name: 'Introduction to Statistics for Behavioral Sciences', url: 'assets/syllabi/PSY1900.pdf', term: 'Spring 2026',
+    info: 'Instructor', extra: 'Lead lecture course in introductory statistics and programming for approximately 100 students in behavioral science majors. Lead team of five teaching assistants.'}
+- {name: 'The Psychology of Large Language Models', url: 'assets/syllabi/PSY1409.pdf', term: 'Spring 2026',
+    info: 'Instructor', extra: 'Pitched, developed, and taught upper-level seminar course discussing large language models in the context of psychology.'}
+- {name: "The Brain's Conductor: The Psychology of Focus, Flexibility, and Control", url: 'assets/syllabi/PSY1351.pdf', term: 'Fall 2025',
+    info: 'Instructor', extra: 'Pitched, developed, and taught upper-level lecture course discussing cognitive control and executive function.'}
+
 brown:
-- {name: 'Camp Code: Learn to think Like a Programmer', url: 'assets/campcode23.pdf', term: 'Summer 2023', 
+- {name: 'Camp Code: Learn to think Like a Programmer', url: 'assets/syllabi/campcode23.pdf', term: 'Summer 2023', 
     info: 'Instructor of Record', extra: 'Designed and taught two-week intensive course on introductory computer science principles, covering logical thinking, python syntax, and basic data science principles. Supervised two graduate student teaching assistants.' }
 - {name: 'Introduction to Programming', url: 'assets/prog/syllabus.pdf', term: 'Spring 2022', info: 'Instructor of Record', 
     extra: 'Primary course instructor for departmental introductory programming course (25 students). Lectured three times a week, plus lab-session two hours a week. Oversaw 2 undergraduate teaching assistants. Received Excellence in Teaching Award for this course. Lecture slides and recordings available upon request.'}
@@ -10,8 +18,4 @@ codingschool:
 - {title: 'AI Bootcamp for College Faculty', description: 'Lecture Instructor', dates: 'Fall 2024', info: 'Taught month-long intensive boot camp for community college, HBCU & MSI faculty, leading both part 1 (Introduction to Machine Learning) and part 2 (Applications of AI to Images and Text Data) sessions. Previously: Teaching Assistant for lab sections of both sessions, 2023-2024.'}
 - {title: 'AI Professional Development Program for High School Educators', description: 'Lecture Instructor', dates: 'Summer 2024', info: 'Taught two week professional development intensive focused on equipping educators with the necessary knowledge and skills they need to bring machine learning into their classrooms.'}
 - {title: 'Introduction to Artificial Intelligence Course', description: 'Laboratory Instructor', dates: 'AY 2023-2024', info: 'Lead two year-long labs of high school students in the principles of machine learning and artificial intelligence using the python programming language.'}
-
-# devel:
-# - {name: 'the coding school'}
-
 
