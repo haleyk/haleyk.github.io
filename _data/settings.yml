@@ -10,4 +10,4 @@ social:
 - {icon: 'linkedin', link: 'https://www.linkedin.com/in/haley-keglovits/'}
 
 contacts:
-- {name: 'haley keglovits', title: 'phd candidate', department: 'cognitive and psychological sciences', institution: 'brown university', institution_address: 'providence, rhode island, united states', email: 'halk at brown dot edu', office: 'metcalf research building 403', image: 'assets/img/haley.png'}
+- {name: 'haley keglovits, phd', title: 'college fellow', department: 'psychological science', institution: 'harvard university', institution_address: 'cambridge, massachusetts', email: 'haleykegl [at] gmail [dot] com', office: 'william james hall floor 7', image: 'assets/img/haley.png'}
