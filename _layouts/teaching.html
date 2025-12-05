@@ -4,64 +4,63 @@ layout: default
 
 {{ content }}
 
-
 <div class="row g-5 mb-5">
-
-<!-- want to emphasize formal and informal teaching -->
- <!-- pedagogy development work -->
-<!-- mentorship highlights -->
- <!-- student reviews available upon request -->
-
-My teaching emphasizes student agency and active learning through project-based assignments that connect to real-world applications. I employ techniques like flipped classrooms and low-stakes, formative assessments to encourage authentic student learning. Important to me is explicitly normalizing struggle as a productive part of the learning process, and highlighting problem solving as a skill to be practiced and developed. This philosophy has guided my work across diverse contexts, from large undergraduate lecture courses in statistics and psychology to intensive AI bootcamps for high school and community college educators. At Harvard, I've developed and taught two original courses in psychology, as well as reworked the large degree-required introduction to statistics course. I was awarded the Presidential Award for Excellence in Teaching at Brown University in 2023, and hold a Scholar certification from the Center for the Integration of Research, Teaching, and Learning (CIRTL).
-
-Beyond the classroom, I am committed to mentoring the next generation of researchers. At Brown, I trained multiple undergraduate students in fMRI methods, cognitive neuroscience, and data analysis, culminating in multiple honors theses and posters at discipline conferences. I remain dedicated to advancing my pedagogical practice through ongoing professional development and am always eager to learn new approaches that better serve my students.
-
-
-
   <div>
-    <h3 class="fw-bold pb-3">harvard university courses</h3>
-    {% for course in site.data.teaching.harvard %}
-        <h4>{{ course.name }}</h4>
-        <p><em>{{ course.info }} | {{ course.term }}</em>
-        {% if course.url %}
-        {{" | "}}<a href="{{ site.github.url }}/{{ course.url }}">Syllabus</a>
-        {% endif %}
-        {% if course.extra %}
-        <br><i>{{course.extra}}</i>
-        {% endif %}
-        </p>
-    {% endfor %}
+    <div class="mb-5">
+      <h3 class="fw-bold border-bottom pb-3 mb-4">Teaching Philosophy</h3>
+      <p class="mb-3">
+        My teaching emphasizes student agency and active learning through project-based assignments that connect to real-world applications. I employ techniques like flipped classrooms and low-stakes, formative assessments to encourage authentic student learning. Important to me is explicitly normalizing struggle as a productive part of the learning process, and highlighting problem solving as a skill to be practiced and developed. This philosophy has guided my work across diverse contexts, from large undergraduate lecture courses in statistics and psychology to intensive AI bootcamps for high school and community college educators. At Harvard, I've developed and taught two original courses in psychology, as well as reworked the large degree-required introduction to statistics course. I was awarded the Presidential Award for Excellence in Teaching at Brown University in 2023, and hold a Scholar certification from the Center for the Integration of Research, Teaching, and Learning (CIRTL).
+      </p>
+      <p class="mb-3">
+        Beyond the classroom, I am committed to mentoring the next generation of researchers. At Brown, I trained multiple undergraduate students in fMRI methods, cognitive neuroscience, and data analysis, culminating in multiple honors theses and posters at discipline conferences. I remain dedicated to advancing my pedagogical practice through ongoing professional development and am always eager to learn new approaches that better serve my students.
+      </p>
+    </div>
+
+    <div class="mb-5">
+      <h3 class="fw-bold border-bottom pb-3 mb-4">Harvard University Courses</h3>
+      {% for course in site.data.teaching.harvard %}
+        <div class="mb-4">
+          <h4>{{ course.name }}</h4>
+          <p class="mb-1">
+            <em>{{ course.info }} | {{ course.term }}</em>
+            {% if course.url %}
+            {{" | "}}<a href="{{ site.github.url }}/{{ course.url }}">Syllabus</a>
+            {% endif %}
+          </p>
+          {% if course.extra %}
+          <p class="mb-0"><i>{{course.extra}}</i></p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-5">
+      <h3 class="fw-bold border-bottom pb-3 mb-4">Brown University Courses</h3>
+      {% for course in site.data.teaching.brown %}
+        <div class="mb-4">
+          <h4>{{ course.name }}</h4>
+          <p class="mb-1">
+            <em>{{ course.info }} | {{ course.term }}</em>
+            {% if course.url %}
+            {{" | "}}<a href="{{ site.github.url }}/{{ course.url }}">Syllabus</a>
+            {% endif %}
+          </p>
+          {% if course.extra %}
+          <p class="mb-0"><i>{{course.extra}}</i></p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-5">
+      <h3 class="fw-bold border-bottom pb-3 mb-4">The Coding School <a href="https://the-cs.org/">[link]</a></h3>
+      {% for course in site.data.teaching.codingschool %}
+        <div class="mb-4">
+          <h4>{{ course.title }}</h4>
+          <p class="mb-1"><em>{{ course.description }} | {{ course.dates }}</em></p>
+          <p class="mb-0"><i>{{ course.info }}</i></p>
+        </div>
+      {% endfor %}
+    </div>
   </div>
-
-  <div>
-    <h3 class="fw-bold pb-3">brown university courses</h3>
-    <!-- todo: add a description of what we do -->
-    {% for course in site.data.teaching.brown %}
-        <h4>{{ course.name }}</h4>
-        <p><em>{{ course.info }} | {{ course.term }}</em>
-        {% if course.url %}
-        {{" | "}}<a href="{{ site.github.url }}/{{ course.url }}">Syllabus</a>
-        {% endif %}
-        {% if course.extra %}
-        <br><i>{{course.extra}}</i>
-        {% endif %}
-        </p>
-    {% endfor %}
-  </div>
-
-
-  <div>
-    <h3 class="fw-bold pb-3">the coding school <a href="https://the-cs.org/">[link]</a></h3>
-    <!-- todo: description of how I have been involved -->
-    {% for course in site.data.teaching.codingschool %}
-      <h4>{{ course.title }}</h4>
-      <p><em>{{ course.description }} | {{ course.dates }}</em>
-        <br>
-      <i>{{ course.info }}</i></p>
-    {% endfor %}
-  </div>
-
-
-
-
 </div>
