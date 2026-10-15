@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Card Sorting Task</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 40px;
+    user-select: none;
+  }
+
+  #keyRow {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 60px;
+  }
+
+  .card {
+    width: 120px;
+    height: 150px;
+    background: white;
+    border: 2px solid #ccc;
+    border-radius: 12px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+
+  .card.clickable {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  .card.clickable:hover {
+    transform: translateY(-4px);
+    border-color: #888;
+  }
+  .card.disabled {
+    pointer-events: none;
+    opacity: 0.85;
+  }
+
+  .icon svg {
+    width: 26px;
+    height: 26px;
+    display: block;
+  }
+
+  #currentCardWrap {
+    display: none;
+    margin-bottom: 30px;
+  }
+
+  #currentCard {
+    width: 140px;
+    height: 170px;
+  }
+  #currentCard .icon svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  #beginBtn {
+    font-size: 22px;
+    padding: 14px 40px;
+    border-radius: 10px;
+    border: none;
+    background: #34495e;
+    color: white;
+    cursor: pointer;
+  }
+  #beginBtn:hover {
+    background: #2c3e50;
+  }
+
+  #feedback {
+    font-size: 40px;
+    height: 50px;
+    font-weight: bold;
+  }
+  #feedback.correct { color: #27ae60; }
+  #feedback.incorrect { color: #c0392b; }
+
+  #stats {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #555;
+  }
+
+  #restartBtn {
+    margin-top: 15px;
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: 1px solid #aaa;
+    background: white;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div id="keyRow"></div>
+
+<div id="currentCardWrap">
+  <div id="currentCard" class="card"></div>
+</div>
+
+<button id="beginBtn">Begin</button>
+
+<div id="feedback"></div>
+<div id="stats"></div>
+<button id="restartBtn" style="display:none;">Restart</button>
+
+<script>
+const COLORS = { red:'#e74c3c', green:'#27ae60', yellow:'#f1c40f', blue:'#3498db' };
+const SHAPES = ['triangle','star','cross','circle'];
+const COLOR_NAMES = Object.keys(COLORS);
+const COUNTS = [1,2,3,4];
+
+const KEY_CARDS = [
+  { shape:'triangle', color:'red',    count:1 },
+  { shape:'star',      color:'green',  count:2 },
+  { shape:'cross',      color:'yellow', count:3 },
+  { shape:'circle',     color:'blue',   count:4 }
+];
+
+function shapeSVG(shape, colorHex) {
+  const points = {
+    triangle: "50,15 90,85 10,85",
+    star: "50,8 61,38 95,38 67,58 78,90 50,70 22,90 33,58 5,38 39,38",
+    cross: "38,10 62,10 62,38 90,38 90,62 62,62 62,90 38,90 38,62 10,62 10,38 38,38"
+  };
+  if (shape === 'circle') {
+    return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="${colorHex}"/></svg>`;
+  }
+  return `<svg viewBox="0 0 100 100"><polygon points="${points[shape]}" fill="${colorHex}"/></svg>`;
+}
+
+function renderCardContent(cardData) {
+  const hex = COLORS[cardData.color];
+  let html = '';
+  for (let i = 0; i < cardData.count; i++) {
+    html += `<div class="icon">${shapeSVG(cardData.shape, hex)}</div>`;
+  }
+  return html;
+}
+
+function buildDeck() {
+  const deck = [];
+  SHAPES.forEach(shape => {
+    COLOR_NAMES.forEach(color => {
+      COUNTS.forEach(count => {
+        deck.push({ shape, color, count });
+      });
+    });
+  });
+  return shuffle(deck);
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const keyRow = document.getElementById('keyRow');
+const currentCardWrap = document.getElementById('currentCardWrap');
+const currentCardEl = document.getElementById('currentCard');
+const beginBtn = document.getElementById('beginBtn');
+const feedbackEl = document.getElementById('feedback');
+const statsEl = document.getElementById('stats');
+const restartBtn = document.getElementById('restartBtn');
+
+let deck = [];
+let deckIndex = 0;
+let rules = ['color', 'shape', 'number'];
+let ruleIndex = 0;
+let correctStreak = 0;
+let switchThreshold = 6;
+let trial = 0;
+let correctCount = 0;
+let waitingForClick = false;
+let currentCardData = null;
+
+function initKeyCards() {
+  keyRow.innerHTML = '';
+  KEY_CARDS.forEach((cardData, index) => {
+    const div = document.createElement('div');
+    div.className = 'card disabled';
+    div.innerHTML = renderCardContent(cardData);
+    div.dataset.index = index;
+    div.addEventListener('click', () => chooseKey(index));
+    keyRow.appendChild(div);
+  });
+}
+
+function setKeyCardsActive(active) {
+  document.querySelectorAll('#keyRow .card').forEach(el => {
+    el.classList.toggle('clickable', active);
+    el.classList.toggle('disabled', !active);
+  });
+}
+
+function newTrial() {
+  if (deckIndex >= deck.length) {
+    deck = buildDeck();
+    deckIndex = 0;
+  }
+  currentCardData = deck[deckIndex++];
+  currentCardEl.innerHTML = renderCardContent(currentCardData);
+  waitingForClick = true;
+  setKeyCardsActive(true);
+}
+
+function chooseKey(index) {
+  if (!waitingForClick) return;
+  waitingForClick = false;
+  setKeyCardsActive(false);
+  trial++;
+
+  const rule = rules[ruleIndex];
+  const keyCard = KEY_CARDS[index];
+  let isCorrect = false;
+  if (rule === 'color') isCorrect = keyCard.color === currentCardData.color;
+  if (rule === 'shape') isCorrect = keyCard.shape === currentCardData.shape;
+  if (rule === 'number') isCorrect = keyCard.count === currentCardData.count;
+
+  if (isCorrect) {
+    correctCount++;
+    correctStreak++;
+    showFeedback(true);
+  } else {
+    correctStreak = 0;
+    showFeedback(false);
+  }
+
+  if (correctStreak >= switchThreshold) {
+    correctStreak = 0;
+    ruleIndex = (ruleIndex + 1) % rules.length;
+  }
+
+  updateStats();
+
+  setTimeout(newTrial, 900);
+}
+
+function showFeedback(correct) {
+  feedbackEl.textContent = correct ? '✓' : '✗';
+  feedbackEl.className = correct ? 'correct' : 'incorrect';
+  setTimeout(() => {
+    feedbackEl.textContent = '';
+    feedbackEl.className = '';
+  }, 800);
+}
+
+function updateStats() {
+  statsEl.textContent = `Trial: ${trial}   Correct: ${correctCount}`;
+}
+
+beginBtn.addEventListener('click', () => {
+  beginBtn.style.display = 'none';
+  currentCardWrap.style.display = 'block';
+  restartBtn.style.display = 'inline-block';
+  deck = buildDeck();
+  deckIndex = 0;
+  ruleIndex = 0;
+  correctStreak = 0;
+  trial = 0;
+  correctCount = 0;
+  updateStats();
+  newTrial();
+});
+
+restartBtn.addEventListener('click', () => {
+  beginBtn.style.display = 'inline-block';
+  currentCardWrap.style.display = 'none';
+  restartBtn.style.display = 'none';
+  waitingForClick = false;
+  setKeyCardsActive(false);
+  feedbackEl.textContent = '';
+  statsEl.textContent = '';
+});
+
+initKeyCards();
+</script>
+
+</body>
+</html>

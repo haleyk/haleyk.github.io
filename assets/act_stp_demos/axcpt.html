@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AX-CPT Task</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f5f5;
+  }
+
+  .screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    text-align: center;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  button {
+    padding: 15px 30px;
+    font-size: 18px;
+    margin: 10px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background: #333;
+    color: #fff;
+    transition: background 0.2s ease;
+  }
+
+  button:hover {
+    background: #555;
+  }
+
+  #stimulus {
+    font-size: 130px;
+    font-weight: bold;
+    color: #222;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+
+  .stats {
+    font-size: 20px;
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div id="mainScreen" class="screen">
+  <button id="xBtn">X version</button>
+  <button id="axBtn">AX version</button>
+  <button id="axFastBtn">AX (fast)</button>
+</div>
+
+<div id="taskScreen" class="screen hidden">
+  <div id="stimulus"></div>
+</div>
+
+<div id="resultsScreen" class="screen hidden">
+  <div class="stats" id="statsText"></div>
+  <button id="backBtn">Back to Main Menu</button>
+</div>
+
+<script>
+  const mainScreen = document.getElementById('mainScreen');
+  const taskScreen = document.getElementById('taskScreen');
+  const resultsScreen = document.getElementById('resultsScreen');
+  const stimulusEl = document.getElementById('stimulus');
+  const statsText = document.getElementById('statsText');
+
+  // Hard-coded sequences (48 trials, 8 AX pairs each)
+  const AX_SEQUENCE = ['A','X','B','B','Y','A','Y','A','X','Y','B','X','A','X','B','Y','B','A','Y','A','X','B','X','Y','A','X','B','Y','B','A','Y','B','X','A','X','Y','B','Y','A','X','B','A','Y','B','X','A','X','Y'];
+
+  const AX_FAST_SEQUENCE = ['A','X','B','Y','B','A','X','A','Y','Y','B','X','A','X','B','Y','B','A','Y','A','X','Y','B','X','A','X','B','Y','B','A','Y','Y','B','X','A','X','B','Y','B','A','Y','Y','B','X','A','X','A','X'];
+
+  let sequence = [];
+  let mode = '';
+  let stimDuration = 700;
+  let itiDuration = 250;
+  let trialIndex = 0;
+  let results = [];
+  let trialActive = false;
+  let trialStartTime = 0;
+  let responded = false;
+
+  document.getElementById('xBtn').addEventListener('click', () => startTask('X'));
+  document.getElementById('axBtn').addEventListener('click', () => startTask('AX'));
+  document.getElementById('axFastBtn').addEventListener('click', () => startTask('AXFAST'));
+  document.getElementById('backBtn').addEventListener('click', () => {
+    resultsScreen.classList.add('hidden');
+    mainScreen.classList.remove('hidden');
+  });
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function generateXSequence() {
+    let letters = [];
+    ['A', 'X', 'B', 'Y'].forEach(l => {
+      for (let i = 0; i < 8; i++) letters.push(l);
+    });
+    return shuffle(letters);
+  }
+
+  function startTask(m) {
+    mode = m;
+
+    if (m === 'X') {
+      sequence = generateXSequence();
+      stimDuration = 700;
+      itiDuration = 250;
+    } else if (m === 'AX') {
+      sequence = AX_SEQUENCE.slice();
+      stimDuration = 700;
+      itiDuration = 250;
+    } else if (m === 'AXFAST') {
+      sequence = AX_FAST_SEQUENCE.slice();
+      stimDuration = 400;
+      itiDuration = 200;
+    }
+
+    trialIndex = 0;
+    results = [];
+    mainScreen.classList.add('hidden');
+    taskScreen.classList.remove('hidden');
+    document.addEventListener('keydown', handleKeydown);
+    runTrial();
+  }
+
+  function handleKeydown(e) {
+    if (e.code === 'Space' && trialActive && !responded) {
+      responded = true;
+      const rt = performance.now() - trialStartTime;
+      results[trialIndex].responded = true;
+      results[trialIndex].rt = rt;
+    }
+  }
+
+  function runTrial() {
+    if (trialIndex >= sequence.length) {
+      endTask();
+      return;
+    }
+
+    const letter = sequence[trialIndex];
+    const isTarget = (mode === 'X')
+      ? letter === 'X'
+      : (letter === 'X' && trialIndex > 0 && sequence[trialIndex - 1] === 'A');
+
+    results[trialIndex] = { letter, isTarget, responded: false, rt: null };
+    responded = false;
+    trialActive = true;
+    stimulusEl.textContent = letter;
+    trialStartTime = performance.now();
+
+    setTimeout(() => {
+      trialActive = false;
+      stimulusEl.textContent = '';
+      setTimeout(() => {
+        trialIndex++;
+        runTrial();
+      }, itiDuration);
+    }, stimDuration);
+  }
+
+  function endTask() {
+    document.removeEventListener('keydown', handleKeydown);
+    taskScreen.classList.add('hidden');
+    resultsScreen.classList.remove('hidden');
+
+    let hits = 0, misses = 0, falseAlarms = 0, correctRejections = 0;
+    let rtSum = 0, rtCount = 0;
+
+    results.forEach(r => {
+      if (r.isTarget && r.responded) {
+        hits++;
+        rtSum += r.rt;
+        rtCount++;
+      } else if (r.isTarget && !r.responded) {
+        misses++;
+      } else if (!r.isTarget && r.responded) {
+        falseAlarms++;
+      } else {
+        correctRejections++;
+      }
+    });
+
+    const avgRT = rtCount > 0 ? Math.round(rtSum / rtCount) : 0;
+
+    statsText.innerHTML = `
+      <p>Average RT: ${avgRT} ms</p>
+      <p>Correct Hits: ${hits}</p>
+      <p>Correct Rejections: ${correctRejections}</p>
+      <p>Missed Targets: ${misses}</p>
+      <p>False Alarms: ${falseAlarms}</p>
+    `;
+  }
+</script>
+
+</body>
+</html>

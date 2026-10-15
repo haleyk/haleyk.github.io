@@ -1,0 +1,105 @@
+---
+layout: default
+title: "ACT STP Demos"
+---
+
+<!-- Demo list lives in _data/act_stp_demos.yml; the files themselves are in assets/act_stp_demos/ -->
+
+<style>
+  .demo-card { border: 1px solid #dee2e6; border-radius: 8px; padding: 1.25rem; height: 100%; display: flex; flex-direction: column; }
+  .demo-card p { margin-bottom: 0.5rem; }
+  .demo-card .demo-controls { color: #6c757d; font-size: 0.9rem; }
+  .demo-card .demo-actions { margin-top: auto; padding-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .demo-btn { display: inline-block; padding: 0.35rem 0.9rem; border: 1px solid #212529; border-radius: 6px; background: #fff; color: #212529; font-size: 0.95rem; text-decoration: none; cursor: pointer; }
+  .demo-btn:hover { background: #212529; color: #fff !important; }
+  .demo-btn.primary { background: #212529; color: #fff !important; }
+  .demo-btn.primary:hover { background: #fff; color: #212529 !important; }
+
+  #demo-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+  #demo-modal.open { display: flex; }
+  #demo-modal .demo-modal-box { background: #fff; border-radius: 8px; width: min(1100px, 100%); height: min(90vh, 900px); display: flex; flex-direction: column; overflow: hidden; }
+  #demo-modal .demo-modal-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; border-bottom: 1px solid #dee2e6; flex-wrap: wrap; }
+  #demo-modal .demo-modal-bar h5 { margin: 0 auto 0 0; font-weight: 700; }
+  #demo-modal iframe { flex: 1; width: 100%; border: 0; }
+  #demo-modal .demo-modal-hint { font-size: 0.85rem; color: #6c757d; padding: 0.4rem 1rem; border-top: 1px solid #dee2e6; }
+</style>
+
+<div class="row g-5 mb-4">
+  <div>
+    <h3 class="fw-bold border-bottom pb-3 mb-4">ACT STP Demos</h3>
+    <p>
+      These are the cognitive control task demos from my talk. Each one is a single, self-contained HTML file:
+      you can try it right here with <b>preview</b>, or <b>download</b> it and open it in any web browser,
+      no internet connection or installation needed. Feel free to use and adapt them for your own teaching.
+    </p>
+    <p class="text-muted">Most demos use the keyboard, so they work best on a laptop or desktop computer.</p>
+  </div>
+</div>
+
+<div class="row g-4 mb-5">
+  {% for demo in site.data.act_stp_demos.demos %}
+  {% capture demo_url %}{{ site.github.url }}/assets/act_stp_demos/{{ demo.file }}{% endcapture %}
+  <div class="col-md-6">
+    <div class="demo-card">
+      <h4 class="fw-bold">{{ demo.name }}</h4>
+      <p>{{ demo.description }}</p>
+      {% if demo.controls %}<p class="demo-controls">responds with: {{ demo.controls }}</p>{% endif %}
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="{{ demo_url }}" data-demo-name="{{ demo.name }}" data-demo-file="{{ demo.file }}">preview</button>
+        <a class="demo-btn" href="{{ demo_url }}" download="{{ demo.file }}">download .html</a>
+        <a class="demo-btn" href="{{ demo_url }}" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div id="demo-modal" role="dialog" aria-modal="true" aria-labelledby="demo-modal-title">
+  <div class="demo-modal-box">
+    <div class="demo-modal-bar">
+      <h5 id="demo-modal-title"></h5>
+      <a class="demo-btn" id="demo-modal-download" href="#" download>download .html</a>
+      <a class="demo-btn" id="demo-modal-newtab" href="#" target="_blank" rel="noopener">open in new tab</a>
+      <button type="button" class="demo-btn primary" id="demo-modal-close">close</button>
+    </div>
+    <iframe id="demo-modal-frame" title="demo preview"></iframe>
+    <div class="demo-modal-hint">If the keyboard doesn't respond, click once inside the demo.</div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var modal = document.getElementById('demo-modal');
+    var frame = document.getElementById('demo-modal-frame');
+    var title = document.getElementById('demo-modal-title');
+    var dl = document.getElementById('demo-modal-download');
+    var newtab = document.getElementById('demo-modal-newtab');
+
+    function openDemo(btn) {
+      var url = btn.getAttribute('data-demo-url');
+      title.textContent = btn.getAttribute('data-demo-name');
+      dl.href = url;
+      dl.setAttribute('download', btn.getAttribute('data-demo-file'));
+      newtab.href = url;
+      frame.onload = function () { try { frame.contentWindow.focus(); } catch (e) {} };
+      frame.src = url;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDemo() {
+      modal.classList.remove('open');
+      frame.src = 'about:blank'; // stops any running task
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('[data-demo-url]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openDemo(btn); });
+    });
+    document.getElementById('demo-modal-close').addEventListener('click', closeDemo);
+    modal.addEventListener('click', function (e) { if (e.target === modal) closeDemo(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeDemo();
+    });
+  })();
+</script>

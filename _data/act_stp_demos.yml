@@ -1,0 +1,32 @@
+# Demos listed on the ACT STP Demos page (act_stp_demos.html).
+# To add a demo: put the .html file in assets/act_stp_demos/ and add an entry below.
+#   name:        title shown on the card
+#   file:        file name inside assets/act_stp_demos/
+#   description: one or two sentences about the task
+#   controls:    how participants respond (shown under the description)
+
+demos:
+- name: 'AX-CPT'
+  file: 'axcpt.html'
+  description: 'A continuous performance task: respond to an X only when it follows an A. Includes standard, fast, and simple X-only versions, useful for showing proactive versus reactive control.'
+  controls: 'spacebar'
+
+- name: 'Go/No-Go & Stop Signal'
+  file: 'gonogo_stopsignal.html'
+  description: 'Two classic response inhibition tasks in one file: withhold a response on no-go trials, or cancel a response that is already underway when a stop signal appears.'
+  controls: 'spacebar (go/no-go), arrow keys (stop signal)'
+
+- name: 'N-Back'
+  file: 'nback.html'
+  description: 'A working memory task: respond whenever the current item matches the one shown N items earlier. Choose the N level at the start.'
+  controls: 'spacebar'
+
+- name: 'Task Switching'
+  file: 'taskswitching.html'
+  description: 'An alternating-runs paradigm: classify the letter (consonant/vowel) or the number (odd/even), with the task cued by screen location. Demonstrates switch costs, with crosstalk and neutral versions.'
+  controls: 'keyboard'
+
+- name: 'Card Sorting (WCST)'
+  file: 'wcst.html'
+  description: 'A Wisconsin Card Sorting-style task: work out the hidden sorting rule from feedback, and adapt when the rule changes without warning.'
+  controls: 'mouse or touch'

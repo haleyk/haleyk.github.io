@@ -4,6 +4,7 @@ menu:
 - {name: 'cv', url: '/cv'}
 - {name: 'contact', url: '/contact'}
 - {name: 'other', url: '/other'}
+- {name: 'ACT STP Demos', url: '/act_stp_demos'}
 
 social:
 - {icon: 'github', link: 'https://github.com/haleyk'}
