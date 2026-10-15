@@ -26,7 +26,11 @@
         </div>
         <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
           {% for item in site.data.settings.menu %}
-            <a class="me-3 py-2 text-decoration-none" href="{{ site.github.url }}{{ item.url }}">{{ item.name }}</a>
+            {% if item.highlight %}
+              <a class="me-3 py-2 px-3 text-decoration-none rounded" style="background-color: #d4edda;" href="{{ site.github.url }}{{ item.url }}">{{ item.name }}</a>
+            {% else %}
+              <a class="me-3 py-2 text-decoration-none" href="{{ site.github.url }}{{ item.url }}">{{ item.name }}</a>
+            {% endif %}
           {% endfor %}
         </nav>
         <div class="row">
