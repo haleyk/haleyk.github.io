@@ -98,6 +98,7 @@ layout: default
             {{ section.course }}
           {% endif %}
           | {{ section.institution }} | {{ section.dates }}</i></p>
+          {% if section.description or section.previous or section.syllabus or section.award_link %}
           <p>{{ section.description }}
           {% if section.previous %}
             Previously: {{ section.previous }}
@@ -109,6 +110,7 @@ layout: default
             <a href="{{ section.award_link }}">[Award Article]</a>
           {% endif %}
           </p>
+          {% endif %}
         {% endfor %}
       </div>
     </div>
@@ -117,7 +119,7 @@ layout: default
     <!-- PEDAGOGY DEVELOPMENT -->
     <div class="row g-5 mb-5">
       <div class="col-md-2">
-        <h4>pedagogy development</h4>
+        <h4>professional development</h4>
       </div>
       <div class="col-md-10">
         {% for section in site.data.cv.pedagogy_development %}
@@ -151,14 +153,18 @@ layout: default
         <h4>service and leadership</h4>
       </div>
       <div class="col-md-10">
-        {% for section in site.data.cv.service %}
-          <p class="fw-bold">{{ section.role }}</p>
-          <p><i>{{ section.organization }}{% if section.institution %}, {{ section.institution }}{% endif %} | {{ section.dates }}</i></p>
-          <p>{{ section.description }}
-          {% if section.link %}
-            <a href="{{ section.link }}">[Article]</a>
-          {% endif %}
-          </p>
+        {% for group in site.data.cv.service %}
+          <h5 class="mb-3">{{ group.group }}{% if group.institution %} <i>| {{ group.institution }}</i>{% endif %}</h5>
+          {% for section in group.items %}
+            <p class="fw-bold">{{ section.role }}</p>
+            <p><i>{{ section.dates }}</i></p>
+            <p>{{ section.description }}
+            {% if section.link %}
+              <a href="{{ section.link }}">[Article]</a>
+            {% endif %}
+            </p>
+          {% endfor %}
+          {% unless forloop.last %}<br>{% endunless %}
         {% endfor %}
       </div>
     </div>
@@ -176,29 +182,33 @@ layout: default
           {% if section.link %}
             | <a href="{{ section.link }}">Article</a>
           {% endif %}
+          {% if section.description %}
+            <br>{{ section.description }}
+          {% endif %}
           </p>
         {% endfor %}
       </div>
     </div>
 
 
-    <!-- STUDENT MENTORSHIP -->
+    <!-- MENTORSHIP -->
     <div class="row g-5 mb-5">
       <div class="col-md-2">
-        <h4>student mentorship</h4>
+        <h4>mentorship</h4>
       </div>
       <div class="col-md-10">
-        <p>Brown University: supervise and train undergraduate students in research practice, coding, and data
-          analysis. Selected projects and achievements highlighted below. UTRA: Undergraduate Teaching and
-          Research Award, competitive funding from Brown University for full time (summer) or part time
-          (fall/spring) research pursuit.</p>
-        <br>
-
         {% for section in site.data.cv.mentorship %}
-          <p class="fw-bold">{{ section.student }} | <i>{{ section.years }}</i></p>
-          <p>{{ section.achievements }}</p>
-          {% if section.current %}
-            <p><i>Current: {{ section.current }}</i></p>
+          <p class="fw-bold">{{ section.role }}</p>
+          <p><i>{{ section.institution }}{% if section.dates %} | {{ section.dates }}{% endif %}</i></p>
+          {% if section.description %}
+            <p>{{ section.description }}</p>
+          {% endif %}
+          {% if section.students %}
+            <ul>
+            {% for student in section.students %}
+              <li class="mb-2">{{ student.name }} ({{ student.detail }}) - <i>{{ student.thesis }}</i></li>
+            {% endfor %}
+            </ul>
           {% endif %}
         {% endfor %}
       </div>

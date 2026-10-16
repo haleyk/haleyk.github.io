@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correlation Practice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        .setup-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px 0;
+            font-weight: bold;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            max-width: 300px;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .problem-section {
+            margin: 20px 0;
+            display: none;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        .answer-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #e8f8f5;
+            border-radius: 5px;
+        }
+        .answer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .answer-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .answer-item label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .answer-item input,
+        .answer-item select {
+            width: 100%;
+            max-width: none;
+        }
+        .solution-section {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fef9e7;
+            border-radius: 5px;
+        }
+        .correct {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border-left: 4px solid #3498db;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+        .hypothesis-result {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        .reject-null {
+            background-color: #fadbd8;
+            border-left: 5px solid #e74c3c;
+        }
+        .fail-to-reject {
+            background-color: #d5f4e6;
+            border-left: 5px solid #27ae60;
+        }
+        .correlation-table-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        .correlation-table {
+            font-size: 12px;
+            width: 100%;
+        }
+        .correlation-table th {
+            background-color: #34495e;
+            font-size: 11px;
+            padding: 8px 5px;
+        }
+        .correlation-table td {
+            padding: 6px 4px;
+        }
+        .correlation-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .feedback-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        .data-display {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Correlation Practice</h1>
+        
+        <div class="setup-section">
+            <h2>Setup Your Problem</h2>
+            
+            <label for="testType">1. Choose Correlation Type:</label>
+            <select id="testType" onchange="updateSetup()">
+                <option value="">-- Select --</option>
+                <option value="pearson">Pearson Correlation</option>
+                <option value="spearman">Spearman Correlation (Rank)</option>
+            </select>
+            
+            <label for="sampleSize">2. Sample Size (n):</label>
+            <select id="sampleSize">
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+            </select>
+            
+            <label for="alphaLevel">Significance Level (α):</label>
+            <select id="alphaLevel">
+                <option value="0.10">0.10 (two-tailed)</option>
+                <option value="0.05" selected>0.05 (two-tailed)</option>
+                <option value="0.01">0.01 (two-tailed)</option>
+            </select>
+            
+            <button onclick="generateProblem()" style="margin-top: 20px;">Generate New Problem</button>
+        </div>
+        
+        <div id="problemSection" class="problem-section">
+            <h2>Your Problem</h2>
+            <div id="problemDisplay"></div>
+            
+            <div class="answer-section">
+                <h3>Enter Your Answers:</h3>
+                <div class="answer-grid" id="answerGrid">
+                    <div class="answer-item">
+                        <label for="studentR">Correlation Coefficient (r):</label>
+                        <input type="number" id="studentR" step="0.001" placeholder="Enter r" min="-1" max="1">
+                    </div>
+                    <div class="answer-item" id="tStatItem" style="display:none;">
+                        <label for="studentT">t-Statistic:</label>
+                        <input type="number" id="studentT" step="0.001" placeholder="Enter t">
+                    </div>
+                </div>
+                <button onclick="checkAnswer()">Check Answer</button>
+                <button onclick="showSolution()">Show Solution</button>
+                <div id="feedback" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div id="solutionSection" class="solution-section">
+                <h2>Step-by-Step Solution</h2>
+                <div id="solutionDisplay"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Critical values for Pearson correlation (two-tailed)
+        const pearsonCriticalTable = {
+            3: {0.10: 0.988, 0.05: 0.997, 0.01: 0.9999, df: 1},
+            4: {0.10: 0.900, 0.05: 0.950, 0.01: 0.990, df: 2},
+            5: {0.10: 0.805, 0.05: 0.878, 0.01: 0.959, df: 3},
+            6: {0.10: 0.729, 0.05: 0.811, 0.01: 0.917, df: 4},
+            7: {0.10: 0.669, 0.05: 0.754, 0.01: 0.875, df: 5},
+            8: {0.10: 0.620, 0.05: 0.707, 0.01: 0.834, df: 6},
+            9: {0.10: 0.581, 0.05: 0.666, 0.01: 0.798, df: 7},
+            10: {0.10: 0.549, 0.05: 0.632, 0.01: 0.765, df: 8},
+            15: {0.10: 0.441, 0.05: 0.514, 0.01: 0.641, df: 13},
+            20: {0.10: 0.378, 0.05: 0.444, 0.01: 0.561, df: 18},
+            30: {0.10: 0.296, 0.05: 0.349, 0.01: 0.449, df: 28}
+        };
+
+        let currentProblem = null;
+        let correctR = null;
+        let correctT = null;
+
+        window.onload = function() {
+            // populateCorrelationTable();
+        };
+
+
+
+        function updateSetup() {
+            const testType = document.getElementById('testType').value;
+            const tStatItem = document.getElementById('tStatItem');
+            if (testType === 'pearson') {
+                tStatItem.style.display = 'flex';
+            } else {
+                tStatItem.style.display = 'none';
+            }
+        }
+
+        function generateProblem() {
+            const testType = document.getElementById('testType').value;
+            if (!testType) {
+                alert('Please select a correlation type');
+                return;
+            }
+
+            document.getElementById('studentR').value = '';
+            document.getElementById('studentT').value = '';
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('solutionSection').style.display = 'none';
+
+            if (testType === 'pearson') {
+                generatePearson();
+            } else {
+                generateSpearman();
+            }
+
+            document.getElementById('problemSection').style.display = 'block';
+        }
+
+        function generatePearson() {
+            const n = parseInt(document.getElementById('sampleSize').value);
+            const alpha = document.getElementById('alphaLevel').value;
+            
+            // Generate two random variables with some correlation
+            let x = [];
+            let y = [];
+            
+            // Create somewhat correlated data
+            const correlation = (Math.random() - 0.5) * 1.8; // Random correlation between -0.9 and 0.9
+            
+            for (let i = 0; i < n; i++) {
+                x.push(Math.random() * 100);
+            }
+            
+            for (let i = 0; i < n; i++) {
+                if (Math.random() < Math.abs(correlation)) {
+                    y.push(x[i] + (Math.random() - 0.5) * 20);
+                } else {
+                    y.push(Math.random() * 100);
+                }
+            }
+            
+            // Calculate Pearson correlation
+            const meanX = x.reduce((a, b) => a + b, 0) / n;
+            const meanY = y.reduce((a, b) => a + b, 0) / n;
+            
+            let sumXY = 0;
+            let sumX2 = 0;
+            let sumY2 = 0;
+            
+            for (let i = 0; i < n; i++) {
+                sumXY += (x[i] - meanX) * (y[i] - meanY);
+                sumX2 += Math.pow(x[i] - meanX, 2);
+                sumY2 += Math.pow(y[i] - meanY, 2);
+            }
+            
+            const r = sumXY / Math.sqrt(sumX2 * sumY2);
+            
+            // Calculate t-statistic
+            const tStat = r * Math.sqrt(n - 2) / Math.sqrt(1 - r * r);
+            
+            correctR = r;
+            correctT = tStat;
+
+            currentProblem = {
+                type: 'pearson',
+                n: n,
+                x: x,
+                y: y,
+                meanX: meanX,
+                meanY: meanY,
+                sumXY: sumXY,
+                sumX2: sumX2,
+                sumY2: sumY2,
+                r: r,
+                tStat: tStat,
+                alpha: alpha
+            };
+
+            displayPearson();
+        }
+
+        function displayPearson() {
+            const p = currentProblem;
+            
+            let html = `
+                <p><strong>Test Type:</strong> Pearson Correlation</p>
+                <p><strong>Null Hypothesis (H₀):</strong> ρ = 0 (no correlation)</p>
+                <p><strong>Alternative Hypothesis (H₁):</strong> ρ ≠ 0 (correlation exists)</p>
+                <p><strong>Significance Level:</strong> α = ${p.alpha} (two-tailed)</p>
+                <p><strong>Sample Size (n):</strong> ${p.n}</p>
+                
+                <div class="data-display">
+                    <p><strong>Data Points:</strong></p>
+                    <table>
+                        <tr>
+                            <th>i</th>
+                            ${Array.from({length: p.n}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>X</th>
+                            ${p.x.map(val => `<td>${val.toFixed(1)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Y</th>
+                            ${p.y.map(val => `<td>${val.toFixed(1)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+                
+                <p>Calculate the correlation coefficient and test if it is significantly different from zero.</p>
+            `;
+            
+            document.getElementById('problemDisplay').innerHTML = html;
+        }
+
+        function generateSpearman() {
+            const n = parseInt(document.getElementById('sampleSize').value);
+            const alpha = document.getElementById('alphaLevel').value;
+            
+            // Generate two random variables
+            let x = [];
+            let y = [];
+            
+            for (let i = 0; i < n; i++) {
+                x.push(Math.random() * 100);
+                y.push(Math.random() * 100);
+            }
+            
+            // Get ranks
+            const xRanked = getRanks(x);
+            const yRanked = getRanks(y);
+            
+            // Calculate Spearman correlation (on ranks)
+            const meanRX = xRanked.reduce((a, b) => a + b, 0) / n;
+            const meanRY = yRanked.reduce((a, b) => a + b, 0) / n;
+            
+            let sumXY = 0;
+            let sumX2 = 0;
+            let sumY2 = 0;
+            
+            for (let i = 0; i < n; i++) {
+                sumXY += (xRanked[i] - meanRX) * (yRanked[i] - meanRY);
+                sumX2 += Math.pow(xRanked[i] - meanRX, 2);
+                sumY2 += Math.pow(yRanked[i] - meanRY, 2);
+            }
+            
+            const rs = sumXY / Math.sqrt(sumX2 * sumY2);
+            
+            correctR = rs;
+            correctT = null; // Spearman doesn't need t-statistic for this exercise
+
+            currentProblem = {
+                type: 'spearman',
+                n: n,
+                x: x,
+                y: y,
+                xRanked: xRanked,
+                yRanked: yRanked,
+                meanRX: meanRX,
+                meanRY: meanRY,
+                sumXY: sumXY,
+                sumX2: sumX2,
+                sumY2: sumY2,
+                rs: rs,
+                alpha: alpha
+            };
+
+            displaySpearman();
+        }
+
+        function getRanks(data) {
+            // Get ranks for data
+            const indexed = data.map((val, idx) => ({val, idx}));
+            indexed.sort((a, b) => a.val - b.val);
+            
+            const ranks = new Array(data.length);
+            for (let i = 0; i < indexed.length; i++) {
+                ranks[indexed[i].idx] = i + 1;
+            }
+            
+            return ranks;
+        }
+
+        function displaySpearman() {
+            const p = currentProblem;
+            
+            let html = `
+                <p><strong>Test Type:</strong> Spearman Rank Correlation</p>
+                <p><strong>Null Hypothesis (H₀):</strong> ρₛ = 0 (no rank correlation)</p>
+                <p><strong>Alternative Hypothesis (H₁):</strong> ρₛ ≠ 0 (rank correlation exists)</p>
+                <p><strong>Significance Level:</strong> α = ${p.alpha} (two-tailed)</p>
+                <p><strong>Sample Size (n):</strong> ${p.n}</p>
+                
+                <div class="data-display">
+                    <p><strong>Data Points:</strong></p>
+                    <table>
+                        <tr>
+                            <th>i</th>
+                            ${Array.from({length: p.n}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>X</th>
+                            ${p.x.map(val => `<td>${val.toFixed(1)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Y</th>
+                            ${p.y.map(val => `<td>${val.toFixed(1)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+                
+                <p>Calculate the rank correlation coefficient.</p>
+            `;
+            
+            document.getElementById('problemDisplay').innerHTML = html;
+        }
+
+        function getCriticalValue(n, alpha) {
+            if (!pearsonCriticalTable[n]) {
+                return null;
+            }
+            return pearsonCriticalTable[n][alpha];
+        }
+
+        function checkAnswer() {
+            const testType = document.getElementById('testType').value;
+            const studentR = parseFloat(document.getElementById('studentR').value);
+            
+            if (isNaN(studentR)) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (testType === 'pearson') {
+                checkPearsonAnswer(studentR);
+            } else {
+                checkSpearmanAnswer(studentR);
+            }
+        }
+
+        function checkPearsonAnswer(studentR) {
+            const studentT = parseFloat(document.getElementById('studentT').value);
+            
+            if (isNaN(studentT)) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const p = currentProblem;
+            const alpha = document.getElementById('alphaLevel').value;
+            const criticalValue = getCriticalValue(p.n, alpha);
+
+            const rCorrect = Math.abs(studentR - correctR) < 0.01;
+            const tCorrect = Math.abs(studentT - correctT) < 0.01;
+            const rejectionCorrect = (Math.abs(correctR) > criticalValue) === (Math.abs(studentR) > criticalValue);
+
+            let feedback = '<div>';
+            
+            feedback += '<div class="feedback-item">';
+            feedback += rCorrect ? 
+                `<span class="correct">✓ Correlation (r): ${studentR.toFixed(3)} is correct!</span>` :
+                `<span class="incorrect">✗ Correlation (r): You entered ${studentR.toFixed(3)}, correct answer is ${correctR.toFixed(3)}</span>`;
+            feedback += '</div>';
+
+            feedback += '<div class="feedback-item">';
+            feedback += tCorrect ? 
+                `<span class="correct">✓ t-Statistic: ${studentT.toFixed(3)} is correct!</span>` :
+                `<span class="incorrect">✗ t-Statistic: You entered ${studentT.toFixed(3)}, correct answer is ${correctT.toFixed(3)}</span>`;
+            feedback += '</div>';
+
+            feedback += '<div class="feedback-item">';
+            // if (criticalValue !== null) {
+            //     const shouldReject = Math.abs(correctR) > criticalValue;
+            //     const studentWouldReject = Math.abs(studentR) > criticalValue;
+            //     const decisionText = shouldReject ? 'Correlation IS significant' : 'Correlation is NOT significant';
+            //     feedback += rejectionCorrect ? 
+            //         `<span class="correct">✓ Decision: ${decisionText} is correct!</span>` :
+            //         `<span class="incorrect">✗ Decision: Incorrect based on your r value</span>`;
+            // }
+            feedback += '</div>';
+
+            feedback += '</div>';
+
+            if (rCorrect && tCorrect && rejectionCorrect) {
+                feedback += '<p style="margin-top: 15px; font-size: 18px;" class="correct">🎉 Perfect! All answers are correct!</p>';
+            }
+
+            feedback += getPearsonHypothesisTestResult();
+
+            document.getElementById('feedback').innerHTML = feedback;
+        }
+
+        function checkSpearmanAnswer(studentR) {
+            const p = currentProblem;
+            
+            const rCorrect = Math.abs(studentR - correctR) < 0.01;
+
+            let feedback = '<div>';
+            
+            feedback += '<div class="feedback-item">';
+            feedback += rCorrect ? 
+                `<span class="correct">✓ Spearman Rank Correlation (rₛ): ${studentR.toFixed(3)} is correct!</span>` :
+                `<span class="incorrect">✗ Spearman Rank Correlation (rₛ): You entered ${studentR.toFixed(3)}, correct answer is ${correctR.toFixed(3)}</span>`;
+            feedback += '</div>';
+
+            feedback += '</div>';
+
+            if (rCorrect) {
+                feedback += '<p style="margin-top: 15px; font-size: 18px;" class="correct">🎉 Correct! The rank correlation coefficient is accurate!</p>';
+            }
+
+            feedback += getSpearmanHypothesisTestResult();
+
+            document.getElementById('feedback').innerHTML = feedback;
+        }
+
+        function getPearsonHypothesisTestResult() {
+            const p = currentProblem;
+            const criticalValue = getCriticalValue(p.n, p.alpha);
+            
+            if (criticalValue === null) {
+                return '<p><em>Sample size outside table range for critical value lookup.</em></p>';
+            }
+
+            const reject = Math.abs(correctR) > criticalValue;
+            
+            let html = `
+                <div class="hypothesis-result ${reject ? 'reject-null' : 'fail-to-reject'}" style="margin-top: 20px;">
+                    <p><strong>Hypothesis Test Result:</strong></p>
+                    <p>Sample Size: n = ${p.n}</p>
+                    <p>Significance Level: α = ${p.alpha} (two-tailed)</p>
+                    <p>Calculated r = ${correctR.toFixed(3)}</p>
+                </div>
+            `;
+            
+            return html;
+        }
+
+        function getSpearmanHypothesisTestResult() {
+            const p = currentProblem;
+            
+            let html = `
+                <div class="hypothesis-result fail-to-reject" style="margin-top: 20px;">
+                    <p><strong>Solution Summary:</strong></p>
+                    <p>Sample Size: n = ${p.n}</p>
+                    <p>Calculated Spearman rₛ = ${correctR.toFixed(3)}</p>
+                </div>
+            `;
+            
+            return html;
+        }
+
+        function showSolution() {
+            const testType = document.getElementById('testType').value;
+            if (testType === 'pearson') {
+                displayPearsonSolution();
+            } else {
+                displaySpearmanSolution();
+            }
+            document.getElementById('solutionSection').style.display = 'block';
+        }
+
+        function displayPearsonSolution() {
+            const p = currentProblem;
+            const criticalValue = getCriticalValue(p.n, p.alpha);
+            
+            let html = `
+                <div class="step">
+                    <h3>Step 1: Calculate Sample Means</h3>
+                    <p>x̄ = (${p.x.map(val => val.toFixed(1)).join(' + ')}) / ${p.n}</p>
+                    <p><strong>x̄ = ${p.meanX.toFixed(3)}</strong></p>
+                    <p>ȳ = (${p.y.map(val => val.toFixed(1)).join(' + ')}) / ${p.n}</p>
+                    <p><strong>ȳ = ${p.meanY.toFixed(3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 2: Calculate Deviations and Products</h3>
+                    <table>
+                        <tr>
+                            <th>i</th>
+                            ${Array.from({length: p.n}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>X</th>
+                            ${p.x.map(val => `<td>${val.toFixed(1)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Y</th>
+                            ${p.y.map(val => `<td>${val.toFixed(1)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>X - x̄</th>
+                            ${p.x.map(val => `<td>${(val - p.meanX).toFixed(2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Y - ȳ</th>
+                            ${p.y.map(val => `<td>${(val - p.meanY).toFixed(2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>(X - x̄)(Y - ȳ)</th>
+                            ${p.x.map((val, i) => `<td>${((val - p.meanX) * (p.y[i] - p.meanY)).toFixed(2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>(X - x̄)²</th>
+                            ${p.x.map(val => `<td>${Math.pow(val - p.meanX, 2).toFixed(2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>(Y - ȳ)²</th>
+                            ${p.y.map(val => `<td>${Math.pow(val - p.meanY, 2).toFixed(2)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 3: Calculate Sums</h3>
+                    <p>Σ(X - x̄)(Y - ȳ) = ${p.x.map((val, i) => ((val - p.meanX) * (p.y[i] - p.meanY)).toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ(X - x̄)(Y - ȳ) = ${p.sumXY.toFixed(3)}</strong></p>
+                    <br>
+                    <p>Σ(X - x̄)² = ${p.x.map(val => Math.pow(val - p.meanX, 2).toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ(X - x̄)² = ${p.sumX2.toFixed(3)}</strong></p>
+                    <br>
+                    <p>Σ(Y - ȳ)² = ${p.y.map(val => Math.pow(val - p.meanY, 2).toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ(Y - ȳ)² = ${p.sumY2.toFixed(3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 4: Calculate Pearson Correlation Coefficient</h3>
+                    <p>Formula: r = Σ(X - x̄)(Y - ȳ) / √[Σ(X - x̄)² × Σ(Y - ȳ)²]</p>
+                    <p>r = ${p.sumXY.toFixed(3)} / √[${p.sumX2.toFixed(3)} × ${p.sumY2.toFixed(3)}]</p>
+                    <p>r = ${p.sumXY.toFixed(3)} / √${(p.sumX2 * p.sumY2).toFixed(3)}</p>
+                    <p>r = ${p.sumXY.toFixed(3)} / ${Math.sqrt(p.sumX2 * p.sumY2).toFixed(3)}</p>
+                    <p><strong>r = ${p.r.toFixed(3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 5: Calculate t-Statistic (to test if r is significant)</h3>
+                    <p>df = n - 2 = ${p.n} - 2 = ${p.n - 2}</p>
+                    <p>Formula: t = r × √(n - 2) / √(1 - r²)</p>
+                    <p>t = ${p.r.toFixed(3)} × √${p.n - 2} / √(1 - ${p.r.toFixed(3)}²)</p>
+                    <p>t = ${p.r.toFixed(3)} × ${Math.sqrt(p.n - 2).toFixed(3)} / √${(1 - p.r * p.r).toFixed(3)}</p>
+                    <p>t = ${(p.r * Math.sqrt(p.n - 2)).toFixed(3)} / ${Math.sqrt(1 - p.r * p.r).toFixed(3)}</p>
+                    <p><strong>t = ${p.tStat.toFixed(3)}</strong></p>
+                </div>
+            `;
+
+            document.getElementById('solutionDisplay').innerHTML = html;
+        }
+
+        function displaySpearmanSolution() {
+            const p = currentProblem;
+            
+            let html = `
+                <div class="step">
+                    <h3>Step 1: Rank the Data</h3>
+                    <p>Sort each variable and assign ranks (1 = smallest, n = largest):</p>
+                    <table>
+                        <tr>
+                            <th>Original X</th>
+                            ${p.x.map(val => `<td>${val.toFixed(1)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(X)</th>
+                            ${p.xRanked.map(r => `<td>${r}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Original Y</th>
+                            ${p.y.map(val => `<td>${val.toFixed(1)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(Y)</th>
+                            ${p.yRanked.map(r => `<td>${r}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 2: Calculate Mean Ranks</h3>
+                    <p>Mean rank for X: (${p.xRanked.join(' + ')}) / ${p.n}</p>
+                    <p><strong>Mean Rank(X) = ${p.meanRX.toFixed(3)}</strong></p>
+                    <br>
+                    <p>Mean rank for Y: (${p.yRanked.join(' + ')}) / ${p.n}</p>
+                    <p><strong>Mean Rank(Y) = ${p.meanRY.toFixed(3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 3: Calculate Deviations and Products</h3>
+                    <table>
+                        <tr>
+                            <th>i</th>
+                            ${Array.from({length: p.n}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(X)</th>
+                            ${p.xRanked.map(r => `<td>${r}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(Y)</th>
+                            ${p.yRanked.map(r => `<td>${r}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(X) - Mean Rank(X)</th>
+                            ${p.xRanked.map(r => `<td>${(r - p.meanRX).toFixed(2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(Y) - Mean Rank(Y)</th>
+                            ${p.yRanked.map(r => `<td>${(r - p.meanRY).toFixed(2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>[Rank(X) - Mean][Rank(Y) - Mean]</th>
+                            ${p.xRanked.map((r, i) => `<td>${((r - p.meanRX) * (p.yRanked[i] - p.meanRY)).toFixed(2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>[Rank(X) - Mean]²</th>
+                            ${p.xRanked.map(r => `<td>${Math.pow(r - p.meanRX, 2).toFixed(2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>[Rank(Y) - Mean]²</th>
+                            ${p.yRanked.map(r => `<td>${Math.pow(r - p.meanRY, 2).toFixed(2)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 4: Calculate Sums</h3>
+                    <p>Σ[Rank(X) - Mean Rank(X)][Rank(Y) - Mean Rank(Y)] = ${p.xRanked.map((r, i) => ((r - p.meanRX) * (p.yRanked[i] - p.meanRY)).toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ = ${p.sumXY.toFixed(3)}</strong></p>
+                    <br>
+                    <p>Σ[Rank(X) - Mean]² = ${p.xRanked.map(r => Math.pow(r - p.meanRX, 2).toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ = ${p.sumX2.toFixed(3)}</strong></p>
+                    <br>
+                    <p>Σ[Rank(Y) - Mean]² = ${p.yRanked.map(r => Math.pow(r - p.meanRY, 2).toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ = ${p.sumY2.toFixed(3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 5: Calculate Spearman Correlation Coefficient</h3>
+                    <p>Apply the Pearson formula to the ranked data:</p>
+                    <p>Formula: rₛ = Σ[Rank(X) - Mean Rank(X)][Rank(Y) - Mean Rank(Y)] / √{Σ[Rank(X) - Mean]² × Σ[Rank(Y) - Mean]²}</p>
+                    <p>rₛ = ${p.sumXY.toFixed(3)} / √[${p.sumX2.toFixed(3)} × ${p.sumY2.toFixed(3)}]</p>
+                    <p>rₛ = ${p.sumXY.toFixed(3)} / √${(p.sumX2 * p.sumY2).toFixed(3)}</p>
+                    <p>rₛ = ${p.sumXY.toFixed(3)} / ${Math.sqrt(p.sumX2 * p.sumY2).toFixed(3)}</p>
+                    <p><strong>rₛ = ${p.rs.toFixed(3)}</strong></p>
+                </div>
+
+            `;
+
+            document.getElementById('solutionDisplay').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

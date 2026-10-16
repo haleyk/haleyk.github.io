@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>ACT STP Demos | haley keglovits</title>
+    <link rel="stylesheet" href="/assets/libs/bootstrap/bootstrap.min.css">
+    <script defer src="/assets/libs/fontawesome/all.min.js"></script>
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="apple-touch-icon" sizes="152x152" href="/assets/apple-icon-152x152.png">
+    <link rel="shortcut icon" href="/assets/favicon.ico">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+  </head>
+  
+  <body>
+    <div class="col-lg-8 mx-auto p-3 py-md-5">
+      <header class="d-flex flex-column flex-md-row align-items-center pb-3 mb-5 border-bottom">
+        <div>
+          <a href="/" class="d-flex align-items-center text-decoration-none">
+            <span class="fs-4 fw-bold">haley keglovits</span>
+          </a>
+          <a href="/" class="d-flex align-items-center text-decoration-none">
+            <span>cognitive science researcher and teacher</span>
+          </a>
+        </div>
+        <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
+          
+            
+              <a class="me-3 py-2 text-decoration-none" href="/research">research</a>
+            
+          
+            
+              <a class="me-3 py-2 text-decoration-none" href="/teaching">teaching</a>
+            
+          
+            
+              <a class="me-3 py-2 text-decoration-none" href="/cv">cv</a>
+            
+          
+            
+              <a class="me-3 py-2 text-decoration-none" href="/contact">contact</a>
+            
+          
+            
+              <a class="me-3 py-2 text-decoration-none" href="/other">other</a>
+            
+          
+            
+              <a class="me-3 py-2 px-3 text-decoration-none rounded" style="background-color: #d4edda;" href="/act_stp_demos">ACT STP Demos</a>
+            
+          
+        </nav>
+        <div class="row">
+          <div class="row-md-6 text-end social-media-icons">
+            
+              <a href="https://github.com/haleyk" class="ms-3 fs-5"><i class="fab fa-github"></i></a>
+            
+              <a href="https://www.linkedin.com/in/haley-keglovits/" class="ms-3 fs-5"><i class="fab fa-linkedin"></i></a>
+            
+          </div>
+        </div>
+      </header>
+      
+      <!-- Sections and demos are listed in _data/act_stp_demos.yml; the files are in subfolders of assets/act_stp_demos/ -->
+
+<style>
+  .demo-card { border: 1px solid #dee2e6; border-radius: 8px; padding: 1.25rem; height: 100%; display: flex; flex-direction: column; }
+  .demo-card .demo-actions { margin-top: auto; padding-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .demo-btn { display: inline-block; padding: 0.35rem 0.9rem; border: 1px solid #212529; border-radius: 6px; background: #fff; color: #212529; font-size: 0.95rem; text-decoration: none; cursor: pointer; }
+  .demo-btn:hover { background: #212529; color: #fff !important; }
+  .demo-btn.primary { background: #212529; color: #fff !important; }
+  .demo-btn.primary:hover { background: #fff; color: #212529 !important; }
+
+  .demo-section { margin-bottom: 1rem; }
+  .demo-section > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.9rem 1.25rem; border: 1px solid #212529; border-radius: 8px; background: #fff; font-size: 1.25rem; font-weight: 700; }
+  .demo-section > summary::-webkit-details-marker { display: none; }
+  .demo-section > summary:hover { background: #f1f3f5; }
+  .demo-section .demo-toggle { font-size: 0.95rem; font-weight: 400; color: #6c757d; white-space: nowrap; }
+  .demo-section .demo-toggle::after { content: "(show demos) \25BE"; }
+  .demo-section[open] .demo-toggle::after { content: "(hide demos) \25B4"; }
+  .demo-section[open] > summary { margin-bottom: 1.25rem; }
+
+  #demo-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+  #demo-modal.open { display: flex; }
+  #demo-modal .demo-modal-box { background: #fff; border-radius: 8px; width: min(1100px, 100%); height: min(90vh, 900px); display: flex; flex-direction: column; overflow: hidden; }
+  #demo-modal .demo-modal-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; border-bottom: 1px solid #dee2e6; flex-wrap: wrap; }
+  #demo-modal .demo-modal-bar h5 { margin: 0 auto 0 0; font-weight: 700; }
+  #demo-modal iframe { flex: 1; width: 100%; border: 0; }
+  #demo-modal .demo-modal-hint { font-size: 0.85rem; color: #6c757d; padding: 0.4rem 1rem; border-top: 1px solid #dee2e6; }
+</style>
+
+<div class="row g-5 mb-4">
+  <div>
+    <h3 class="fw-bold border-bottom pb-3 mb-4">ACT STP Demos</h3>
+    <p>
+      These are versions of the HTML demos presented at my poster. Each one is a single, self-contained file:
+      you can try it right here with <b>preview</b>, or <b>download</b> it and open it in any web browser,
+      no internet connection or installation needed. Feel free to use and adapt them for your own teaching. All were
+      created using Claude, and are designed for classroom or personal work, not for research purposes. If you find any
+      major issues, please reach out :)
+    </p>
+  </div>
+</div>
+
+
+
+<details class="demo-section">
+<summary>Tasks <span class="demo-toggle"></span></summary>
+<div class="row g-4 mb-4">
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">AX-CPT</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/tasks/axcpt.html" data-demo-name="AX-CPT" data-demo-file="axcpt.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/axcpt.html" download="axcpt.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/axcpt.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Flanker</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/tasks/flanker.html" data-demo-name="Flanker" data-demo-file="flanker.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/flanker.html" download="flanker.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/flanker.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Go/No-Go & Stop Signal</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/tasks/gonogo_stopsignal.html" data-demo-name="Go/No-Go & Stop Signal" data-demo-file="gonogo_stopsignal.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/gonogo_stopsignal.html" download="gonogo_stopsignal.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/gonogo_stopsignal.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">N-Back</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/tasks/nback.html" data-demo-name="N-Back" data-demo-file="nback.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/nback.html" download="nback.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/nback.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Simon</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/tasks/simon.html" data-demo-name="Simon" data-demo-file="simon.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/simon.html" download="simon.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/simon.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Stroop</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/tasks/stroop.html" data-demo-name="Stroop" data-demo-file="stroop.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/stroop.html" download="stroop.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/stroop.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Task Switching</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/tasks/taskswitching.html" data-demo-name="Task Switching" data-demo-file="taskswitching.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/taskswitching.html" download="taskswitching.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/taskswitching.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Tower of Hanoi</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/tasks/hanoi.html" data-demo-name="Tower of Hanoi" data-demo-file="hanoi.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/hanoi.html" download="hanoi.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/hanoi.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Wisconsin Card Sorting Task</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/tasks/wcst.html" data-demo-name="Wisconsin Card Sorting Task" data-demo-file="wcst.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/wcst.html" download="wcst.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/tasks/wcst.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+</div>
+</details>
+
+
+
+<details class="demo-section">
+<summary>Math Grading Tool <span class="demo-toggle"></span></summary>
+<div class="row g-4 mb-4">
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Grading Tool (multi topics)</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/stats%20grading/grading_tool.html" data-demo-name="Grading Tool (multi topics)" data-demo-file="grading_tool.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20grading/grading_tool.html" download="grading_tool.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20grading/grading_tool.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+</div>
+</details>
+
+
+
+<details class="demo-section">
+<summary>Visuals <span class="demo-toggle"></span></summary>
+<div class="row g-4 mb-4">
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Backpropagation for Psychologists</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/visuals/backprop_demo.html" data-demo-name="Backpropagation for Psychologists" data-demo-file="backprop_demo.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/visuals/backprop_demo.html" download="backprop_demo.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/visuals/backprop_demo.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Miller & Cohen (2001) Stroop Model</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/visuals/millercohen2001.html" data-demo-name="Miller & Cohen (2001) Stroop Model" data-demo-file="millercohen2001.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/visuals/millercohen2001.html" download="millercohen2001.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/visuals/millercohen2001.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+</div>
+</details>
+
+
+
+<details class="demo-section">
+<summary>Statistics Computation Practice for Students <span class="demo-toggle"></span></summary>
+<div class="row g-4 mb-4">
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Chi-Squared</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/stats%20practice/chisq.html" data-demo-name="Chi-Squared" data-demo-file="chisq.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20practice/chisq.html" download="chisq.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20practice/chisq.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Correlation (Spearman and Pearson)</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/stats%20practice/corr.html" data-demo-name="Correlation (Spearman and Pearson)" data-demo-file="corr.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20practice/corr.html" download="corr.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20practice/corr.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Histogram Bins</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/stats%20practice/hist_bins.html" data-demo-name="Histogram Bins" data-demo-file="hist_bins.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20practice/hist_bins.html" download="hist_bins.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20practice/hist_bins.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">Descriptive Statistics</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/stats%20practice/summary_stats.html" data-demo-name="Descriptive Statistics" data-demo-file="summary_stats.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20practice/summary_stats.html" download="summary_stats.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20practice/summary_stats.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-6 col-lg-4">
+    <div class="demo-card">
+      <h5 class="fw-bold">T-Tests</h5>
+      <div class="demo-actions">
+        <button type="button" class="demo-btn primary" data-demo-url="/assets/act_stp_demos/stats%20practice/ttest.html" data-demo-name="T-Tests" data-demo-file="ttest.html">preview</button>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20practice/ttest.html" download="ttest.html">download .html</a>
+        <a class="demo-btn" href="/assets/act_stp_demos/stats%20practice/ttest.html" target="_blank" rel="noopener">open in new tab</a>
+      </div>
+    </div>
+  </div>
+  
+</div>
+</details>
+
+
+<div class="mb-5"></div>
+
+<div id="demo-modal" role="dialog" aria-modal="true" aria-labelledby="demo-modal-title">
+  <div class="demo-modal-box">
+    <div class="demo-modal-bar">
+      <h5 id="demo-modal-title"></h5>
+      <a class="demo-btn" id="demo-modal-download" href="#" download>download .html</a>
+      <a class="demo-btn" id="demo-modal-newtab" href="#" target="_blank" rel="noopener">open in new tab</a>
+      <button type="button" class="demo-btn primary" id="demo-modal-close">close</button>
+    </div>
+    <iframe id="demo-modal-frame" title="demo preview"></iframe>
+    <div class="demo-modal-hint">If the keyboard doesn't respond, click once inside the demo.</div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var modal = document.getElementById('demo-modal');
+    var frame = document.getElementById('demo-modal-frame');
+    var title = document.getElementById('demo-modal-title');
+    var dl = document.getElementById('demo-modal-download');
+    var newtab = document.getElementById('demo-modal-newtab');
+
+    function openDemo(btn) {
+      var url = btn.getAttribute('data-demo-url');
+      title.textContent = btn.getAttribute('data-demo-name');
+      dl.href = url;
+      dl.setAttribute('download', btn.getAttribute('data-demo-file'));
+      newtab.href = url;
+      frame.onload = function () { try { frame.contentWindow.focus(); } catch (e) {} };
+      frame.src = url;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDemo() {
+      modal.classList.remove('open');
+      frame.src = 'about:blank'; // stops any running task
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('[data-demo-url]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openDemo(btn); });
+    });
+    document.getElementById('demo-modal-close').addEventListener('click', closeDemo);
+    modal.addEventListener('click', function (e) { if (e.target === modal) closeDemo(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeDemo();
+    });
+  })();
+</script>
+
+      <footer class="pt-5 my-5 text-muted border-top">
+        <div class="row">
+          <!-- <div class="col-md-6 text-end social-media-icons">
+            
+              <a href="https://github.com/haleyk" class="ms-3 fs-5"><i class="fab fa-github"></i></a>
+            
+              <a href="https://www.linkedin.com/in/haley-keglovits/" class="ms-3 fs-5"><i class="fab fa-linkedin"></i></a>
+            
+          </div> -->
+          <p>website theme edited from <a href="https://github.com/LeNPaul/academic">lenpaul/academic</a></p>
+        </div>
+      </footer>
+    </div>
+    <script>
+
+function isvisible(obj) {
+  return obj.offsetWidth > 0 && obj.offsetHeight > 0;
+}
+var shuffle = function() {
+      elements = document.querySelectorAll('.randomize');
+      Array.prototype.forEach.call(elements, function(parentel, i){
+        var children = parentel.children;
+        children = Array.prototype.slice.call(children, 0);
+        children = Array.prototype.sort.call(children, function(a, b) {
+            return Math.random() - 0.5;
+        });
+        for(var i = 0, l = children.length; i < l; i++) parentel.append(children[i]);
+      });
+};
+shuffle();
+
+elements = document.querySelectorAll('.randomize');
+Array.prototype.forEach.call(elements, function(parentel, i){
+    children = parentel.children;
+    Array.prototype.forEach.call(children, function(el, j){
+        if(isvisible(el)) {
+            if(el.getAttribute('data-src')) el.setAttribute('src',el.getAttribute('data-src'));
+            if(el.querySelector('img')) {
+                Array.prototype.forEach.call(el.querySelectorAll('img'), function(imgel, j){
+                    imgel.setAttribute('src',imgel.getAttribute('data-src'));
+                });
+            }
+            if(el.querySelector('*')) {
+                Array.prototype.forEach.call(el.querySelectorAll('*'), function(subel, j){
+                    subel.setAttribute('style',imgel.getAttribute('data-style'));
+                });
+            }
+        }
+    });
+});
+
+</script>
+
+  </body>
+</html>

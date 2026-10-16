@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Switching</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+  }
+  .screen {
+    display: none;
+    min-height: 100%;
+    box-sizing: border-box;
+    padding: 24px 16px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .screen.active { display: flex; }
+  .content { max-width: 640px; width: 100%; }
+  h1 { font-size: 32px; margin: 0 0 20px; }
+  p { line-height: 1.5; margin: 0 0 14px; }
+  .settings { margin: 28px 0; }
+  .row { margin: 14px 0; }
+  label { margin-right: 8px; }
+  input[type=number] { width: 80px; font-size: 18px; padding: 2px 4px; }
+  input[type=range] { width: 240px; vertical-align: middle; }
+  select { font-size: 18px; padding: 2px 4px; }
+  button {
+    font-size: 18px;
+    padding: 8px 22px;
+    margin: 6px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    cursor: pointer;
+  }
+  #task { cursor: none; }
+  #stage {
+    position: relative;
+    width: min(380px, 84vw);
+    height: min(380px, 84vw);
+    user-select: none;
+  }
+  .slot, #feedback {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+  }
+  .slot { font-size: 56px; font-weight: bold; letter-spacing: 0.04em; }
+  .pos-tl { top: 25%; left: 25%; }
+  .pos-tr { top: 25%; left: 75%; }
+  .pos-bl { top: 75%; left: 25%; }
+  .pos-br { top: 75%; left: 75%; }
+  #feedback { top: 50%; left: 50%; font-size: 40px; }
+  table { margin: 20px auto; border-collapse: collapse; }
+  th, td { padding: 6px 16px; text-align: center; }
+  th { border-bottom: 1px solid #000; }
+</style>
+</head>
+<body>
+
+<div id="start" class="screen active">
+  <div class="content">
+    <h1>Task Switching</h1>
+    <p>A pair of characters will appear in one of four positions around the center of the screen.
+       The position moves clockwise from one trial to the next.</p>
+    <p>When the pair is in one of the <b>top</b> two positions, judge the <b>letter</b>:<br>
+       press <b>D</b> for a consonant, <b>J</b> for a vowel.</p>
+    <p>When the pair is in one of the <b>bottom</b> two positions, judge the <b>number</b>:<br>
+       press <b>D</b> for an even number, <b>J</b> for an odd number.</p>
+    <p>Use both hands: left index finger on D, right index finger on J.</p>
+    <p>Respond as quickly and as accurately as possible.</p>
+
+    <div class="settings">
+      <div class="row">
+        <label for="nTrials">Number of trials:</label>
+        <input type="number" id="nTrials" min="4" max="1000" value="40">
+      </div>
+      <div class="row">
+        <label for="pCross">Letter + number pairs:</label>
+        <input type="range" id="pCross" min="0" max="100" step="5" value="100">
+        <span id="pCrossVal">100%</span>
+      </div>
+      <p style="font-size:15px">The other pairs show the relevant character next to a symbol (#, ?, *, %).</p>
+      <div class="row">
+        <label for="rsi">Time between response and next pair:</label>
+        <select id="rsi">
+          <option value="150">150 ms</option>
+          <option value="300">300 ms</option>
+          <option value="450">450 ms</option>
+          <option value="500" selected>500 ms</option>
+          <option value="600">600 ms</option>
+          <option value="900">900 ms</option>
+          <option value="1200">1200 ms</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="fb">Show feedback:</label>
+        <input type="checkbox" id="fb">
+      </div>
+    </div>
+
+    <button id="startBtn">Begin</button>
+  </div>
+</div>
+
+<div id="task" class="screen">
+  <div id="stage">
+    <div class="slot pos-tl" id="slot-tl"></div>
+    <div class="slot pos-tr" id="slot-tr"></div>
+    <div class="slot pos-bl" id="slot-bl"></div>
+    <div class="slot pos-br" id="slot-br"></div>
+    <div id="feedback"></div>
+  </div>
+</div>
+
+<div id="results" class="screen">
+  <div class="content">
+    <h1>Results</h1>
+    <table id="resTable"></table>
+    <p id="effect"></p>
+    <button id="downloadBtn">Download data</button>
+    <button id="againBtn">Run again</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var DEADLINE = 2000;
+  var FEEDBACK_MS = 500;
+  var CONSONANTS = ['G', 'K', 'M', 'R'];
+  var VOWELS = ['A', 'E', 'I', 'U'];
+  var EVENS = ['2', '4', '6', '8'];
+  var ODDS = ['3', '5', '7', '9'];
+  var NEUTRALS = ['#', '?', '*', '%'];
+  // Clockwise rotation: top pair = letter task, bottom pair = number task (AABB sequence)
+  var ROTATION = ['tl', 'tr', 'br', 'bl'];
+  var TASK_AT = { tl: 'letter', tr: 'letter', br: 'number', bl: 'number' };
+  var KEYMAP = { d: 'D', j: 'J' };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var slots = { tl: $('slot-tl'), tr: $('slot-tr'), bl: $('slot-bl'), br: $('slot-br') };
+  var fbEl = $('feedback');
+
+  $('pCross').addEventListener('input', function () { $('pCrossVal').textContent = this.value + '%'; });
+
+  function show(id) {
+    ['start', 'task', 'results'].forEach(function (s) {
+      $(s).classList.toggle('active', s === id);
+    });
+  }
+
+  function jitter(base) { return base * (0.9 + Math.random() * 0.2); }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function mean(arr) {
+    if (!arr.length) return NaN;
+    return arr.reduce(function (s, x) { return s + x; }, 0) / arr.length;
+  }
+  function pick(pool, prev) {
+    var p = pool.filter(function (c) { return c !== prev; });
+    return p[Math.floor(Math.random() * p.length)];
+  }
+  function clearSlots() { Object.keys(slots).forEach(function (k) { slots[k].textContent = ''; }); }
+
+  function buildTrials(n, pCross) {
+    var nCross = Math.round(n * pCross);
+    var kinds = [];
+    for (var i = 0; i < n; i++) kinds.push(i < nCross ? 'crosstalk' : 'neutral');
+    shuffle(kinds);
+
+    var prevL = null, prevD = null, prevN = null, prevTask = null, list = [];
+    for (var t = 0; t < n; t++) {
+      var loc = ROTATION[t % 4], task = TASK_AT[loc], kind = kinds[t];
+      var letterFirst = Math.random() < 0.5;
+      var letter = null, digit = null, other, text, key;
+      if (task === 'letter') {
+        letter = pick(CONSONANTS.concat(VOWELS), prevL); prevL = letter;
+        key = CONSONANTS.indexOf(letter) >= 0 ? 'D' : 'J';
+      } else {
+        digit = pick(EVENS.concat(ODDS), prevD); prevD = digit;
+        key = EVENS.indexOf(digit) >= 0 ? 'D' : 'J';
+      }
+      if (kind === 'crosstalk') {
+        if (task === 'letter') { digit = pick(EVENS.concat(ODDS), prevD); prevD = digit; }
+        else { letter = pick(CONSONANTS.concat(VOWELS), prevL); prevL = letter; }
+        text = letterFirst ? letter + digit : digit + letter;
+      } else {
+        other = pick(NEUTRALS, prevN); prevN = other;
+        var rel = task === 'letter' ? letter : digit;
+        text = letterFirst ? rel + other : other + rel;
+      }
+      list.push({
+        location: loc, task: task, kind: kind, text: text, key: key,
+        transition: prevTask === null ? 'first' : (task === prevTask ? 'repeat' : 'switch')
+      });
+      prevTask = task;
+    }
+    return list;
+  }
+
+  var trials, data, idx, showFb, rsi, onset, waiting, deadlineTimer, prevIti;
+
+  $('startBtn').addEventListener('click', function () {
+    var n = parseInt($('nTrials').value, 10);
+    if (!(n > 0)) n = 40;
+    n = Math.min(Math.max(n, 1), 1000);
+    trials = buildTrials(n, parseInt($('pCross').value, 10) / 100);
+    rsi = parseInt($('rsi').value, 10);
+    showFb = $('fb').checked;
+    data = [];
+    idx = 0;
+    this.blur();
+    clearSlots();
+    fbEl.textContent = '';
+    show('task');
+    prevIti = Math.round(jitter(rsi));
+    setTimeout(runTrial, prevIti);
+  });
+
+  function runTrial() {
+    var tr = trials[idx];
+    fbEl.textContent = '';
+    slots[tr.location].textContent = tr.text;
+    requestAnimationFrame(function () {
+      onset = performance.now();
+      waiting = true;
+      deadlineTimer = setTimeout(function () { endTrial(null, null); }, DEADLINE);
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    var k = e.key.toLowerCase();
+    if (!waiting || e.repeat || !(k in KEYMAP)) return;
+    endTrial(KEYMAP[k], performance.now() - onset);
+  });
+
+  function endTrial(resp, rt) {
+    if (!waiting) return;
+    waiting = false;
+    clearTimeout(deadlineTimer);
+    clearSlots();
+
+    var tr = trials[idx];
+    var correct = resp === tr.key ? 1 : 0;
+    data.push({
+      trial: idx + 1,
+      location: tr.location,
+      task: tr.task,
+      stimulus: tr.text,
+      pair_type: tr.kind,
+      transition: tr.transition,
+      correct_key: tr.key,
+      response: resp === null ? 'none' : resp,
+      rt: rt === null ? '' : Math.round(rt),
+      accuracy: correct,
+      iti_before: prevIti
+    });
+
+    idx++;
+    var wait = 0;
+    if (showFb) {
+      fbEl.textContent = resp === null ? 'Too slow' : (correct ? 'Correct' : 'Incorrect');
+      wait = FEEDBACK_MS;
+    }
+    setTimeout(function () {
+      fbEl.textContent = '';
+      if (idx >= trials.length) { showResults(); return; }
+      prevIti = Math.round(jitter(rsi));
+      setTimeout(runTrial, prevIti);
+    }, wait);
+  }
+
+  function summarize(rows) {
+    var correctRts = rows.filter(function (r) { return r.accuracy === 1; }).map(function (r) { return r.rt; });
+    return {
+      n: rows.length,
+      rt: mean(correctRts),
+      acc: rows.length ? 100 * mean(rows.map(function (r) { return r.accuracy; })) : NaN
+    };
+  }
+  function fmt(x, unit) { return isNaN(x) ? '--' : Math.round(x) + unit; }
+
+  function showResults() {
+    var scored = data.filter(function (r) { return r.transition !== 'first'; });
+    var groups = [
+      ['Repeat', function (r) { return r.transition === 'repeat'; }],
+      ['Switch', function (r) { return r.transition === 'switch'; }],
+      ['Letter + number', function (r) { return r.pair_type === 'crosstalk'; }],
+      ['Character + symbol', function (r) { return r.pair_type === 'neutral'; }],
+      ['All', function () { return true; }]
+    ];
+    var s = {};
+    var html = '<tr><th>Trial type</th><th>Trials</th><th>Mean RT (correct)</th><th>Accuracy</th></tr>';
+    groups.forEach(function (g) {
+      s[g[0]] = summarize(scored.filter(g[1]));
+      html += '<tr><td>' + g[0] + '</td><td>' + s[g[0]].n + '</td><td>' + fmt(s[g[0]].rt, ' ms') +
+              '</td><td>' + fmt(s[g[0]].acc, '%') + '</td></tr>';
+    });
+    $('resTable').innerHTML = html;
+
+    var lines = ['Switch cost (switch RT minus repeat RT): <b>' + fmt(s.Switch.rt - s.Repeat.rt, ' ms') + '</b>'];
+    if (s['Letter + number'].n && s['Character + symbol'].n) {
+      lines.push('Letter + number RT minus character + symbol RT: <b>' +
+                 fmt(s['Letter + number'].rt - s['Character + symbol'].rt, ' ms') + '</b>');
+    }
+    lines.push('<span style="font-size:15px">Time between response and next pair: ' + rsi +
+               ' ms. The first trial is not included above.</span>');
+    $('effect').innerHTML = lines.join('<br>');
+    show('results');
+  }
+
+  function downloadCSV(rows, cols, prefix) {
+    var lines = [cols.join(',')];
+    rows.forEach(function (r) { lines.push(cols.map(function (c) { return r[c]; }).join(',')); });
+    var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    var a = document.createElement('a');
+    var d = new Date();
+    var p2 = function (x) { return String(x).padStart(2, '0'); };
+    a.href = URL.createObjectURL(blob);
+    a.download = prefix + '_' + d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) +
+                 '_' + p2(d.getHours()) + p2(d.getMinutes()) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  $('downloadBtn').addEventListener('click', function () {
+    downloadCSV(data, ['trial', 'location', 'task', 'stimulus', 'pair_type', 'transition', 'correct_key',
+                       'response', 'rt', 'accuracy', 'iti_before'], 'taskswitching');
+  });
+  $('againBtn').addEventListener('click', function () { this.blur(); show('start'); });
+})();
+</script>
+</body>
+</html>

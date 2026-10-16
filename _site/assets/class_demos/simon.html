@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simon Task Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 800px;
+        }
+        
+        .task-area {
+            width: 600px;
+            height: 400px;
+            background-color: #ffffff;
+            border: 2px solid #333;
+            margin: 20px auto;
+            position: relative;
+            display: none;
+        }
+        
+        .fixation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            font-weight: bold;
+            color: black;
+        }
+        
+        .stimulus {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+        }
+        
+        .left-position {
+            left: 100px;
+        }
+        
+        .right-position {
+            right: 100px;
+        }
+        
+        .instructions {
+            text-align: left;
+            margin: 20px 0;
+        }
+        
+        .key-labels {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .key-label {
+            padding: 10px 20px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .results {
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .trial-counter {
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .phase-indicator {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simon Task Demo</h1>
+        
+        <div id="welcome-screen">
+            <div class="instructions">
+                <h3>Instructions:</h3>
+                <ul>
+                    <li>You will see blue or orange squares appear on the left or right side of the screen</li>
+                    <li>Press the <strong>LEFT SHIFT key</strong> when you see a <strong>BLUE</strong> square</li>
+                    <li>Press the <strong>RIGHT SHIFT key</strong> when you see an <strong>ORANGE</strong> square</li>
+                    <li>Respond as quickly and accurately as possible</li>
+                    <li>You'll start with 8 practice trials, then 28 experimental trials</li>
+                    <li>The fixation cross (+) will turn green for correct responses, red for incorrect/missed responses</li>
+                </ul>
+            </div>
+            
+            <div class="key-labels">
+                <div class="key-label" style="background-color: lightblue;">
+                    LEFT SHIFT<br>
+                    (Blue Square)
+                </div>
+                <div class="key-label" style="background-color: #ffcc99;">
+                    RIGHT SHIFT<br>
+                    (Orange Square)
+                </div>
+            </div>
+            
+            <button onclick="startPractice()">Start Practice Trials</button>
+        </div>
+        
+        <div id="task-screen" style="display: none;">
+            <div class="phase-indicator" id="phase-indicator"></div>
+            <div class="trial-counter" id="trial-counter"></div>
+            <div class="task-area" id="task-area">
+                <div class="fixation" id="fixation">+</div>
+                <div class="stimulus" id="stimulus"></div>
+            </div>
+            <div id="feedback" style="margin-top: 10px; font-weight: bold; height: 20px;"></div>
+        </div>
+        
+        <div id="results-screen" style="display: none;">
+            <h2>Results</h2>
+            <div id="results-content" class="results"></div>
+            <button onclick="resetTask()">Run Again</button>
+        </div>
+    </div>
+
+    <script>
+        class SimonTask {
+            constructor() {
+                this.reset();
+                this.bindKeyEvents();
+            }
+            
+            reset() {
+                this.currentTrial = 0;
+                this.isPractice = true;
+                this.practiceTrials = [];
+                this.experimentalTrials = [];
+                this.results = [];
+                this.trialStartTime = 0;
+                this.isWaitingForResponse = false;
+                this.currentTrialData = null;
+                this.responseTimeout = null;
+                
+                this.initializeTrials();
+            }
+            
+            initializeTrials() {
+                // Practice trials (8 total)
+                this.practiceTrials = this.generateTrials(8);
+                console.log('Practice trials:', this.practiceTrials);
+                
+                // Experimental trials (28 total)
+                this.experimentalTrials = this.generateTrials(28);
+                console.log('Experimental trials:', this.experimentalTrials);
+            }
+            
+            generateTrials(numTrials) {
+                const trials = [];
+                const colors = ['orange', 'blue'];
+                const positions = ['left', 'right'];
+                
+                for (let i = 0; i < numTrials; i++) {
+                    const color = colors[Math.floor(Math.random() * 2)];
+                    const position = positions[Math.floor(Math.random() * 2)];
+                    
+                    // Determine congruency
+                    const isCongruent = (color === 'blue' && position === 'left') || 
+                                      (color === 'orange' && position === 'right');
+                    
+                    trials.push({
+                        color: color,
+                        position: position,
+                        congruent: isCongruent
+                    });
+                }
+                
+                return this.shuffleArray(trials);
+            }
+            
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+            
+            bindKeyEvents() {
+                // Remove any existing listeners
+                document.removeEventListener('keydown', this.keyHandler);
+                
+                // Bind new listener
+                this.keyHandler = (e) => {
+                    console.log('Key pressed:', e.code, 'Waiting for response:', this.isWaitingForResponse);
+                    if (this.isWaitingForResponse) {
+                        if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+                            e.preventDefault();
+                            this.handleResponse(e.code);
+                        }
+                    }
+                };
+                
+                document.addEventListener('keydown', this.keyHandler);
+            }
+            
+            getCurrentTrials() {
+                return this.isPractice ? this.practiceTrials : this.experimentalTrials;
+            }
+            
+            startTrial() {
+                const trials = this.getCurrentTrials();
+                const trial = trials[this.currentTrial];
+                
+                console.log(`Starting trial ${this.currentTrial}, isPractice: ${this.isPractice}, trial:`, trial);
+                
+                if (!trial) {
+                    this.endPhase();
+                    return;
+                }
+                
+                this.currentTrialData = trial;
+                this.updateDisplay();
+                this.showFixation();
+            }
+            
+            updateDisplay() {
+                const phase = this.isPractice ? 'PRACTICE' : 'EXPERIMENTAL';
+                const trialNum = this.currentTrial + 1;
+                const totalTrials = this.getCurrentTrials().length;
+                
+                document.getElementById('phase-indicator').textContent = phase;
+                document.getElementById('trial-counter').textContent = 
+                    `Trial ${trialNum} of ${totalTrials}`;
+            }
+            
+            showFixation() {
+                console.log('Showing fixation');
+                const fixation = document.getElementById('fixation');
+                const stimulus = document.getElementById('stimulus');
+                
+                // Clear any existing timeouts
+                if (this.responseTimeout) {
+                    clearTimeout(this.responseTimeout);
+                    this.responseTimeout = null;
+                }
+                
+                // Reset fixation to normal appearance
+                fixation.style.display = 'block';
+                fixation.style.color = 'black';
+                fixation.textContent = '+';
+                stimulus.style.display = 'none';
+                this.isWaitingForResponse = false;
+                
+                setTimeout(() => {
+                    fixation.style.display = 'none';
+                    setTimeout(() => {
+                        this.showStimulus();
+                    }, 250); // 250ms blank interval
+                }, 800); // 800ms fixation
+            }
+            
+            showStimulus() {
+                console.log('Showing stimulus:', this.currentTrialData);
+                const stimulus = document.getElementById('stimulus');
+                
+                stimulus.style.backgroundColor = this.currentTrialData.color;
+                stimulus.style.display = 'block';
+                stimulus.className = `stimulus ${this.currentTrialData.position}-position`;
+                
+                this.trialStartTime = Date.now();
+                this.isWaitingForResponse = true;
+                
+                console.log('Now waiting for response, isWaitingForResponse:', this.isWaitingForResponse);
+                
+                // Auto-advance after 1000ms if no response
+                this.responseTimeout = setTimeout(() => {
+                    if (this.isWaitingForResponse) {
+                        console.log('Timeout - no response');
+                        this.handleResponse(null); // No response
+                    }
+                }, 1000);
+            }
+            
+            handleResponse(keyCode) {
+                console.log('Handling response:', keyCode, 'isWaitingForResponse:', this.isWaitingForResponse);
+                
+                if (!this.isWaitingForResponse) {
+                    console.log('Not waiting for response, ignoring');
+                    return;
+                }
+                
+                this.isWaitingForResponse = false;
+                
+                // Clear timeout
+                if (this.responseTimeout) {
+                    clearTimeout(this.responseTimeout);
+                    this.responseTimeout = null;
+                }
+                
+                const reactionTime = Date.now() - this.trialStartTime;
+                
+                let correct = false;
+                let responded = keyCode !== null;
+                
+                if (responded) {
+                    const correctKey = this.currentTrialData.color === 'blue' ? 'ShiftLeft' : 'ShiftRight';
+                    correct = keyCode === correctKey;
+                }
+                
+                console.log(`Response: ${keyCode}, Correct: ${correct}, RT: ${reactionTime}`);
+                
+                // Record result for experimental trials
+                if (!this.isPractice) {
+                    this.results.push({
+                        trial: this.currentTrial + 1,
+                        color: this.currentTrialData.color,
+                        position: this.currentTrialData.position,
+                        congruent: this.currentTrialData.congruent,
+                        correct: correct,
+                        responded: responded,
+                        reactionTime: responded ? reactionTime : null
+                    });
+                    console.log('Added result:', this.results[this.results.length - 1]);
+                }
+                
+                this.showFeedback(correct, responded);
+                
+                setTimeout(() => {
+                    this.nextTrial(correct);
+                }, 500); // 500ms blank interval
+            }
+            
+            showFeedback(correct, responded) {
+                const fixation = document.getElementById('fixation');
+                const stimulus = document.getElementById('stimulus');
+                
+                stimulus.style.display = 'none';
+                fixation.style.display = 'block';
+                fixation.textContent = '+';
+                
+                if (!responded || !correct) {
+                    // Red fixation for incorrect or no response
+                    fixation.style.color = 'red';
+                } else {
+                    // Green fixation for correct responses
+                    fixation.style.color = 'green';
+                }
+            }
+            
+            nextTrial(correct) {
+                // For practice trials, must be correct to advance
+                if (this.isPractice && !correct) {
+                    // Repeat the trial
+                    console.log('Repeating practice trial');
+                    this.startTrial();
+                } else {
+                    this.currentTrial++;
+                    console.log('Advancing to next trial:', this.currentTrial);
+                    this.startTrial();
+                }
+            }
+            
+            endPhase() {
+                console.log('Ending phase, isPractice:', this.isPractice);
+                
+                if (this.isPractice) {
+                    this.isPractice = false;
+                    this.currentTrial = 0;
+                    
+                    // Show transition message
+                    document.getElementById('feedback').textContent = 'Practice complete! Starting experimental trials in 3 seconds...';
+                    document.getElementById('feedback').style.color = 'blue';
+                    
+                    setTimeout(() => {
+                        document.getElementById('feedback').textContent = '';
+                        console.log('Starting experimental trials');
+                        this.startTrial();
+                    }, 3000);
+                } else {
+                    console.log('Task complete, showing results');
+                    this.showResults();
+                }
+            }
+            
+            showResults() {
+                document.getElementById('task-screen').style.display = 'none';
+                document.getElementById('results-screen').style.display = 'block';
+                
+                this.calculateResults();
+            }
+            
+            calculateResults() {
+                console.log('All results:', this.results);
+                
+                if (this.results.length === 0) {
+                    document.getElementById('results-content').innerHTML = '<p>No results to display.</p>';
+                    return;
+                }
+                
+                const correctTrials = this.results.filter(r => r.correct && r.responded);
+                const congruentTrials = correctTrials.filter(r => r.congruent);
+                const incongruentTrials = correctTrials.filter(r => !r.congruent);
+                
+                const avgRTCongruent = congruentTrials.length > 0 ? 
+                    congruentTrials.reduce((sum, trial) => sum + trial.reactionTime, 0) / congruentTrials.length : 0;
+                const avgRTIncongruent = incongruentTrials.length > 0 ? 
+                    incongruentTrials.reduce((sum, trial) => sum + trial.reactionTime, 0) / incongruentTrials.length : 0;
+                const simonEffect = avgRTIncongruent - avgRTCongruent;
+                
+                const accuracy = (correctTrials.length / this.results.length) * 100;
+                
+                const resultsHTML = `
+                    <h3>Performance Summary</h3>
+                    <p><strong>Total Trials:</strong> ${this.results.length}</p>
+                    <p><strong>Overall Accuracy:</strong> ${accuracy.toFixed(1)}% (${correctTrials.length}/${this.results.length})</p>
+                    <p><strong>Congruent Trials:</strong> ${congruentTrials.length} (Avg RT: ${avgRTCongruent.toFixed(0)} ms)</p>
+                    <p><strong>Incongruent Trials:</strong> ${incongruentTrials.length} (Avg RT: ${avgRTIncongruent.toFixed(0)} ms)</p>
+                    <p><strong>Simon Effect:</strong> ${simonEffect.toFixed(0)} ms</p>
+                    
+                    <h3>Trial-by-Trial Results</h3>
+                    <table border="1" style="margin: 0 auto; text-align: center;">
+                        <tr>
+                            <th>Trial</th>
+                            <th>Color</th>
+                            <th>Position</th>
+                            <th>Congruent</th>
+                            <th>Correct</th>
+                            <th>RT (ms)</th>
+                        </tr>
+                        ${this.results.map(r => `
+                            <tr>
+                                <td>${r.trial}</td>
+                                <td style="background-color: ${r.color}; color: white;">${r.color}</td>
+                                <td>${r.position}</td>
+                                <td>${r.congruent ? 'Yes' : 'No'}</td>
+                                <td style="color: ${r.correct ? 'green' : 'red'};">${r.correct ? 'Yes' : 'No'}</td>
+                                <td>${r.reactionTime ? r.reactionTime : 'No response'}</td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                `;
+                
+                document.getElementById('results-content').innerHTML = resultsHTML;
+            }
+        }
+        
+        let simonTask;
+        
+        function startPractice() {
+            document.getElementById('welcome-screen').style.display = 'none';
+            document.getElementById('task-screen').style.display = 'block';
+            document.getElementById('task-area').style.display = 'block';
+            
+            simonTask = new SimonTask();
+            simonTask.startTrial();
+        }
+        
+        function resetTask() {
+            document.getElementById('results-screen').style.display = 'none';
+            document.getElementById('welcome-screen').style.display = 'block';
+            document.getElementById('task-area').style.display = 'none';
+            
+            if (simonTask) {
+                simonTask.reset();
+            }
+        }
+    </script>
+</body>
+</html>

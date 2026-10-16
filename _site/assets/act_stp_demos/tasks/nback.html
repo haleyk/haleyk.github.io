@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N-Back Task</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+  }
+  .screen {
+    display: none;
+    min-height: 100%;
+    box-sizing: border-box;
+    padding: 24px 16px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .screen.active { display: flex; }
+  .content { max-width: 640px; width: 100%; }
+  h1 { font-size: 32px; margin: 0 0 20px; }
+  p { line-height: 1.5; margin: 0 0 14px; }
+  .settings { margin: 28px 0; }
+  .row { margin: 14px 0; }
+  label { margin-right: 8px; }
+  input[type=number] { width: 80px; font-size: 18px; padding: 2px 4px; }
+  input[type=range] { width: 240px; vertical-align: middle; }
+  select { font-size: 18px; padding: 2px 4px; }
+  button {
+    font-size: 18px;
+    padding: 8px 22px;
+    margin: 6px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    cursor: pointer;
+  }
+  #task { cursor: none; }
+  #stim {
+    font-size: 96px;
+    font-weight: bold;
+    user-select: none;
+  }
+  #feedback { font-size: 40px; }
+  table { margin: 20px auto; border-collapse: collapse; }
+  th, td { padding: 6px 16px; text-align: center; }
+  th { border-bottom: 1px solid #000; }
+</style>
+</head>
+<body>
+
+<div id="start" class="screen active">
+  <div class="content">
+    <h1>N-Back Task</h1>
+    <p>Digits will appear one at a time in the center of the screen.</p>
+    <p>For each digit, decide whether it is the same as the digit shown
+       <b><span class="nText">2</span></b> <span class="nWord">digits</span> earlier.</p>
+    <p>Press the <b>space bar</b> if it is the same.<br>
+       Do not press anything if it is different.</p>
+    <p>Use the index finger of your dominant hand.</p>
+    <p>Respond as quickly and as accurately as possible.</p>
+
+    <div class="settings">
+      <div class="row">
+        <label for="nLevel">N:</label>
+        <select id="nLevel">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="nTrials">Number of trials:</label>
+        <input type="number" id="nTrials" min="5" max="1000" value="30">
+      </div>
+      <div class="row">
+        <label for="pMatch">Match trials:</label>
+        <input type="range" id="pMatch" min="0" max="100" step="5" value="30">
+        <span id="pMatchVal">30%</span>
+      </div>
+      <div class="row">
+        <label for="fb">Show feedback:</label>
+        <input type="checkbox" id="fb">
+      </div>
+    </div>
+
+    <button id="startBtn">Begin</button>
+  </div>
+</div>
+
+<div id="task" class="screen">
+  <div id="stim"></div>
+  <div id="feedback"></div>
+</div>
+
+<div id="results" class="screen">
+  <div class="content">
+    <h1>Results</h1>
+    <table id="resTable"></table>
+    <p id="effect"></p>
+    <button id="downloadBtn">Download data</button>
+    <button id="againBtn">Run again</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STIM_MS = 500;       // digit display time
+  var DEADLINE = 1000;     // response window from digit onset
+  var ISI_BASE = 1000;     // between trials (jittered +/-10%)
+  var FEEDBACK_MS = 500;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var stimEl = $('stim'), fbEl = $('feedback');
+
+  function updateN() {
+    var n = $('nLevel').value;
+    document.querySelectorAll('.nText').forEach(function (el) { el.textContent = n; });
+    document.querySelectorAll('.nWord').forEach(function (el) { el.textContent = n === '1' ? 'digit' : 'digits'; });
+  }
+  $('nLevel').addEventListener('change', updateN);
+  updateN();
+  $('pMatch').addEventListener('input', function () { $('pMatchVal').textContent = this.value + '%'; });
+
+  function show(id) {
+    ['start', 'task', 'results'].forEach(function (s) {
+      $(s).classList.toggle('active', s === id);
+    });
+  }
+
+  function jitter(base) { return base * (0.9 + Math.random() * 0.2); }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function mean(arr) {
+    if (!arr.length) return NaN;
+    return arr.reduce(function (s, x) { return s + x; }, 0) / arr.length;
+  }
+  function randomDigit() { return Math.floor(Math.random() * 10); }
+
+  // First N trials are fillers; exact number of matches among the rest
+  function buildTrials(total, N, pMatch) {
+    var positions = [];
+    for (var i = N; i < total; i++) positions.push(i);
+    var matchSet = {};
+    shuffle(positions).slice(0, Math.round(positions.length * pMatch))
+      .forEach(function (p) { matchSet[p] = true; });
+
+    var list = [];
+    for (var t = 0; t < total; t++) {
+      var digit, type;
+      if (t < N) {
+        digit = randomDigit(); type = 'filler';
+      } else if (matchSet[t]) {
+        digit = list[t - N].digit; type = 'match';
+      } else {
+        do { digit = randomDigit(); } while (digit === list[t - N].digit);
+        type = 'nonmatch';
+      }
+      list.push({ digit: digit, type: type });
+    }
+    return list;
+  }
+
+  var trials, data, idx, N, showFb, onset, waiting, deadlineTimer, hideTimer, prevIti;
+
+  $('startBtn').addEventListener('click', function () {
+    N = parseInt($('nLevel').value, 10);
+    var n = parseInt($('nTrials').value, 10);
+    if (!(n > 0)) n = 30;
+    n = Math.min(Math.max(n, N + 1), 1000);
+    trials = buildTrials(n, N, parseInt($('pMatch').value, 10) / 100);
+    showFb = $('fb').checked;
+    data = [];
+    idx = 0;
+    this.blur();
+    stimEl.textContent = '';
+    fbEl.textContent = '';
+    show('task');
+    prevIti = Math.round(jitter(ISI_BASE));
+    setTimeout(runTrial, prevIti);
+  });
+
+  function runTrial() {
+    var tr = trials[idx];
+    fbEl.textContent = '';
+    stimEl.textContent = tr.digit;
+    requestAnimationFrame(function () {
+      onset = performance.now();
+      waiting = true;
+      hideTimer = setTimeout(function () { stimEl.textContent = ''; }, STIM_MS);
+      deadlineTimer = setTimeout(function () { endTrial(null, null); }, DEADLINE);
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.code !== 'Space' && e.key !== ' ') return;
+    e.preventDefault();
+    if (!waiting || e.repeat) return;
+    endTrial('space', performance.now() - onset);
+  });
+
+  function endTrial(resp, rt) {
+    if (!waiting) return;
+    waiting = false;
+    clearTimeout(deadlineTimer);
+    clearTimeout(hideTimer);
+    stimEl.textContent = '';
+
+    var tr = trials[idx];
+    var isMatch = tr.type === 'match';
+    var pressed = resp !== null;
+    var correct = pressed === isMatch ? 1 : 0;
+    var outcome = isMatch ? (pressed ? 'hit' : 'miss') : (pressed ? 'false alarm' : 'correct rejection');
+    data.push({
+      trial: idx + 1,
+      n_level: N,
+      stimulus: tr.digit,
+      type: tr.type,
+      response: pressed ? 'space' : 'none',
+      outcome: outcome,
+      rt: rt === null ? '' : Math.round(rt),
+      accuracy: correct,
+      iti_before: prevIti
+    });
+
+    idx++;
+    var wait = 0;
+    if (showFb) {
+      var msg = { 'hit': 'Correct', 'miss': 'Missed', 'false alarm': 'Incorrect', 'correct rejection': '' }[outcome];
+      if (msg) { fbEl.textContent = msg; wait = FEEDBACK_MS; }
+    }
+    setTimeout(function () {
+      fbEl.textContent = '';
+      if (idx >= trials.length) { showResults(); return; }
+      prevIti = Math.round(jitter(ISI_BASE));
+      setTimeout(runTrial, prevIti);
+    }, wait);
+  }
+
+  function summarize(rows) {
+    var correctRts = rows.filter(function (r) { return r.accuracy === 1; })
+                         .map(function (r) { return r.rt; });
+    return {
+      n: rows.length,
+      rt: mean(correctRts),
+      acc: rows.length ? 100 * mean(rows.map(function (r) { return r.accuracy; })) : NaN
+    };
+  }
+  function fmt(x, unit) { return isNaN(x) ? '--' : Math.round(x) + unit; }
+
+  function showResults() {
+    var scored = data.filter(function (r) { return r.type !== 'filler'; });
+    var labels = { match: 'Match', nonmatch: 'Non-match' };
+    var html = '<tr><th>Trial type</th><th>Trials</th><th>Mean RT (correct)</th><th>Accuracy</th></tr>';
+    ['match', 'nonmatch'].forEach(function (t) {
+      var s = summarize(scored.filter(function (r) { return r.type === t; }));
+      html += '<tr><td>' + labels[t] + '</td><td>' + s.n + '</td><td>' +
+              (t === 'match' ? fmt(s.rt, ' ms') : '--') + '</td><td>' + fmt(s.acc, '%') + '</td></tr>';
+    });
+    var all = summarize(scored);
+    html += '<tr><td>All</td><td>' + all.n + '</td><td>--</td><td>' + fmt(all.acc, '%') + '</td></tr>';
+    $('resTable').innerHTML = html;
+    var count = function (o) { return scored.filter(function (r) { return r.outcome === o; }).length; };
+    $('effect').innerHTML = 'N = ' + N + '<br>' +
+      'Hits: <b>' + count('hit') + '</b> &nbsp; Misses: <b>' + count('miss') + '</b><br>' +
+      'False alarms: <b>' + count('false alarm') + '</b> &nbsp; Correct rejections: <b>' +
+      count('correct rejection') + '</b><br>' +
+      '<span style="font-size:15px">The first ' + N + (N === 1 ? ' trial is' : ' trials are') +
+      ' not included above.</span>';
+    show('results');
+  }
+
+  function downloadCSV(rows, cols, prefix) {
+    var lines = [cols.join(',')];
+    rows.forEach(function (r) { lines.push(cols.map(function (c) { return r[c]; }).join(',')); });
+    var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    var a = document.createElement('a');
+    var d = new Date();
+    var p2 = function (x) { return String(x).padStart(2, '0'); };
+    a.href = URL.createObjectURL(blob);
+    a.download = prefix + '_' + d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) +
+                 '_' + p2(d.getHours()) + p2(d.getMinutes()) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  $('downloadBtn').addEventListener('click', function () {
+    downloadCSV(data, ['trial', 'n_level', 'stimulus', 'type', 'response', 'outcome', 'rt',
+                       'accuracy', 'iti_before'], 'nback');
+  });
+  $('againBtn').addEventListener('click', function () { this.blur(); show('start'); });
+})();
+</script>
+</body>
+</html>

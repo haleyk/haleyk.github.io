@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go/No-Go and Stop Signal</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+  }
+  .screen {
+    display: none;
+    min-height: 100%;
+    box-sizing: border-box;
+    padding: 24px 16px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .screen.active { display: flex; }
+  .content { max-width: 640px; width: 100%; }
+  h1 { font-size: 32px; margin: 0 0 20px; }
+  p { line-height: 1.5; margin: 0 0 14px; }
+  .settings { margin: 28px 0; }
+  .row { margin: 14px 0; }
+  label { margin-right: 8px; }
+  input[type=number] { width: 80px; font-size: 18px; padding: 2px 4px; }
+  input[type=range] { width: 240px; vertical-align: middle; }
+  select { font-size: 18px; padding: 2px 4px; }
+  button {
+    font-size: 18px;
+    padding: 8px 22px;
+    margin: 6px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    cursor: pointer;
+  }
+  .hidden { display: none; }
+  #task { cursor: none; }
+  #stimWrap { position: relative; }
+  #stim {
+    font-size: 96px;
+    font-weight: bold;
+    line-height: 1;
+    white-space: nowrap;
+    user-select: none;
+  }
+  #signal {
+    display: none;
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    width: 50px;
+    height: 50px;
+    margin: 0 0 24px -25px;
+    border-radius: 50%;
+    background: #d40000;
+  }
+  #feedback { font-size: 40px; }
+  table { margin: 20px auto; border-collapse: collapse; }
+  th, td { padding: 6px 16px; text-align: center; }
+  th { border-bottom: 1px solid #000; }
+</style>
+</head>
+<body>
+
+<div id="start" class="screen active">
+  <div class="content">
+    <h1 id="title">Go/No-Go Task</h1>
+
+    <div class="row">
+      <label for="mode">Task:</label>
+      <select id="mode">
+        <option value="gng" selected>Go/No-Go</option>
+        <option value="ss">Stop Signal</option>
+      </select>
+    </div>
+
+    <div id="instrGng" style="margin-top:24px">
+      <p>The word <b>GO</b> or <b>STOP</b> will appear in the center of the screen.</p>
+      <p>Press the <b>space bar</b> as quickly as possible when you see <b>GO</b>.<br>
+         Do not press anything when you see <b>STOP</b>.</p>
+      <p>Use the index finger of your dominant hand.</p>
+      <p>Respond as quickly and as accurately as possible.</p>
+    </div>
+
+    <div id="instrSs" class="hidden" style="margin-top:24px">
+      <p>An arrow will appear in the center of the screen.</p>
+      <p>Press the <b>Left Arrow</b> key if it points left.<br>
+         Press the <b>Right Arrow</b> key if it points right.</p>
+      <p>Use the index and middle fingers of your right hand, one on each key.</p>
+      <p>On some trials a <b>red circle</b> will appear above the arrow shortly after it.
+         When you see the red circle, try not to press anything.</p>
+      <p>Respond as quickly as possible. Do not wait for the red circle.</p>
+    </div>
+
+    <div class="settings">
+      <div class="row">
+        <label for="nTrials">Number of trials:</label>
+        <input type="number" id="nTrials" min="4" max="1000" value="50">
+      </div>
+      <div class="row">
+        <label for="pRare" id="pRareLabel">No-go trials:</label>
+        <input type="range" id="pRare" min="0" max="100" step="5" value="10">
+        <span id="pRareVal">10%</span>
+      </div>
+      <div class="row">
+        <label for="fb">Show feedback:</label>
+        <input type="checkbox" id="fb">
+      </div>
+    </div>
+
+    <button id="startBtn">Begin</button>
+  </div>
+</div>
+
+<div id="task" class="screen">
+  <div id="stimWrap">
+    <div id="signal"></div>
+    <div id="stim"></div>
+  </div>
+  <div id="feedback"></div>
+</div>
+
+<div id="results" class="screen">
+  <div class="content">
+    <h1>Results</h1>
+    <table id="resTable"></table>
+    <p id="effect"></p>
+    <button id="downloadBtn">Download data</button>
+    <button id="againBtn">Run again</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var DEADLINE = 1000;
+  var FEEDBACK_MS = 500;
+  // Go/No-Go: inter-trial interval drawn from a normal distribution over 400-600 ms
+  var GNG_ITI_MIN = 400, GNG_ITI_MAX = 600;
+  // Stop signal: 1000 ms interval (+/-10%), staircase on stop-signal delay
+  var SS_ISI = 1000;
+  var SSD_START = 200, SSD_STEP = 50, SSD_MIN = 0, SSD_MAX = 900;
+
+  var DEFAULTS = {
+    gng: { title: 'Go/No-Go Task', trials: 50, rareLabel: 'No-go trials:', rare: 10 },
+    ss:  { title: 'Stop Signal Task', trials: 80, rareLabel: 'Stop trials:', rare: 25 }
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var stimEl = $('stim'), sigEl = $('signal'), fbEl = $('feedback');
+
+  function applyMode() {
+    var m = $('mode').value, d = DEFAULTS[m];
+    $('title').textContent = d.title;
+    document.title = d.title;
+    $('instrGng').classList.toggle('hidden', m !== 'gng');
+    $('instrSs').classList.toggle('hidden', m !== 'ss');
+    $('nTrials').value = d.trials;
+    $('pRareLabel').textContent = d.rareLabel;
+    $('pRare').value = d.rare;
+    $('pRareVal').textContent = d.rare + '%';
+  }
+  $('mode').addEventListener('change', applyMode);
+  $('pRare').addEventListener('input', function () { $('pRareVal').textContent = this.value + '%'; });
+
+  function show(id) {
+    ['start', 'task', 'results'].forEach(function (s) {
+      $(s).classList.toggle('active', s === id);
+    });
+  }
+
+  function jitter(base) { return base * (0.9 + Math.random() * 0.2); }
+  // Normal distribution centered on the mean of the range, SD = range/4, kept inside the range
+  function normalInRange(min, max) {
+    var mu = (min + max) / 2, sd = (max - min) / 4, x;
+    do {
+      var u = 1 - Math.random(), v = Math.random();
+      x = mu + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    } while (x < min || x > max);
+    return x;
+  }
+  function nextInterval() {
+    return Math.round(mode === 'gng' ? normalInRange(GNG_ITI_MIN, GNG_ITI_MAX) : jitter(SS_ISI));
+  }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function mean(arr) {
+    if (!arr.length) return NaN;
+    return arr.reduce(function (s, x) { return s + x; }, 0) / arr.length;
+  }
+
+  function buildTrials(n, pRare) {
+    var nRare = Math.round(n * pRare);
+    var list = [];
+    for (var i = 0; i < n; i++) {
+      var rare = i < nRare;
+      if (mode === 'gng') {
+        list.push({ type: rare ? 'nogo' : 'go', stimulus: rare ? 'STOP' : 'GO' });
+      } else {
+        // balance arrow direction within each type
+        var k = rare ? i : i - nRare;
+        var dir = k % 2 === 0 ? 'left' : 'right';
+        list.push({ type: rare ? 'stop' : 'go', direction: dir, stimulus: dir === 'left' ? '<' : '>' });
+      }
+    }
+    return shuffle(list);
+  }
+
+  var mode, trials, data, idx, showFb, onset, waiting, deadlineTimer, signalTimer, prevIti, ssd;
+
+  $('startBtn').addEventListener('click', function () {
+    mode = $('mode').value;
+    var n = parseInt($('nTrials').value, 10);
+    if (!(n > 0)) n = DEFAULTS[mode].trials;
+    n = Math.min(Math.max(n, 1), 1000);
+    trials = buildTrials(n, parseInt($('pRare').value, 10) / 100);
+    showFb = $('fb').checked;
+    data = [];
+    idx = 0;
+    ssd = SSD_START;
+    this.blur();
+    stimEl.textContent = '';
+    sigEl.style.display = 'none';
+    fbEl.textContent = '';
+    show('task');
+    prevIti = nextInterval();
+    setTimeout(runTrial, prevIti);
+  });
+
+  function runTrial() {
+    var tr = trials[idx];
+    fbEl.textContent = '';
+    stimEl.textContent = tr.stimulus;
+    requestAnimationFrame(function () {
+      onset = performance.now();
+      waiting = true;
+      if (tr.type === 'stop') {
+        tr.ssd = ssd;
+        signalTimer = setTimeout(function () { sigEl.style.display = 'block'; }, ssd);
+      }
+      deadlineTimer = setTimeout(function () { endTrial(null, null); }, DEADLINE);
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    var resp = null;
+    if (mode === 'gng' && (e.code === 'Space' || e.key === ' ')) resp = 'space';
+    if (mode === 'ss' && e.key === 'ArrowLeft') resp = 'left';
+    if (mode === 'ss' && e.key === 'ArrowRight') resp = 'right';
+    if (resp === null) return;
+    e.preventDefault();
+    if (!waiting || e.repeat) return;
+    endTrial(resp, performance.now() - onset);
+  });
+
+  function endTrial(resp, rt) {
+    if (!waiting) return;
+    waiting = false;
+    clearTimeout(deadlineTimer);
+    clearTimeout(signalTimer);
+    stimEl.textContent = '';
+    sigEl.style.display = 'none';
+
+    var tr = trials[idx];
+    var correct, fbText;
+    if (tr.type === 'go') {
+      correct = mode === 'gng' ? (resp !== null ? 1 : 0) : (resp === tr.direction ? 1 : 0);
+      fbText = resp === null ? 'Too slow' : (correct ? 'Correct' : 'Incorrect');
+    } else {
+      correct = resp === null ? 1 : 0;
+      fbText = correct ? 'Correct' : 'Incorrect';
+    }
+
+    var row = {
+      trial: idx + 1,
+      task: mode === 'gng' ? 'go/no-go' : 'stop signal',
+      stimulus: tr.stimulus,
+      type: tr.type,
+      response: resp === null ? 'none' : resp,
+      rt: rt === null ? '' : Math.round(rt),
+      accuracy: correct,
+      iti_before: prevIti
+    };
+    if (mode === 'ss') {
+      row.ssd = tr.type === 'stop' ? tr.ssd : '';
+      if (tr.type === 'stop') {
+        ssd = correct ? Math.min(ssd + SSD_STEP, SSD_MAX) : Math.max(ssd - SSD_STEP, SSD_MIN);
+      }
+    }
+    data.push(row);
+
+    idx++;
+    var wait = 0;
+    if (showFb) { fbEl.textContent = fbText; wait = FEEDBACK_MS; }
+    setTimeout(function () {
+      fbEl.textContent = '';
+      if (idx >= trials.length) { showResults(); return; }
+      prevIti = nextInterval();
+      setTimeout(runTrial, prevIti);
+    }, wait);
+  }
+
+  function fmt(x, unit) { return isNaN(x) ? '--' : Math.round(x) + unit; }
+  function accOf(rows) { return rows.length ? 100 * mean(rows.map(function (r) { return r.accuracy; })) : NaN; }
+  function rtOf(rows) { return mean(rows.map(function (r) { return r.rt; })); }
+  function rowHtml(label, n, rt, acc) {
+    return '<tr><td>' + label + '</td><td>' + n + '</td><td>' + rt + '</td><td>' + acc + '</td></tr>';
+  }
+
+  function showResults() {
+    var go = data.filter(function (r) { return r.type === 'go'; });
+    var goCorrect = go.filter(function (r) { return r.accuracy === 1; });
+    var rare = data.filter(function (r) { return r.type !== 'go'; });
+    var rareFail = rare.filter(function (r) { return r.accuracy === 0; });
+    var html = '<tr><th>Trial type</th><th>Trials</th><th>Mean RT (correct)</th><th>Accuracy</th></tr>';
+    html += rowHtml('Go', go.length, fmt(rtOf(goCorrect), ' ms'), fmt(accOf(go), '%'));
+    var lines = [];
+
+    if (mode === 'gng') {
+      html += rowHtml('No-go', rare.length, '--', fmt(accOf(rare), '%'));
+      lines.push('Presses on no-go trials: <b>' + rareFail.length + '</b>');
+      lines.push('Missed go trials: <b>' + go.filter(function (r) { return r.response === 'none'; }).length + '</b>');
+      lines.push('Mean RT on no-go presses: <b>' + fmt(rtOf(rareFail), ' ms') + '</b>');
+    } else {
+      html += rowHtml('Stop', rare.length, '--', fmt(accOf(rare), '%'));
+      var meanSsd = mean(rare.map(function (r) { return r.ssd; }));
+      // Integration method: go RTs with missed responses set to the deadline
+      var ssrt = NaN;
+      var pRespond = rare.length ? rareFail.length / rare.length : NaN;
+      if (go.length && pRespond > 0 && pRespond < 1) {
+        var goRts = go.map(function (r) { return r.rt === '' ? DEADLINE : r.rt; })
+                      .sort(function (a, b) { return a - b; });
+        var k = Math.min(Math.max(Math.ceil(pRespond * goRts.length) - 1, 0), goRts.length - 1);
+        ssrt = goRts[k] - meanSsd;
+      }
+      lines.push('Mean RT on failed stop trials: <b>' + fmt(rtOf(rareFail), ' ms') + '</b>');
+      lines.push('Mean stop-signal delay: <b>' + fmt(meanSsd, ' ms') + '</b>');
+      lines.push('Stop-signal reaction time (SSRT, estimated): <b>' + fmt(ssrt, ' ms') + '</b>');
+    }
+    $('resTable').innerHTML = html;
+    $('effect').innerHTML = lines.join('<br>');
+    show('results');
+  }
+
+  function downloadCSV(rows, cols, prefix) {
+    var lines = [cols.join(',')];
+    rows.forEach(function (r) { lines.push(cols.map(function (c) { return r[c]; }).join(',')); });
+    var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    var a = document.createElement('a');
+    var d = new Date();
+    var p2 = function (x) { return String(x).padStart(2, '0'); };
+    a.href = URL.createObjectURL(blob);
+    a.download = prefix + '_' + d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) +
+                 '_' + p2(d.getHours()) + p2(d.getMinutes()) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  $('downloadBtn').addEventListener('click', function () {
+    if (mode === 'gng') {
+      downloadCSV(data, ['trial', 'task', 'stimulus', 'type', 'response', 'rt', 'accuracy', 'iti_before'], 'gonogo');
+    } else {
+      downloadCSV(data, ['trial', 'task', 'stimulus', 'type', 'ssd', 'response', 'rt', 'accuracy', 'iti_before'], 'stopsignal');
+    }
+  });
+  $('againBtn').addEventListener('click', function () { this.blur(); show('start'); });
+})();
+</script>
+</body>
+</html>

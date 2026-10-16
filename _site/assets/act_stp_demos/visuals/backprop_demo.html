@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backpropagation, Step by Step</title>
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --card: #ffffff;
+    --ink: #1c2230;
+    --muted: #5d6575;
+    --faint: #8a91a0;
+    --line: #dcdfe5;
+    --line-soft: #eceef2;
+    --accent: #1f4e79;
+    --accent-soft: #e6eef6;
+    --blame: #b5441b;
+    --blame-soft: #f7e6de;
+    --done: #2f6b4f;
+    --serif: "Iowan Old Style", "Charter", "Palatino Linotype", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --mono: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  .page { max-width: 1240px; margin: 0 auto; padding: 32px 24px 48px; }
+
+  /* ---------- Header ---------- */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .kicker { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+  h1 { font-family: var(--serif); font-weight: 600; font-size: 34px; margin: 0 0 6px; letter-spacing: -.01em; }
+  .task { color: var(--muted); margin: 0 0 24px; font-size: 17px; }
+  .task b { color: var(--ink); font-weight: 600; }
+  .header-tools { display: flex; align-items: center; gap: 10px; padding-top: 4px; }
+  .round-chip {
+    font-size: 13px; font-weight: 600; color: var(--accent); background: var(--accent-soft);
+    padding: 5px 12px; border-radius: 999px;
+  }
+
+  /* ---------- Step rail ---------- */
+  .rail { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 24px; }
+  .rail-step {
+    display: flex; align-items: center; gap: 10px; text-align: left;
+    padding: 12px 14px; border-radius: 8px; width: 100%;
+    background: var(--card); border: 1px solid var(--line);
+    font: inherit; font-size: 14px; color: var(--muted); cursor: pointer;
+  }
+  .rail-step:disabled { cursor: default; }
+  .rail-step:not(:disabled):not(.current):hover { border-color: #b8bec8; }
+  .rail-num {
+    flex: none; width: 26px; height: 26px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 13px; font-weight: 600;
+    border: 1.5px solid var(--line); color: var(--muted); background: var(--card);
+  }
+  .rail-step.done .rail-num { background: var(--done); border-color: var(--done); color: #fff; }
+  .rail-step.current { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); color: var(--ink); }
+  .rail-step.current .rail-num { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .rail-step.upcoming { opacity: .6; }
+  .rail-title { font-weight: 600; color: inherit; line-height: 1.25; }
+  .rail-sub { font-size: 12px; color: var(--faint); }
+
+  /* ---------- Layout ---------- */
+  .main { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+  .diagram-card { padding: 18px 18px 14px; position: sticky; top: 16px; }
+  .card-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .card-label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+  /* ---------- Diagram ---------- */
+  svg.net { width: 100%; height: auto; display: block; }
+  .layer-label { font: 600 12px var(--sans); letter-spacing: .08em; text-transform: uppercase; fill: var(--faint); }
+  .edge { stroke: #c4c9d2; stroke-width: 2; stroke-linecap: round; transition: stroke .4s, stroke-width .4s, opacity .35s; }
+  .flow { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 2 14; opacity: 0; }
+  .flow.back { stroke: var(--blame); }
+  .flow.fwd { stroke: var(--accent); }
+  .flow.on { opacity: .9; animation: flow 1.1s linear infinite; }
+  @keyframes flow { to { stroke-dashoffset: -32; } }
+  @media (prefers-reduced-motion: reduce) { .flow.on { animation: none; opacity: 0; } }
+
+  .node circle { fill: #fff; stroke: #9aa1ad; stroke-width: 2; transition: fill .4s, stroke .4s; }
+  .node.input circle { fill: #eef1f5; }
+  .node .val { font: 600 16px var(--mono); fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
+  .node .val.unknown { fill: #b3b8c2; font-weight: 500; }
+  .node .name { font: 500 12px var(--sans); fill: var(--faint); text-anchor: middle; }
+  .node.blamed circle { stroke: var(--blame); }
+  .node.focus circle { stroke-width: 3; }
+
+  .wlabel rect { fill: #fff; stroke: var(--line); stroke-width: 1; transition: stroke .4s, fill .4s; }
+  .wlabel text { font: 500 12px var(--mono); fill: var(--muted); text-anchor: middle; dominant-baseline: central; }
+  .wlabel.blamed rect { stroke: var(--blame); fill: var(--blame-soft); }
+  .wlabel.blamed text { fill: var(--blame); font-weight: 600; }
+  .wlabel.changed rect { stroke: var(--accent); fill: var(--accent-soft); }
+  .wlabel.changed text { fill: var(--accent); font-weight: 600; }
+  .blabel text { font: 500 11px var(--mono); fill: var(--accent); text-anchor: middle; dominant-baseline: central; }
+  .blabel rect { fill: var(--accent-soft); }
+  .bline { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 3; opacity: .5; }
+  .target-tag text { font: 500 12px var(--sans); fill: var(--muted); text-anchor: middle; }
+
+  .node, .wlabel, .blabel, .bline, .target-tag { transition: opacity .35s; }
+  .dim { opacity: .28; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; font-size: 13px; color: var(--muted); padding-top: 10px; border-top: 1px solid var(--line-soft); margin-top: 6px; }
+  .legend .scale { display: inline-flex; align-items: center; gap: 8px; }
+  .legend .swatch-line { display: inline-block; width: 28px; border-top: 2px solid #c4c9d2; vertical-align: middle; }
+  .legend .grad { width: 70px; height: 8px; border-radius: 4px; background: linear-gradient(90deg, rgb(240,205,192), rgb(181,68,27)); }
+  .legend .bias { display: inline-block; padding: 0 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); font: 500 11px var(--mono); }
+
+  .recap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px; }
+  .recap div { background: #f8f8f6; border: 1px solid var(--line-soft); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+  .recap .k { font-size: 12px; color: var(--muted); display: block; }
+  .recap .v { font: 600 20px var(--mono); }
+  .recap .v.err { color: var(--blame); }
+  .recap .v.pending { color: #c0c4cc; font-weight: 500; }
+
+  /* ---------- Explanation panel ---------- */
+  .panel { padding: 0; overflow: hidden; }
+  .panel-top {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    padding: 14px 20px; border-bottom: 1px solid var(--line-soft); background: #fbfbfa;
+  }
+  .switch { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink); cursor: pointer; user-select: none; }
+  .switch input { position: absolute; opacity: 0; pointer-events: none; }
+  .switch .track { width: 36px; height: 20px; border-radius: 10px; background: #c9ced6; position: relative; transition: background .2s; flex: none; }
+  .switch .track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .2s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+  .switch input:checked + .track { background: var(--accent); }
+  .switch input:checked + .track::after { transform: translateX(16px); }
+  .switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .progress { display: flex; align-items: center; gap: 6px; }
+  .dot { width: 28px; height: 6px; border-radius: 3px; background: var(--line); border: 0; padding: 0; cursor: pointer; }
+  .dot.seen { background: #a9bccf; }
+  .dot.on { background: var(--accent); }
+  .dot:disabled { cursor: default; }
+
+  .part { padding: 24px 24px 8px; }
+  .part-num { font-size: 13px; color: var(--muted); margin: 0 0 4px; }
+  .part h2 { font-family: var(--serif); font-size: 25px; font-weight: 600; margin: 0 0 20px; line-height: 1.25; }
+
+  .section { margin-bottom: 22px; }
+  .section-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .section-label::after { content: ""; flex: 1; border-top: 1px solid var(--line-soft); }
+
+  .story p { font-family: var(--serif); font-size: 18.5px; line-height: 1.6; margin: 0 0 12px; }
+  .story .takeaway {
+    border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; margin: 14px 0 12px;
+    font-family: var(--sans); font-size: 16px; color: var(--ink);
+  }
+  .story > :last-child { margin-bottom: 0; }
+
+  .steps ol { list-style: none; counter-reset: s; padding: 0; margin: 0; }
+  .steps li { counter-increment: s; position: relative; padding-left: 36px; margin-bottom: 18px; }
+  .steps li::before {
+    content: counter(s); position: absolute; left: 0; top: 1px;
+    width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+    font-size: 13px; font-weight: 600; display: grid; place-items: center;
+  }
+  .steps .what { font-weight: 600; margin-bottom: 8px; }
+  .calc {
+    background: #f8f8f6; border: 1px solid var(--line-soft); border-radius: 8px; padding: 12px 14px;
+    font-size: 15px; margin-bottom: 8px;
+  }
+  .calc .lhs { font-weight: 600; margin-bottom: 4px; display: block; }
+  .calc .row { padding-left: 14px; }
+  .calc .eq { color: var(--faint); font-family: var(--mono); margin-right: 6px; }
+  .calc .words { color: var(--muted); }
+  .calc .nums { font-family: var(--mono); }
+  .calc .res { font-family: var(--mono); font-weight: 700; }
+  .calc .res.blame { color: var(--blame); }
+  .calc .res.new { color: var(--accent); }
+
+  /* Why? toggles */
+  details.why { margin: 4px 0 12px; }
+  details.why summary {
+    list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; color: var(--accent);
+    padding: 5px 12px 5px 10px; border: 1px solid #c6d4e3; border-radius: 999px; background: #fff;
+    user-select: none;
+  }
+  details.why summary::-webkit-details-marker { display: none; }
+  details.why summary .chev { transition: transform .2s; flex: none; }
+  details.why[open] summary .chev { transform: rotate(90deg); }
+  details.why summary:hover { background: var(--accent-soft); }
+  details.why .body {
+    margin-top: 10px; padding: 14px 16px; background: var(--accent-soft); border-radius: 8px;
+    font-size: 15.5px; line-height: 1.6;
+  }
+  details.why .body p { margin: 0 0 10px; }
+  details.why .body > :last-child { margin-bottom: 0; }
+  details.why .body .mono { font-family: var(--mono); font-size: 14px; }
+  details.why .body .calc { background: #fff; border-color: #d5e0ec; }
+  .toggles { margin-top: 6px; }
+
+  .plot { display: block; width: 100%; max-width: 380px; height: auto; margin: 6px 0 10px; background: #fff; border-radius: 8px; }
+  .plot .axis { stroke: #c4c9d2; stroke-width: 1; }
+  .plot .guide { stroke: #dfe2e8; stroke-width: 1; stroke-dasharray: 3 3; }
+  .plot .curve { fill: none; stroke: var(--ink); stroke-width: 2; }
+  .plot .tick { font: 11px var(--mono); fill: var(--faint); text-anchor: middle; }
+  .plot .lab { font: 600 11px var(--sans); fill: var(--ink); }
+  .plot .tan { stroke: var(--blame); stroke-width: 2; }
+
+  .rank { margin: 4px 0 12px; }
+  .rank-row { display: grid; grid-template-columns: 74px 1fr 64px 56px; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line-soft); font-size: 14px; }
+  .rank-row:last-child { border-bottom: 0; }
+  .rank-row .w { font-weight: 600; }
+  .rank-row .track { height: 10px; background: var(--line-soft); border-radius: 5px; overflow: hidden; }
+  .rank-row .bar { display: block; height: 100%; background: var(--blame); border-radius: 5px; }
+  .rank-row .val { font-family: var(--mono); text-align: right; }
+  .rank-row .lvl { font-size: 12px; color: var(--muted); text-align: right; }
+
+  .bullets { margin: 0; padding-left: 20px; }
+  .bullets li { margin-bottom: 6px; }
+
+  /* Learning-rate control */
+  .lr-box { background: #f8f8f6; border: 1px solid var(--line-soft); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .lr-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .lr-row label { font-weight: 600; }
+  .lr-row input[type=number] {
+    width: 86px; font: 600 16px var(--mono); padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink);
+  }
+  .presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .presets button {
+    font: 500 13px var(--mono); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: #fff; cursor: pointer; color: var(--ink);
+  }
+  .presets button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .presets .note { font: 12.5px var(--sans); color: var(--faint); align-self: center; margin-left: 4px; }
+
+  table.upd, table.hist { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.upd th, table.hist th { text-align: right; font-size: 12px; font-weight: 600; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  table.upd th:first-child, table.hist th:first-child { text-align: left; }
+  table.upd td, table.hist td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--line-soft); font-family: var(--mono); }
+  table.upd td:first-child, table.hist td:first-child { text-align: left; font-family: var(--sans); font-weight: 600; }
+  table.upd td.down { color: var(--blame); }
+  table.upd td.up { color: var(--done); }
+  table.hist tr.current td { background: var(--accent-soft); }
+  table.hist td.better { color: var(--done); font-family: var(--sans); font-weight: 600; }
+  table.hist td.worse { color: var(--blame); font-family: var(--sans); font-weight: 600; }
+  table.hist td.neutral { color: var(--faint); font-family: var(--sans); }
+  .table-wrap { overflow-x: auto; margin-bottom: 12px; }
+
+  .nav {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 14px 24px 20px; border-top: 1px solid var(--line-soft);
+  }
+  .nav-mid { display: flex; align-items: center; gap: 12px; }
+  .btn {
+    font: 600 15px var(--sans); padding: 10px 18px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: #fff; color: var(--ink);
+  }
+  .btn:hover:not(:disabled) { border-color: #b8bec8; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover:not(:disabled) { background: #183f62; }
+  .btn.small { font-size: 13px; padding: 6px 12px; }
+  .btn.link { border-color: transparent; color: var(--accent); background: transparent; padding-left: 8px; padding-right: 8px; }
+  .btn.link:hover:not(:disabled) { border-color: transparent; text-decoration: underline; }
+  .btn:disabled { opacity: .4; cursor: default; }
+  .hint { font-size: 12.5px; color: var(--faint); }
+  [hidden] { display: none !important; }
+
+  body.hide-steps .steps-sec { display: none; }
+
+  @media (max-width: 920px) {
+    .main { grid-template-columns: 1fr; }
+    .diagram-card { position: static; }
+    .rail { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 520px) {
+    .page { padding: 20px 16px 36px; }
+    h1 { font-size: 27px; }
+    .rail-sub, .hint { display: none; }
+    .part { padding: 20px 16px 4px; }
+    .nav, .panel-top { padding-left: 16px; padding-right: 16px; }
+    .recap { grid-template-columns: repeat(2, 1fr); }
+    .rank-row { grid-template-columns: 64px 1fr 58px; }
+    .rank-row .lvl { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <p class="kicker">Backpropagation, step by step</p>
+      <h1 id="title"></h1>
+      <p class="task">Goal: teach the network to output <b>0</b> when it sees the input <b>[1, 1]</b>.</p>
+    </div>
+    <div class="header-tools">
+      <span class="round-chip" id="round-chip"></span>
+      <button class="btn small" id="reset" type="button">Start over</button>
+    </div>
+  </div>
+
+  <nav class="rail" id="rail" aria-label="Algorithm steps"></nav>
+
+  <div class="main">
+
+    <section class="card diagram-card" aria-label="Network diagram">
+      <div class="card-head"><span class="card-label">The network</span></div>
+      <svg class="net" id="net" viewBox="0 0 600 400" role="img" aria-label="A network with two inputs, two hidden neurons, and one output"></svg>
+      <div class="legend">
+        <span><span class="swatch-line"></span>&nbsp; connection (label = weight)</span>
+        <span class="scale">less blame <span class="grad"></span> more blame</span>
+        <span><span class="bias">b</span>&nbsp; bias</span>
+      </div>
+      <div class="recap" aria-label="Results so far">
+        <div><span class="k">Round</span><span class="v" id="r-round"></span></div>
+        <div><span class="k">Output</span><span class="v" id="r-out"></span></div>
+        <div><span class="k">Target</span><span class="v">0</span></div>
+        <div><span class="k">Error</span><span class="v err" id="r-err"></span></div>
+      </div>
+    </section>
+
+    <section class="card panel" aria-label="Explanation">
+      <div class="panel-top">
+        <label class="switch">
+          <input type="checkbox" id="show-comp" checked>
+          <span class="track" aria-hidden="true"></span>
+          Show the computation
+        </label>
+        <div class="progress" id="progress" aria-label="Progress through this step"></div>
+      </div>
+
+      <div id="part" class="part" aria-live="polite"></div>
+
+      <div class="nav">
+        <button class="btn" id="prev" type="button">Back</button>
+        <div class="nav-mid">
+          <button class="btn link" id="skip" type="button">Skip to summary</button>
+          <span class="hint" id="hint">Arrow keys also work</span>
+        </div>
+        <button class="btn primary" id="next" type="button">Next</button>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   1. The network and its math
+   Same starting weights, biases and formulas as the original demo.
+   Biases are kept fixed; only the six weights learn.
+   ========================================================================== */
+const INITIAL_WEIGHTS = { w1: 0.5, w2: 0.8, w3: -0.3, w4: 0.6, w5: 0.9, w6: 0.4 };
+const biases = { b1: 0.1, b2: -0.2, b3: 0.3 };
+const i1 = 1, i2 = 1, target = 0;
+const sigmoid = x => 1 / (1 + Math.exp(-x));
+
+let weights = { ...INITIAL_WEIGHTS };
+let learningRate = 0.5;
+let round = 1;
+let history = [];      // completed rounds: { round, output, error, lr }
+let R = null;          // everything computed for the current round
+
+function computeRound(w) {
+  const t1 = i1 * w.w1 + i2 * w.w2 + biases.b1;
+  const t2 = i1 * w.w3 + i2 * w.w4 + biases.b2;
+  const h1 = sigmoid(t1), h2 = sigmoid(t2);
+  const to = h1 * w.w5 + h2 * w.w6 + biases.b3;
+  const o1 = sigmoid(to);
+  const error = o1 - target;
+  const sensO = o1 * (1 - o1), sensH1 = h1 * (1 - h1), sensH2 = h2 * (1 - h2);
+  const sigO = error * sensO;
+  const sigH1 = sigO * w.w5 * sensH1;
+  const sigH2 = sigO * w.w6 * sensH2;
+  const blame = { w5: sigO * h1, w6: sigO * h2, w1: sigH1 * i1, w2: sigH1 * i2, w3: sigH2 * i1, w4: sigH2 * i2 };
+  const maxBlame = Math.max(...Object.values(blame).map(Math.abs)) || 1;
+  return { w: { ...w }, t1, t2, to, h1, h2, o1, error, sensO, sensH1, sensH2, sigO, sigH1, sigH2, blame, maxBlame };
+}
+const proposedWeights = () => {
+  const out = {};
+  for (const k in R.w) out[k] = R.w[k] - learningRate * R.blame[k];
+  return out;
+};
+
+/* ---------- formatting and naming ---------- */
+const f2 = v => v.toFixed(2), f3 = v => v.toFixed(3), f4 = v => v.toFixed(4);
+const sgn = (v, f) => (v < 0 ? '−' + f(-v) : f(v));          // proper minus sign
+const paren = (v, f) => (v < 0 ? `(${sgn(v, f)})` : f(v));   // wrap negatives used inside a product
+const WN = k => `weight ${k.slice(1)}`;                       // "weight 5"
+const WF = k => `weight ${k.slice(1)} (${k})`;                // "weight 5 (w5)"
+const HN = n => `hidden neuron ${n}`;
+const HF = n => `hidden neuron ${n} (h${n})`;
+const BF = n => `bias ${n} (b${n})`;
+const cap = t => t[0].toUpperCase() + t.slice(1);
+const ORDER = ['w1', 'w2', 'w3', 'w4', 'w5', 'w6'];
+
+function activityWord(v) {
+  if (v > 0.85) return 'very active';
+  if (v > 0.65) return 'quite active';
+  if (v > 0.35) return 'moderately active';
+  if (v > 0.15) return 'fairly quiet';
+  return 'nearly silent';
+}
+function sensitivityPhrase(s) {
+  if (s > 0.22) return 'near the middle of its range, so it is highly sensitive';
+  if (s > 0.12) return 'partway toward one end of its range, so its sensitivity is reduced';
+  return 'close to one end of its range (saturated), so it is not very sensitive';
+}
+
+/* ==========================================================================
+   2. Diagram
+   ========================================================================== */
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('net');
+const RAD = 32;
+const pos = { i1: [95, 130], i2: [95, 290], h1: [300, 130], h2: [300, 290], o1: [505, 210] };
+const edges = [ // [weight, from, to, label position along the edge]
+  ['w1', 'i1', 'h1', 0.5], ['w2', 'i2', 'h1', 0.3], ['w3', 'i1', 'h2', 0.3],
+  ['w4', 'i2', 'h2', 0.5], ['w5', 'h1', 'o1', 0.5], ['w6', 'h2', 'o1', 0.5]
+];
+const el = (tag, attrs = {}, parent = svg) => {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  parent.appendChild(e);
+  return e;
+};
+const refs = { edge: {}, back: {}, fwd: {}, wlabel: {}, wtext: {}, node: {}, nval: {}, blabel: {}, bline: {} };
+
+[['Input', 95], ['Hidden', 300], ['Output', 505]].forEach(([t, x]) =>
+  el('text', { x, y: 30, class: 'layer-label', 'text-anchor': 'middle' }).textContent = t);
+
+edges.forEach(([w, a, b]) => {
+  const [x1, y1] = pos[a], [x2, y2] = pos[b];
+  refs.edge[w] = el('line', { x1, y1, x2, y2, class: 'edge' });
+});
+edges.forEach(([w, a, b]) => {
+  const [x1, y1] = pos[a], [x2, y2] = pos[b];
+  refs.back[w] = el('path', { d: `M${x2},${y2} L${x1},${y1}`, class: 'flow back' });
+  refs.fwd[w] = el('path', { d: `M${x1},${y1} L${x2},${y2}`, class: 'flow fwd' });
+});
+
+[['b1', 'h1'], ['b2', 'h2'], ['b3', 'o1']].forEach(([b, n]) => {
+  const [x, y] = pos[n];
+  const below = n === 'h2';
+  const by = below ? y + 58 : y - 58;
+  refs.bline[b] = el('line', { x1: x, y1: below ? y + RAD : y - RAD, x2: x, y2: below ? by - 10 : by + 10, class: 'bline' });
+  const g = el('g', { class: 'blabel' });
+  el('rect', { x: x - 30, y: by - 10, width: 60, height: 20, rx: 4 }, g);
+  el('text', { x, y: by }, g).textContent = `${b} ${sgn(biases[b], f2)}`;
+  refs.blabel[b] = g;
+});
+
+edges.forEach(([w, a, b, t]) => {
+  const [x1, y1] = pos[a], [x2, y2] = pos[b];
+  const x = x1 + (x2 - x1) * t, y = y1 + (y2 - y1) * t;
+  const g = el('g', { class: 'wlabel' });
+  el('rect', { x: x - 35, y: y - 11, width: 70, height: 22, rx: 11 }, g);
+  refs.wtext[w] = el('text', { x, y }, g);
+  refs.wlabel[w] = g;
+});
+
+const nodeNames = { i1: 'input 1', i2: 'input 2', o1: 'output' };
+Object.keys(pos).forEach(n => {
+  const [x, y] = pos[n];
+  const g = el('g', { class: 'node' + (n[0] === 'i' ? ' input' : '') });
+  el('circle', { cx: x, cy: y, r: RAD }, g);
+  refs.nval[n] = el('text', { x, y, class: 'val' }, g);
+  if (n[0] === 'h') el('text', { x: x + RAD + 12, y: y + (n === 'h1' ? -RAD + 6 : RAD - 2), class: 'name', 'text-anchor': 'start' }, g).textContent = n;
+  else el('text', { x, y: y + RAD + 16, class: 'name' }, g).textContent = nodeNames[n];
+  refs.node[n] = g;
+});
+const tt = el('g', { class: 'target-tag' });
+el('text', { x: 505, y: 280 }, tt).textContent = 'target: 0';
+
+// opaque blend of the blame colour with white (alpha 0..1)
+const tint = a => `rgb(${[181, 68, 27].map(c => Math.round(255 + (c - 255) * a)).join(',')})`;
+
+/*  state = {
+      values: 'none' | 'hidden' | 'all'   which activations are revealed
+      blamedEdges, blamedNodes: arrays
+      focus: ids to keep bright (empty = everything bright)
+      back, fwd: edges with animated flow
+      labels: 'current' | 'proposed'
+      showBias: boolean                                                  */
+function render(s) {
+  const st = { values: 'all', blamedEdges: [], blamedNodes: [], focus: [], back: [], fwd: [], labels: 'current', showBias: false, ...s };
+  const focus = new Set(st.focus);
+  const all = st.focus.length === 0;
+  const lit = id => all || focus.has(id);
+  const prop = st.labels === 'proposed' ? proposedWeights() : null;
+
+  edges.forEach(([w]) => {
+    const blamed = st.blamedEdges.includes(w);
+    const norm = Math.abs(R.blame[w]) / R.maxBlame;
+    const e = refs.edge[w], l = refs.wlabel[w];
+    e.setAttribute('stroke-width', blamed ? (2 + norm * 7).toFixed(1) : 2);
+    e.style.stroke = blamed ? tint(0.3 + 0.7 * norm) : '';
+    l.classList.toggle('blamed', blamed && !prop);
+    l.classList.toggle('changed', !!prop);
+    refs.wtext[w].textContent = `${w} ${sgn(prop ? prop[w] : R.w[w], f2)}`;
+    e.classList.toggle('dim', !lit(w));
+    l.classList.toggle('dim', !lit(w));
+    refs.back[w].classList.toggle('on', st.back.includes(w));
+    refs.fwd[w].classList.toggle('on', st.fwd.includes(w));
+  });
+
+  const nodeBlame = { o1: Math.abs(R.sigO), h1: Math.abs(R.sigH1), h2: Math.abs(R.sigH2) };
+  const maxNode = Math.max(...Object.values(nodeBlame)) || 1;
+  const shown = { i1: true, i2: true, h1: st.values !== 'none', h2: st.values !== 'none', o1: st.values === 'all' };
+  const vals = { i1, i2, h1: R.h1, h2: R.h2, o1: R.o1 };
+  Object.keys(pos).forEach(n => {
+    const g = refs.node[n];
+    const blamed = st.blamedNodes.includes(n);
+    g.classList.toggle('blamed', blamed);
+    g.classList.toggle('focus', focus.has(n));
+    g.querySelector('circle').style.fill = blamed ? tint(0.12 + 0.38 * nodeBlame[n] / maxNode) : '';
+    g.classList.toggle('dim', !lit(n));
+    const t = refs.nval[n];
+    t.textContent = shown[n] ? (n[0] === 'i' ? vals[n] : f2(vals[n])) : '?';
+    t.classList.toggle('unknown', !shown[n]);
+  });
+  Object.keys(refs.blabel).forEach(b => {
+    const on = st.showBias || focus.has(b);
+    refs.blabel[b].classList.toggle('dim', !on);
+    refs.bline[b].classList.toggle('dim', !on);
+  });
+  tt.classList.toggle('dim', !lit('o1'));
+}
+
+/* ==========================================================================
+   3. Small building blocks for the explanation panel
+   ========================================================================== */
+const chev = '<svg class="chev" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M3.5 1.5L7 5l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const why = (label, html) => `<details class="why"><summary>${chev}${label}</summary><div class="body">${html}</div></details>`;
+
+// A calculation laid out over three lines: words, numbers, result.
+// kind: '' (plain), 'blame', 'new'
+const calc = (lhs, words, nums, res, kind = '') => `
+  <div class="calc">
+    <span class="lhs">${lhs}</span>
+    <div class="row"><span class="eq">=</span><span class="words">${words}</span></div>
+    ${nums ? `<div class="row"><span class="eq">=</span><span class="nums">${nums}</span></div>` : ''}
+    <div class="row"><span class="eq">=</span><span class="res ${kind}">${res}</span></div>
+  </div>`;
+
+// A small picture of the squashing (sigmoid) curve.
+// points: [{x, label}], tangentAt: index of a point to draw the slope at
+function sigmoidPlot(points, tangentAt = -1) {
+  const W = 380, H = 170, L = 34, Rm = 12, T = 14, B = 30;
+  const xmin = -6, xmax = 6;
+  const sx = x => L + (x - xmin) / (xmax - xmin) * (W - L - Rm);
+  const sy = y => T + (1 - y) * (H - T - B);
+  let d = '';
+  for (let x = xmin; x <= xmax + 1e-9; x += 0.1) d += (d ? 'L' : 'M') + sx(x).toFixed(1) + ',' + sy(sigmoid(x)).toFixed(1);
+  let out = `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="The squashing curve">
+    <line class="guide" x1="${L}" x2="${W - Rm}" y1="${sy(1)}" y2="${sy(1)}"/>
+    <line class="guide" x1="${L}" x2="${W - Rm}" y1="${sy(0.5)}" y2="${sy(0.5)}"/>
+    <line class="axis" x1="${L}" x2="${W - Rm}" y1="${sy(0)}" y2="${sy(0)}"/>
+    <line class="axis" x1="${sx(0)}" x2="${sx(0)}" y1="${sy(0)}" y2="${sy(1)}"/>
+    <text class="tick" x="${L - 14}" y="${sy(1) + 4}">1</text>
+    <text class="tick" x="${L - 14}" y="${sy(0.5) + 4}">0.5</text>
+    <text class="tick" x="${L - 14}" y="${sy(0) + 4}">0</text>
+    ${[-6, -3, 0, 3, 6].map(v => `<text class="tick" x="${sx(v)}" y="${H - 12}">${sgn(v, x => x)}</text>`).join('')}
+    <text class="tick" x="${(L + W - Rm) / 2}" y="${H - 1}" style="font-family:var(--sans)">total input</text>
+    <path class="curve" d="${d}"/>`;
+  if (tangentAt >= 0) {
+    const p = points[tangentAt], y = sigmoid(p.x), m = y * (1 - y), dx = 1.6;
+    out += `<line class="tan" x1="${sx(p.x - dx)}" y1="${sy(y - m * dx)}" x2="${sx(p.x + dx)}" y2="${sy(y + m * dx)}"/>`;
+  }
+  points.forEach(p => {
+    const cx = sx(Math.max(xmin, Math.min(xmax, p.x))), cy = sy(sigmoid(p.x));
+    out += `<circle cx="${cx}" cy="${cy}" r="4.5" fill="${p.color || 'var(--accent)'}"/>
+      <text class="lab" x="${cx + (p.dx ?? -8)}" y="${cy + (p.dy ?? -10)}" text-anchor="${p.anchor || 'end'}">${p.label}</text>`;
+  });
+  return out + '</svg>';
+}
+
+/* ==========================================================================
+   4. Content. Each step is a list of parts. Each part has:
+      title, diagram (state for the network picture),
+      story (always shown), steps (the computation, can be hidden),
+      always (interactive pieces that stay visible), mount (wire up controls)
+   ========================================================================== */
+const steps = [
+/* ------------------------------ STEP 1 ------------------------------ */
+{
+  rail: 'Forward pass', sub: 'Compute an answer', title: 'The forward pass',
+  parts: [
+    {
+      title: () => round === 1 ? 'Meet the network' : `Round ${round}: the network with its new weights`,
+      diagram: () => ({ values: 'none', showBias: true }),
+      story: () => `
+        ${round === 1 ? `
+        <p>This network has three layers. Two <b>input</b> neurons receive the stimulus, here the pattern [1, 1]. Two <b>hidden</b> neurons sit in the middle. One <b>output</b> neuron gives the network's answer.</p>
+        <p>Every connection has a <b>weight</b>, the number printed on it. A weight says how strongly one neuron influences the next: positive weights excite, negative weights inhibit. Each hidden and output neuron also has a <b>bias</b> (the blue tags), a constant push it gets no matter what its inputs are.</p>
+        <p class="takeaway">Right now the weights are arbitrary. Learning means adjusting them until the network gives the answer we want: 0.</p>` : `
+        <p>The weights have been changed by the last round of learning. The network, the input and the biases are all the same as before. Only the weights are different.</p>
+        <p>Now we run the same four steps again to see whether the change helped.</p>
+        <p class="takeaway">Last round the network answered ${f3(history[history.length - 1].output)}. Will the new weights bring the answer closer to 0?</p>`}
+        <div class="toggles">
+        ${round === 1 ? why('Connection to psychology', `
+          <p>Loosely, a weight plays the role of synaptic strength, and a bias plays the role of a neuron's baseline excitability. Artificial neurons are a big simplification of real ones, but the core idea, that learning means changing the strength of connections, goes back to Donald Hebb.</p>`) : ''}
+        ${round === 1 ? why('Where do the starting weights come from?', `
+          <p>In real networks the starting weights are usually set at random. Here we picked fixed values so that everyone in the room sees the same numbers.</p>`) : ''}
+        ${why('Why are the biases not changing?', `
+          <p>To keep things simple, this demo only lets the six weights learn. Real networks learn their biases too, using exactly the same blame-and-update process. Leaving them fixed does not change anything about how the algorithm works.</p>`)}
+        </div>`,
+      steps: null
+    },
+    {
+      title: 'Hidden neurons combine their inputs',
+      diagram: () => ({ values: 'hidden', focus: ['i1', 'i2', 'w1', 'w2', 'w3', 'w4', 'h1', 'h2', 'b1', 'b2'], fwd: ['w1', 'w2', 'w3', 'w4'], showBias: false }),
+      story: () => `
+        <p>Each hidden neuron listens to both inputs. It multiplies each input by the weight on that connection, adds the results together, and adds its bias. That gives its <b>total input</b>.</p>
+        <p>The total is then squashed into a number between 0 and 1: the neuron's <b>activity</b>. Think of activity as a firing rate, where 0 is silent and 1 is firing as fast as it can.</p>
+        <p class="takeaway">${cap(HF(1))} ends up ${activityWord(R.h1)} (${f2(R.h1)}). ${cap(HF(2))} is ${activityWord(R.h2)} (${f2(R.h2)}).</p>
+        <div class="toggles">
+            ${why('What does "squash" do?', `
+              <p>The squashing function (called the <b>sigmoid</b>) turns any total input into a number between 0 and 1. Large negative totals come out near 0, large positive totals come out near 1, and a total of exactly 0 comes out as 0.5.</p>
+              ${sigmoidPlot([{ x: R.t1, label: 'h1' }, { x: R.t2, label: 'h2', dx: 8, dy: 16, anchor: 'start' }])}
+              <p>This keeps every neuron's activity in a fixed range, the way a real neuron cannot fire less than zero or faster than its maximum rate. Notice that the curve is steep in the middle and flat at both ends. That shape will matter in step 3.</p>
+              <p>For the curious, the formula is <span class="mono">squash(x) = 1 / (1 + e<sup>−x</sup>)</span>.</p>`)}
+        </div>`,
+      steps: () => `
+        <ol>
+          <li><div class="what">${cap(HF(1))}</div>
+            ${calc('Total input to hidden neuron 1', 'input 1 × weight 1 + input 2 × weight 2 + bias 1',
+              `${i1} × ${paren(R.w.w1, f2)} + ${i2} × ${paren(R.w.w2, f2)} + ${paren(biases.b1, f2)}`, sgn(R.t1, f3))}
+            ${calc('Activity of hidden neuron 1', 'squash(total input)', `squash(${sgn(R.t1, f3)})`, f3(R.h1))}</li>
+          <li><div class="what">${cap(HF(2))}</div>
+            ${calc('Total input to hidden neuron 2', 'input 1 × weight 3 + input 2 × weight 4 + bias 2',
+              `${i1} × ${paren(R.w.w3, f2)} + ${i2} × ${paren(R.w.w4, f2)} + ${paren(biases.b2, f2)}`, sgn(R.t2, f3))}
+            ${calc('Activity of hidden neuron 2', 'squash(total input)', `squash(${sgn(R.t2, f3)})`, f3(R.h2))}
+          </li>
+        </ol>`
+    },
+    {
+      title: 'The output neuron does the same',
+      diagram: () => ({ values: 'all', focus: ['h1', 'h2', 'w5', 'w6', 'o1', 'b3'], fwd: ['w5', 'w6'] }),
+      story: () => `
+        <p>The output neuron follows exactly the same recipe. The only difference is what it listens to: instead of the raw stimulus, its inputs are the activities of the two hidden neurons.</p>
+        <p class="takeaway">The network's answer is <b>${f3(R.o1)}</b>.</p>`,
+      steps: () => `
+        <ol>
+          <li><div class="what">Add up what reaches the output</div>
+            ${calc('Total input to the output', 'activity of h1 × weight 5 + activity of h2 × weight 6 + bias 3',
+              `${f3(R.h1)} × ${paren(R.w.w5, f2)} + ${f3(R.h2)} × ${paren(R.w.w6, f2)} + ${paren(biases.b3, f2)}`, sgn(R.to, f3))}</li>
+          <li><div class="what">Squash it</div>
+            ${calc('Output', 'squash(total input)', `squash(${sgn(R.to, f3)})`, f3(R.o1))}
+            ${why('Why does every neuron use the same recipe?', `
+              <p>Using one simple rule everywhere is part of what makes the network trainable. Because every neuron works the same way, the same reasoning can be run backward through every neuron in step 3, no matter how many layers there are.</p>`)}
+          </li>
+        </ol>`
+    },
+    {
+      title: "The network's answer",
+      diagram: () => ({ values: 'all', showBias: true }),
+      story: () => `
+        <p>Information flowed forward: from the inputs, through the hidden layer, to the output. The network's answer is <b>${f3(R.o1)}</b>. We wanted <b>0</b>.</p>
+        ${round > 1 ? `<p class="takeaway">Last round the answer was ${f3(history[history.length - 1].output)}. This round it is ${f3(R.o1)}.</p>` : `<p class="takeaway">This is the network's first guess. Next we measure how wrong it is.</p>`}
+        <div class="toggles">
+        ${why('The big picture', `
+          <ul class="bullets">
+            <li>Each neuron multiplies its inputs by their weights, adds them up, and adds its bias.</li>
+            <li>The total is squashed into an activity between 0 and 1.</li>
+            <li>Activities are passed forward to the next layer, until the output neuron gives an answer.</li>
+          </ul>`)}
+        </div>`,
+      steps: null
+    }
+  ]
+},
+/* ------------------------------ STEP 2 ------------------------------ */
+{
+  rail: 'Measure the error', sub: 'Compare to the target', title: 'Measuring the error',
+  parts: [
+    {
+      title: 'How far off was the answer?',
+      diagram: () => ({ values: 'all', blamedNodes: ['o1'], focus: ['o1'] }),
+      story: () => `
+        <p>To learn, the network needs feedback. We compare its answer to the <b>target</b>, the answer we wanted. The difference is the <b>error</b>.</p>
+        <p>The error has a size (how wrong the answer was) and a direction: positive means the answer was too high, negative means too low.</p>
+        <p class="takeaway">The answer was <b>${f3(Math.abs(R.error))} too ${R.error >= 0 ? 'high' : 'low'}</b>.${round > 1 ? ` Last round the error was ${f3(history[history.length - 1].error)}.` : ''}</p>
+        <div class="toggles">
+        ${why('Connection to psychology', `
+          <p>This is a <b>prediction error</b>: the difference between what happened and what was expected. Prediction errors are central to theories of learning, from the Rescorla–Wagner model of conditioning to the finding that dopamine neurons respond to rewards that are better or worse than expected.</p>`)}
+        </div>`,
+      steps: () => `
+        <ol>
+          <li><div class="what">Subtract the target from the output.</div>
+            ${calc('Error', 'output − target', `${f3(R.o1)} − ${target}`, sgn(R.error, f3), 'blame')}
+            ${why('More info: other ways to measure error', `
+              <p>Many networks report the <b>squared</b> error, (output − target)², so that answers that are too high and too low both count as bad. When it comes time to assign blame, the squared version leads back to the same output − target difference used here (up to a constant factor), so this demo skips the squaring.</p>`)}
+          </li>
+        </ol>`
+    },
+    {
+      title: 'The key question',
+      diagram: () => ({ values: 'all', blamedNodes: ['o1'] }),
+      story: () => `
+        <p>We now know the network was wrong, and by how much. But the error is a single number, and the network has six weights. Which ones should change, and by how much?</p>
+        <p>This is the <b>credit assignment problem</b>: when an outcome is produced by many parts working together, how do you decide which parts deserve the credit, or the blame? Backpropagation is one answer.</p>
+        <p class="takeaway">Next: trace the error backward to give each weight its share of the blame.</p>
+        <div class="toggles">
+        ${why('Connection to psychology', `
+          <p>Animals face the same puzzle. When a reward arrives after a long sequence of actions, which actions earned it? The term "credit assignment problem" comes from early AI work by Marvin Minsky (1961), and it is still studied in both machine learning and neuroscience.</p>`)}
+        </div>`,
+      steps: null
+    }
+  ]
+},
+/* ------------------------------ STEP 3 ------------------------------ */
+{
+  rail: 'Assign blame', sub: 'Trace the error backward', title: 'Assigning blame',
+  parts: [
+    {
+      title: 'Start where the mistake is visible',
+      diagram: () => ({ blamedNodes: ['o1'], focus: ['o1'] }),
+      story: () => `
+        <p>The network answered <b>${f3(R.o1)}</b> when it should have answered <b>0</b>. The answer is too ${R.error >= 0 ? 'high' : 'low'}.</p>
+        <p>The output is the only place where we can actually see the mistake. So blame starts there, and is passed backward one layer at a time until every weight has received its share.</p>`,
+      steps: () => `
+        <ol>
+          <li><div class="what">Take the error from step 2.</div>
+            ${calc('Error', 'output − target', `${f3(R.o1)} − ${target}`, sgn(R.error, f3))}</li>
+          <li><div class="what">Adjust it by how sensitive the output neuron is.</div>
+            ${calc('Error signal', 'error × sensitivity of the output', `${paren(R.error, f3)} × ${f3(R.sensO)}`, sgn(R.sigO, f4), 'blame')}
+            ${why('Why?', `
+              <p>Remember the squashing curve from step 1. In the middle of the curve, a small push changes the neuron's output a lot. Near the ends, the curve is flat: the neuron is <i>saturated</i>, and pushing it barely changes anything.</p>
+              ${sigmoidPlot([{ x: R.to, label: 'output', color: 'var(--blame)' }], 0)}
+              <p>The <b>sensitivity</b> is the steepness of the curve at the point where the neuron currently sits (the red line above). The output is at ${f2(R.o1)}, ${sensitivityPhrase(R.sensO)}: ${f3(R.sensO)}. This scales the blame. There is less point blaming a neuron for something it can hardly change.</p>
+              <p>For the curious, here is where ${f3(R.sensO)} comes from:</p>
+              ${calc('Sensitivity', 'output × (1 − output)', `${f3(R.o1)} × ${f3(1 - R.o1)}`, f3(R.sensO))}`)}
+          </li>
+        </ol>`
+    },
+    {
+      title: 'Blame the connections into the output',
+      diagram: () => ({ blamedEdges: ['w5', 'w6'], blamedNodes: ['o1'], focus: ['o1', 'w5', 'w6', 'h1', 'h2'], back: ['w5', 'w6'] }),
+      story: () => {
+        const more = Math.abs(R.h1) >= Math.abs(R.h2) ? [1, 5, 2, 6] : [2, 6, 1, 5];
+        return `
+        <p>Two connections feed the output: ${WF('w5')}, coming from ${HN(1)}, and ${WF('w6')}, coming from ${HN(2)}. Each one carried a message from a hidden neuron into the final answer.</p>
+        <p>A connection whose sender was very active had more influence on the answer than one whose sender was quiet. So it gets more of the blame.</p>
+        <p class="takeaway">${HN(more[0])[0].toUpperCase() + HN(more[0]).slice(1)} was more active (${f2(more[0] === 1 ? R.h1 : R.h2)}) than ${HN(more[2])} (${f2(more[0] === 1 ? R.h2 : R.h1)}), so <b>weight ${more[1]} gets more blame than weight ${more[3]}</b>.</p>`;
+      },
+      steps: () => `
+        <ol>
+          <li><div class="what">Blame for ${WF('w5')}, from ${HN(1)} to the output</div>
+            ${calc('Blame for weight 5', 'error signal × activity of hidden neuron 1', `${sgn(R.sigO, f4)} × ${f3(R.h1)}`, sgn(R.blame.w5, f4), 'blame')}</li>
+          <li><div class="what">Blame for ${WF('w6')}, from ${HN(2)} to the output</div>
+            ${calc('Blame for weight 6', 'error signal × activity of hidden neuron 2', `${sgn(R.sigO, f4)} × ${f3(R.h2)}`, sgn(R.blame.w6, f4), 'blame')}
+          </li>
+        </ol>
+        <div class="toggles">
+        ${why("Why multiply by the sender's activity?", `
+          <p>Imagine ${HN(1)} had been completely silent (activity 0). Then nothing travelled along weight 5, and changing weight 5 would not have changed the answer at all. It could not be responsible.</p>
+          <p>The more active the sender, the more that connection's weight mattered to the final answer, and the more blame it should get.</p>`)}
+        ${why('Connection to psychology', `
+          <p>If you have seen the <b>Rescorla–Wagner</b> model of conditioning, this step will look familiar. There, associative strength changes in proportion to the prediction error, and only for cues that were present on that trial.</p>
+          <p>Here, the error signal plays the role of prediction error, and a hidden neuron's activity plays the role of "was this cue present?" What backpropagation adds is the next part: a way to pass blame further back, to connections that do not touch the output directly.</p>`)}
+        </div>`
+    },
+    {
+      title: 'Pass the blame back to the hidden neurons',
+      diagram: () => ({ blamedEdges: ['w5', 'w6'], blamedNodes: ['o1', 'h1', 'h2'], focus: ['w5', 'w6', 'h1', 'h2', 'o1'], back: ['w5', 'w6'] }),
+      story: () => {
+        const winner = Math.abs(R.sigH1) >= Math.abs(R.sigH2) ? 1 : 2;
+        const strong = Math.abs(R.w.w5) >= Math.abs(R.w.w6) ? 1 : 2;
+        const take = winner === strong
+          ? `${cap(HN(strong))} has the stronger connection to the output, so <b>${HN(winner)} inherits more blame</b>.`
+          : `${cap(HN(strong))} has the stronger connection, but it is less sensitive (closer to saturated), so <b>${HN(winner)} ends up inheriting more blame</b>.`;
+        return `
+        <p>Now we ask a new question: how responsible was each <i>hidden neuron</i> for the error?</p>
+        <p>A hidden neuron connected to the output by a strong weight could push the answer around a lot. One connected by a weak weight could not. So each hidden neuron inherits blame through its connection to the output.</p>
+        <p class="takeaway">${cap(HF(1))} reaches the output through weight 5 (${sgn(R.w.w5, f2)}); ${HF(2)} through weight 6 (${sgn(R.w.w6, f2)}). ${take}</p>`;
+      },
+      steps: () => {
+        const neg = ['w5', 'w6'].filter(k => R.w[k] < 0);
+        return `
+        <ol>
+          <li><div class="what">Share of the blame for ${HF(1)}</div>
+            ${calc("Hidden neuron 1's share", 'error signal × weight 5 × sensitivity of hidden neuron 1', `${sgn(R.sigO, f4)} × ${paren(R.w.w5, f2)} × ${f3(R.sensH1)}`, sgn(R.sigH1, f4), 'blame')}</li>
+          <li><div class="what">Share of the blame for ${HF(2)}</div>
+            ${calc("Hidden neuron 2's share", 'error signal × weight 6 × sensitivity of hidden neuron 2', `${sgn(R.sigO, f4)} × ${paren(R.w.w6, f2)} × ${f3(R.sensH2)}`, sgn(R.sigH2, f4), 'blame')}
+          </li>
+        </ol>
+        <div class="toggles">
+        ${why('Why multiply by the weight?', `
+          <p>The weight works like a volume knob on the connection. If weight 6 were 0, nothing ${HN(2)} did could reach the output, so ${HN(2)} could not be blamed for the output's mistake. A bigger weight means more of the hidden neuron's activity reached the answer.</p>
+          <p>The sensitivity is the same idea as in part 1: a hidden neuron that is close to saturated can't change much, so it gets less blame.</p>`)}
+        ${neg.length ? why('What does a negative weight do here?', `
+          <p>${neg.map(WN).join(' and ')} ${neg.length > 1 ? 'are' : 'is'} negative, so the hidden neuron behind ${neg.length > 1 ? 'them was' : 'it was'} pulling the answer <i>down</i>. Its share of the blame comes out negative, which means: to reduce the error, this neuron should be <i>more</i> active, not less.</p>`) : ''}
+        ${why('Why are these numbers getting smaller?', `
+          <p>Every layer we pass back through multiplies the blame by a weight and a sensitivity, and the sensitivity is never more than 0.25. So the blame signal tends to shrink as it travels backward.</p>
+          <p>In networks with many layers this becomes a real problem, known as the <b>vanishing gradient</b>: the earliest layers receive so little blame that they barely learn.</p>`)}
+        </div>`;
+      }
+    },
+    {
+      title: 'Blame the connections into the hidden layer',
+      diagram: () => ({ blamedEdges: ORDER, blamedNodes: ['o1', 'h1', 'h2'], focus: ['w1', 'w2', 'w3', 'w4', 'h1', 'h2', 'i1', 'i2'], back: ['w1', 'w2', 'w3', 'w4'] }),
+      story: () => {
+        const winner = Math.abs(R.sigH1) >= Math.abs(R.sigH2) ? 1 : 2;
+        const [a, b] = winner === 1 ? ['weights 1 and 2', 'weights 3 and 4'] : ['weights 3 and 4', 'weights 1 and 2'];
+        return `
+        <p>We now repeat the move from part 2, one layer earlier. Each hidden neuron has its share of the blame, and it passes that share on to the connections that feed it, in proportion to how active each sender was.</p>
+        <p>Both inputs were 1, so ${WF('w1')} and ${WF('w2')} split ${HN(1)}'s blame equally, and ${WF('w3')} and ${WF('w4')} split ${HN(2)}'s.</p>
+        <p class="takeaway">Because ${HN(winner)} inherited more blame, <b>${a} get more blame than ${b}</b>.</p>`;
+      },
+      steps: () => `
+        <ol>
+          <li><div class="what">Connections into ${HN(1)}</div>
+            ${calc('Blame for weight 1', "hidden neuron 1's share × input 1", `${sgn(R.sigH1, f4)} × ${i1}`, sgn(R.blame.w1, f4), 'blame')}
+            ${calc('Blame for weight 2', "hidden neuron 1's share × input 2", `${sgn(R.sigH1, f4)} × ${i2}`, sgn(R.blame.w2, f4), 'blame')}</li>
+          <li><div class="what">Connections into ${HN(2)}</div>
+            ${calc('Blame for weight 3', "hidden neuron 2's share × input 1", `${sgn(R.sigH2, f4)} × ${i1}`, sgn(R.blame.w3, f4), 'blame')}
+            ${calc('Blame for weight 4', "hidden neuron 2's share × input 2", `${sgn(R.sigH2, f4)} × ${i2}`, sgn(R.blame.w4, f4), 'blame')}
+          </li>
+        </ol>
+        <div class="toggles">
+        ${why('Is this a new rule?', `
+          <p>No. It is the same rule as part 2: <b>incoming blame × activity of the sender</b>. The only difference is where the incoming blame came from. In part 2 it came straight from the error; here it came from a hidden neuron.</p>
+          <p>That is the whole trick of backpropagation. The same two ingredients are applied at every layer, however deep the network is.</p>`)}
+        </div>`
+    },
+    {
+      title: 'The blame report',
+      diagram: () => ({ blamedEdges: ORDER, blamedNodes: ['o1', 'h1', 'h2'] }),
+      story: () => `
+        <p>Every weight now has a number saying how much it contributed to the mistake. Blame started at the output, where the error was visible, and flowed backward through the network.</p>
+        <p>In step 4 we use these numbers to decide how much to change each weight: the more blame, the bigger the change.</p>`,
+      always: () => {
+        const sorted = ORDER.slice().sort((a, b) => Math.abs(R.blame[b]) - Math.abs(R.blame[a]));
+        const rows = sorted.map(w => {
+          const b = R.blame[w], n = Math.abs(b) / R.maxBlame;
+          const lvl = n > 0.6 ? 'High' : n > 0.3 ? 'Medium' : 'Low';
+          return `<div class="rank-row"><span class="w">${WN(w)[0].toUpperCase() + WN(w).slice(1)}</span>
+            <span class="track"><span class="bar" style="width:${(n * 100).toFixed(1)}%;opacity:${(0.3 + 0.7 * n).toFixed(2)}"></span></span>
+            <span class="val">${sgn(b, f4)}</span><span class="lvl">${lvl}</span></div>`;
+        }).join('');
+        const allPos = ORDER.every(k => R.blame[k] >= 0);
+        return `
+          <div class="section-label">All the blame, ranked</div>
+          <div class="rank">${rows}</div>
+          <div class="toggles">
+          ${allPos ? why('What does it mean that all the numbers are positive?', `
+            <p>A positive blame means that weight was pushing the output <i>up</i>. Since the output was too high, every one of these weights will be turned <i>down</i> in step 4.</p>
+            <p>If a weight had been pushing the output the other way, its blame would come out negative, and it would be turned up instead.</p>`)
+          : why('Why are some of the numbers negative?', `
+            <p>A positive blame means that weight was pushing the output <i>up</i>, which made the error worse; it will be turned down in step 4. A negative blame means the weight was pushing the output <i>down</i>, which helped; it will be turned up.</p>`)}
+          ${why('The big picture', `
+            <ul class="bullets">
+              <li>Blame starts at the output, where the error is visible.</li>
+              <li>It flows backward through the network, one layer at a time.</li>
+              <li>Connections from more active neurons get more blame.</li>
+              <li>Earlier weights inherit blame from later ones, through the connections they feed.</li>
+              <li>The result tells us which weights to adjust most.</li>
+            </ul>`)}
+          </div>`;
+      },
+      steps: null
+    }
+  ]
+},
+/* ------------------------------ STEP 4 ------------------------------ */
+{
+  rail: 'Update weights', sub: 'Adjust by blame', title: 'Updating the weights',
+  parts: [
+    {
+      title: 'Turn blame into change',
+      diagram: () => ({ blamedEdges: ORDER, blamedNodes: ['o1', 'h1', 'h2'] }),
+      story: () => `
+        <p>Every weight now changes in the direction that would have made the error smaller. Weights with a lot of blame change a lot; weights with little blame barely move.</p>
+        <p>A positive blame means the weight pushed the answer up, so we turn it down. A negative blame means it pushed the answer down, so we turn it up.</p>
+        <p class="takeaway"><b>new weight = old weight − learning rate × blame</b></p>
+        <div class="toggles">
+        ${why('More info: gradient descent', `
+          <p>Picture the error as a landscape. Every possible combination of weights is a location, and the height of the ground is the error. The blame numbers tell you which direction is uphill.</p>
+          <p>Stepping the opposite way, downhill, is called <b>gradient descent</b>. It is how nearly all modern neural networks learn. Backpropagation is the method for working out which way is downhill.</p>`)}
+        </div>`,
+      steps: () => {
+        const k = ORDER.slice().sort((a, b) => Math.abs(R.blame[b]) - Math.abs(R.blame[a]))[0];
+        const nw = R.w[k] - learningRate * R.blame[k];
+        return `
+        <ol>
+          <li><div class="what">Example: ${WF(k)}, the weight with the most blame</div>
+            ${calc(`New ${WN(k)}`, 'old weight − learning rate × blame', `${sgn(R.w[k], f3)} − ${learningRate} × ${paren(R.blame[k], f4)}`, sgn(nw, f3), 'new')}
+            ${why('Why subtract?', `
+              <p>Blame tells us what happens to the error when the weight goes up. If raising the weight raises the error (positive blame), we should lower it. If raising the weight lowers the error (negative blame), we should raise it.</p>
+              <p>Subtracting the blame does the right thing in both cases: subtracting a positive number lowers the weight, and subtracting a negative number raises it.</p>`)}
+          </li>
+        </ol>`;
+      }
+    },
+    {
+      title: 'How big a step? The learning rate',
+      diagram: () => ({ blamedEdges: ORDER, blamedNodes: ['o1', 'h1', 'h2'], labels: 'proposed' }),
+      story: () => `
+        <p>The <b>learning rate</b> sets how big each step is. Small steps are cautious but slow. Large steps learn faster, but in many problems they can overshoot.</p>
+        <p>The diagram now shows what the weights will become (in blue). Try changing the learning rate and watch them move.</p>
+        <div class="toggles">
+        ${why('Will a big learning rate overshoot here?', `
+          <p>Not in this particular example. The target, 0, sits at the very edge of what the output neuron can produce, so the answer can never go past it. Here, larger learning rates simply get close to 0 faster.</p>
+          <p>When the target is somewhere in the middle of the range, a learning rate that is too large makes the answer jump back and forth past the target, and the error can get worse instead of better. Choosing the learning rate is a real practical problem in machine learning.</p>`)}
+        ${why('Connection to psychology', `
+          <p>The Rescorla–Wagner model has learning-rate parameters too (often written α and β). They set how quickly associations change, and are often linked to how salient a cue or an outcome is.</p>`)}
+        </div>`,
+      always: () => `
+        <div class="lr-box">
+          <div class="lr-row">
+            <label for="lr-input">Learning rate</label>
+            <input type="number" id="lr-input" min="0.01" max="50" step="0.1" value="${learningRate}">
+          </div>
+          <div class="presets" id="presets">
+            ${[0.1, 0.5, 2, 5, 20].map(v => `<button type="button" data-lr="${v}" class="${v === learningRate ? 'on' : ''}">${v}</button>`).join('')}
+            <span class="note">0.5 is the default</span>
+          </div>
+        </div>`,
+      steps: () => `<div id="upd-list">${updatesTable()}</div>`,
+      mount: () => {
+        const inp = document.getElementById('lr-input');
+        const set = v => {
+          if (!(v > 0)) return;
+          learningRate = Math.round(v * 1000) / 1000;
+          document.querySelectorAll('#presets button').forEach(b => b.classList.toggle('on', +b.dataset.lr === learningRate));
+          const list = document.getElementById('upd-list');
+          if (list) list.innerHTML = updatesTable();
+          render(curPart().diagram());
+        };
+        inp.addEventListener('input', () => set(parseFloat(inp.value)));
+        document.querySelectorAll('#presets button').forEach(b => b.addEventListener('click', () => {
+          inp.value = b.dataset.lr; set(parseFloat(b.dataset.lr));
+        }));
+      }
+    },
+    {
+      title: 'Did it work?',
+      diagram: () => ({ labels: 'proposed' }),
+      story: () => `
+        <p>The new weights replace the old ones. To find out whether the network improved, we run the forward pass again with the new weights and measure the new error.</p>
+        <p>That is one full round of learning: forward pass, error, blame, update.</p>
+        <p class="takeaway">Real networks repeat this loop thousands or millions of times, across many different examples. Click "Start round ${round + 1}" to run it again.</p>`,
+      always: () => {
+        const rows = [...history, { round, output: R.o1, error: R.error, lr: learningRate, current: true }];
+        return `
+          <div class="section-label">Training history</div>
+          <div class="table-wrap"><table class="hist">
+            <thead><tr><th>Round</th><th>Output</th><th>Error</th><th>Learning rate</th><th>Compared with last round</th></tr></thead>
+            <tbody>${rows.map((r, i) => {
+              let cls = 'neutral', txt = 'First round';
+              if (i > 0) {
+                const d = Math.abs(r.error) - Math.abs(rows[i - 1].error);
+                if (d < -1e-6) { cls = 'better'; txt = `Better (${sgn(d, f3)})`; }
+                else if (d > 1e-6) { cls = 'worse'; txt = `Worse (+${f3(d)})`; }
+                else txt = 'No change';
+              }
+              return `<tr class="${r.current ? 'current' : ''}"><td>${r.round}${r.current ? ' (this round)' : ''}</td><td>${f3(r.output)}</td><td>${sgn(r.error, f3)}</td><td>${r.lr}</td><td class="${cls}">${txt}</td></tr>`;
+            }).join('')}</tbody>
+          </table></div>
+          <div class="toggles">
+          ${why('The big picture', `
+            <ul class="bullets">
+              <li><b>Forward pass:</b> the input flows through the network to produce an answer.</li>
+              <li><b>Error:</b> compare the answer to the target.</li>
+              <li><b>Blame:</b> pass the error backward, so each weight learns how much it contributed.</li>
+              <li><b>Update:</b> nudge each weight against its blame, scaled by the learning rate.</li>
+              <li>Repeat.</li>
+            </ul>`)}
+          </div>`;
+      },
+      steps: null
+    }
+  ]
+}
+];
+
+function updatesTable() {
+  const prop = proposedWeights();
+  const sorted = ORDER.slice().sort((a, b) => Math.abs(R.blame[b]) - Math.abs(R.blame[a]));
+  return `
+    <div class="table-wrap"><table class="upd">
+      <thead><tr><th>Weight</th><th>Old</th><th>Blame</th><th>New</th><th>Change</th></tr></thead>
+      <tbody>${sorted.map(k => {
+        const ch = prop[k] - R.w[k];
+        return `<tr><td>${WN(k)[0].toUpperCase() + WN(k).slice(1)}</td><td>${sgn(R.w[k], f3)}</td><td>${sgn(R.blame[k], f4)}</td><td>${sgn(prop[k], f3)}</td>
+          <td class="${ch < 0 ? 'down' : 'up'}">${ch < 0 ? '−' : '+'}${f3(Math.abs(ch))}</td></tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+}
+
+/* ==========================================================================
+   5. Navigation
+   ========================================================================== */
+let S = 0, P = 0;          // current step and part
+let furthest = 0;          // furthest position reached this round (S*100 + P)
+const seen = new Set();
+
+const curPart = () => steps[S].parts[P];
+const val = v => (typeof v === 'function' ? v() : v);
+
+const titleEl = document.getElementById('title');
+const railEl = document.getElementById('rail');
+const partEl = document.getElementById('part');
+const progEl = document.getElementById('progress');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+const skipBtn = document.getElementById('skip');
+
+const check = '<svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5l2.5 2.5L10 3.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function drawRail() {
+  railEl.innerHTML = steps.map((st, i) => {
+    const state = i === S ? 'current' : (furthest >= (i + 1) * 100 ? 'done' : (furthest >= i * 100 ? '' : 'upcoming'));
+    const reachable = furthest >= i * 100;
+    return `<button type="button" class="rail-step ${state}" data-step="${i}" ${reachable && i !== S ? '' : 'disabled'} ${i === S ? 'aria-current="step"' : ''}>
+      <span class="rail-num" aria-hidden="true">${state === 'done' ? check : i + 1}</span>
+      <span><span class="rail-title">${st.rail}</span><br><span class="rail-sub">${st.sub}</span></span></button>`;
+  }).join('');
+  railEl.querySelectorAll('button').forEach(b => b.addEventListener('click', () => go(+b.dataset.step, 0)));
+}
+
+function drawRecap() {
+  const pos = S * 100 + P;
+  const outShown = Math.max(pos, furthest) >= 2;       // after step 1, part 3
+  const errShown = Math.max(pos, furthest) >= 100;     // from step 2 on
+  document.getElementById('r-round').textContent = round;
+  const o = document.getElementById('r-out'), e = document.getElementById('r-err');
+  o.textContent = outShown ? f3(R.o1) : '—';
+  e.textContent = errShown ? sgn(R.error, f3) : '—';
+  o.classList.toggle('pending', !outShown);
+  e.classList.toggle('pending', !errShown);
+  document.getElementById('round-chip').textContent = `Round ${round}`;
+}
+
+function go(s, p) {
+  S = s; P = p;
+  furthest = Math.max(furthest, S * 100 + P);
+  seen.add(S * 100 + P);
+  const st = steps[S], part = st.parts[P];
+  const stepsHtml = val(part.steps);
+  const alwaysHtml = val(part.always);
+
+  titleEl.textContent = `Step ${S + 1}: ${st.title}`;
+  partEl.innerHTML = `
+    <p class="part-num">Step ${S + 1}, part ${P + 1} of ${st.parts.length}</p>
+    <h2>${val(part.title)}</h2>
+    <div class="section"><div class="section-label">The idea</div><div class="story">${val(part.story)}</div></div>
+    ${alwaysHtml ? `<div class="section">${alwaysHtml}</div>` : ''}
+    ${stepsHtml ? `<div class="section steps-sec"><div class="section-label">The computation</div><div class="steps">${stepsHtml}</div></div>` : ''}`;
+  if (part.mount) part.mount();
+
+  render(part.diagram());
+
+  progEl.innerHTML = '';
+  st.parts.forEach((pt, j) => {
+    const d = document.createElement('button');
+    d.type = 'button'; d.className = 'dot';
+    d.setAttribute('aria-label', `Part ${j + 1}`);
+    const reach = furthest >= S * 100 + j;
+    d.disabled = !reach;
+    d.classList.toggle('on', j === P);
+    d.classList.toggle('seen', reach && j !== P);
+    d.addEventListener('click', () => go(S, j));
+    progEl.appendChild(d);
+  });
+
+  const lastPart = P === st.parts.length - 1;
+  prevBtn.disabled = S === 0 && P === 0;
+  if (lastPart && S < steps.length - 1) nextBtn.textContent = `Continue to step ${S + 2}`;
+  else if (lastPart) nextBtn.textContent = `Start round ${round + 1}`;
+  else nextBtn.textContent = 'Next';
+  skipBtn.hidden = !(round > 1 && !lastPart);
+
+  drawRail();
+  drawRecap();
+}
+
+function next() {
+  const st = steps[S];
+  if (P < st.parts.length - 1) go(S, P + 1);
+  else if (S < steps.length - 1) go(S + 1, 0);
+  else newRound();
+}
+function prev() {
+  if (P > 0) go(S, P - 1);
+  else if (S > 0) go(S - 1, steps[S - 1].parts.length - 1);
+}
+function newRound() {
+  history.push({ round, output: R.o1, error: R.error, lr: learningRate });
+  weights = proposedWeights();
+  round += 1;
+  R = computeRound(weights);
+  furthest = 0;
+  go(0, 0);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function resetAll() {
+  weights = { ...INITIAL_WEIGHTS };
+  learningRate = 0.5; round = 1; history = [];
+  R = computeRound(weights);
+  furthest = 0;
+  go(0, 0);
+}
+
+nextBtn.addEventListener('click', next);
+prevBtn.addEventListener('click', prev);
+skipBtn.addEventListener('click', () => go(S, steps[S].parts.length - 1));
+document.getElementById('reset').addEventListener('click', resetAll);
+document.addEventListener('keydown', e => {
+  if (e.target.closest('input, textarea, select')) return;
+  if (e.key === 'ArrowRight') next();
+  if (e.key === 'ArrowLeft') prev();
+});
+document.getElementById('show-comp').addEventListener('change', e => {
+  document.body.classList.toggle('hide-steps', !e.target.checked);
+});
+
+R = computeRound(weights);
+go(0, 0);
+</script>
+</body>
+</html>

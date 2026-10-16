@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simon Task</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+  }
+  .screen {
+    display: none;
+    min-height: 100%;
+    box-sizing: border-box;
+    padding: 24px 16px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .screen.active { display: flex; }
+  .content { max-width: 640px; width: 100%; }
+  h1 { font-size: 32px; margin: 0 0 20px; }
+  p { line-height: 1.5; margin: 0 0 14px; }
+  .settings { margin: 28px 0; }
+  .row { margin: 14px 0; }
+  label { margin-right: 8px; }
+  input[type=number] { width: 80px; font-size: 18px; padding: 2px 4px; }
+  input[type=range] { width: 240px; vertical-align: middle; }
+  button {
+    font-size: 18px;
+    padding: 8px 22px;
+    margin: 6px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    cursor: pointer;
+  }
+  #task { cursor: none; overflow: hidden; }
+  #stim {
+    display: none;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+  }
+  #feedback { font-size: 40px; }
+  table { margin: 20px auto; border-collapse: collapse; }
+  th, td { padding: 6px 16px; text-align: center; }
+  th { border-bottom: 1px solid #000; }
+</style>
+</head>
+<body>
+
+<div id="start" class="screen active">
+  <div class="content">
+    <h1>Simon Task</h1>
+    <p>A colored circle will appear on the left or right side of the screen.</p>
+    <p>Respond to the <b>color</b> of the circle, wherever it appears.</p>
+    <p>Press <b>D</b> if the circle is <b>red</b>.<br>
+       Press <b>J</b> if the circle is <b>blue</b>.</p>
+    <p>Use both hands: left index finger on D, right index finger on J.</p>
+    <p>Respond as quickly and as accurately as possible.</p>
+
+    <div class="settings">
+      <div class="row">
+        <label for="nTrials">Number of trials:</label>
+        <input type="number" id="nTrials" min="4" max="1000" value="40">
+      </div>
+      <div class="row">
+        <label for="pCong">Congruent trials:</label>
+        <input type="range" id="pCong" min="0" max="100" step="5" value="50">
+        <span id="pCongVal">50%</span>
+      </div>
+      <div class="row">
+        <label for="fb">Show feedback:</label>
+        <input type="checkbox" id="fb">
+      </div>
+    </div>
+
+    <button id="startBtn">Begin</button>
+  </div>
+</div>
+
+<div id="task" class="screen">
+  <div id="stim"></div>
+  <div id="feedback"></div>
+</div>
+
+<div id="results" class="screen">
+  <div class="content">
+    <h1>Results</h1>
+    <table id="resTable"></table>
+    <p id="effect"></p>
+    <button id="downloadBtn">Download data</button>
+    <button id="againBtn">Run again</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var DEADLINE = 1000;
+  var ISI_BASE = 1000;
+  var FEEDBACK_MS = 500;
+  var COLORS = { red: '#d40000', blue: '#0033cc' };
+  var KEYMAP = { d: 'red', j: 'blue' };
+  var COLOR_SIDE = { red: 'left', blue: 'right' };   // side of the correct key
+
+  var $ = function (id) { return document.getElementById(id); };
+  var stimEl = $('stim'), fbEl = $('feedback');
+
+  $('pCong').addEventListener('input', function () {
+    $('pCongVal').textContent = this.value + '%';
+  });
+
+  function show(id) {
+    ['start', 'task', 'results'].forEach(function (s) {
+      $(s).classList.toggle('active', s === id);
+    });
+  }
+
+  function jitter(base) { return base * (0.9 + Math.random() * 0.2); }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function mean(arr) {
+    if (!arr.length) return NaN;
+    return arr.reduce(function (s, x) { return s + x; }, 0) / arr.length;
+  }
+
+  // Exact type counts; colors balanced within each type
+  function buildTrials(n, pCong) {
+    var nCong = Math.round(n * pCong);
+    var list = [];
+    function addType(type, count) {
+      for (var i = 0; i < count; i++) {
+        var color = i % 2 === 0 ? 'red' : 'blue';
+        var side = COLOR_SIDE[color];
+        if (type === 'incongruent') side = side === 'left' ? 'right' : 'left';
+        list.push({ type: type, color: color, side: side });
+      }
+    }
+    addType('congruent', nCong);
+    addType('incongruent', n - nCong);
+    return shuffle(list);
+  }
+
+  var trials, data, idx, showFb, onset, waiting, deadlineTimer, prevIti;
+
+  $('startBtn').addEventListener('click', function () {
+    var n = parseInt($('nTrials').value, 10);
+    if (!(n > 0)) n = 40;
+    n = Math.min(Math.max(n, 1), 1000);
+    trials = buildTrials(n, parseInt($('pCong').value, 10) / 100);
+    showFb = $('fb').checked;
+    data = [];
+    idx = 0;
+    this.blur();
+    stimEl.style.display = 'none';
+    fbEl.textContent = '';
+    show('task');
+    prevIti = Math.round(jitter(ISI_BASE));
+    setTimeout(runTrial, prevIti);
+  });
+
+  function runTrial() {
+    var tr = trials[idx];
+    fbEl.textContent = '';
+    var offset = Math.min(window.innerWidth * 0.3, 300);
+    stimEl.style.background = COLORS[tr.color];
+    stimEl.style.transform = 'translateX(' + (tr.side === 'left' ? -offset : offset) + 'px)';
+    stimEl.style.display = 'block';
+    requestAnimationFrame(function () {
+      onset = performance.now();
+      waiting = true;
+      deadlineTimer = setTimeout(function () { endTrial(null, null); }, DEADLINE);
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    var k = e.key.toLowerCase();
+    if (!waiting || e.repeat || !(k in KEYMAP)) return;
+    endTrial(KEYMAP[k], performance.now() - onset);
+  });
+
+  function endTrial(resp, rt) {
+    if (!waiting) return;
+    waiting = false;
+    clearTimeout(deadlineTimer);
+    stimEl.style.display = 'none';
+
+    var tr = trials[idx];
+    var correct = resp === tr.color ? 1 : 0;
+    data.push({
+      trial: idx + 1,
+      color: tr.color,
+      side: tr.side,
+      type: tr.type,
+      response: resp === null ? 'none' : resp,
+      rt: rt === null ? '' : Math.round(rt),
+      accuracy: correct,
+      iti_before: prevIti
+    });
+
+    idx++;
+    var delay = 0;
+    if (showFb) {
+      fbEl.textContent = resp === null ? 'Too slow' : (correct ? 'Correct' : 'Incorrect');
+      delay = FEEDBACK_MS;
+    }
+    setTimeout(function () {
+      fbEl.textContent = '';
+      if (idx >= trials.length) { showResults(); return; }
+      prevIti = Math.round(jitter(ISI_BASE));
+      setTimeout(runTrial, prevIti);
+    }, delay);
+  }
+
+  function summarize(rows) {
+    var correctRts = rows.filter(function (r) { return r.accuracy === 1; })
+                         .map(function (r) { return r.rt; });
+    return {
+      n: rows.length,
+      rt: mean(correctRts),
+      acc: rows.length ? 100 * mean(rows.map(function (r) { return r.accuracy; })) : NaN
+    };
+  }
+  function fmt(x, unit) { return isNaN(x) ? '--' : Math.round(x) + unit; }
+
+  function showResults() {
+    var types = ['congruent', 'incongruent'];
+    var s = {};
+    var html = '<tr><th>Trial type</th><th>Trials</th><th>Mean RT (correct)</th><th>Accuracy</th></tr>';
+    types.forEach(function (t) {
+      s[t] = summarize(data.filter(function (r) { return r.type === t; }));
+      html += '<tr><td>' + t.charAt(0).toUpperCase() + t.slice(1) + '</td><td>' + s[t].n +
+              '</td><td>' + fmt(s[t].rt, ' ms') + '</td><td>' + fmt(s[t].acc, '%') + '</td></tr>';
+    });
+    var all = summarize(data);
+    html += '<tr><td>All</td><td>' + all.n + '</td><td>' + fmt(all.rt, ' ms') +
+            '</td><td>' + fmt(all.acc, '%') + '</td></tr>';
+    $('resTable').innerHTML = html;
+
+    var eff = s.incongruent.rt - s.congruent.rt;
+    $('effect').innerHTML = 'Simon effect (incongruent RT minus congruent RT): <b>' +
+      (isNaN(eff) ? '--' : Math.round(eff) + ' ms') + '</b>';
+    show('results');
+  }
+
+  function downloadCSV(rows, cols, prefix) {
+    var lines = [cols.join(',')];
+    rows.forEach(function (r) { lines.push(cols.map(function (c) { return r[c]; }).join(',')); });
+    var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    var a = document.createElement('a');
+    var d = new Date();
+    var p2 = function (x) { return String(x).padStart(2, '0'); };
+    a.href = URL.createObjectURL(blob);
+    a.download = prefix + '_' + d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) +
+                 '_' + p2(d.getHours()) + p2(d.getMinutes()) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  $('downloadBtn').addEventListener('click', function () {
+    downloadCSV(data, ['trial', 'color', 'side', 'type', 'response', 'rt', 'accuracy', 'iti_before'], 'simon');
+  });
+  $('againBtn').addEventListener('click', function () { this.blur(); show('start'); });
+})();
+</script>
+</body>
+</html>

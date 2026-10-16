@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Miller and Cohen's Stroop model: the PFC as a switchman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E4E9E5; --panel:#F4F7F4; --ink:#1E2B2F; --muted:#56666A; --rule:#C3CDC7;
+  --cpath:#B07215; --wpath:#2F5D9E; --pfc:#7B3F98;
+  --sred:#C62D2D; --sgreen:#1F7D49; --ok:#1F7D49; --bad:#B42626;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#151C1E; --panel:#1E272A; --ink:#E3EBE8; --muted:#9AAAAC; --rule:#33413F;
+    --cpath:#E2A546; --wpath:#7EA6E4; --pfc:#C38FDD;
+    --sred:#F26B63; --sgreen:#4DC283; --ok:#4DC283; --bad:#F26B63;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#151C1E; --panel:#1E272A; --ink:#E3EBE8; --muted:#9AAAAC; --rule:#33413F;
+  --cpath:#E2A546; --wpath:#7EA6E4; --pfc:#C38FDD;
+  --sred:#F26B63; --sgreen:#4DC283; --ok:#4DC283; --bad:#F26B63;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Overpass",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 60px}
+header h1{font-size:clamp(1.6rem,3.2vw,2.4rem);line-height:1.1;font-weight:800;margin:0 0 8px;letter-spacing:-0.01em;max-width:28ch}
+header p{margin:0;color:var(--muted);max-width:70ch}
+button{font:inherit;cursor:pointer;border-radius:6px;border:1.5px solid var(--rule);background:var(--panel);color:var(--ink);padding:7px 12px;line-height:1.2}
+button:hover{border-color:var(--muted)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--wpath);outline-offset:2px}
+button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:800;padding:10px 18px}
+.grid{margin-top:22px;display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.stage{background:var(--panel);border:1.5px solid var(--rule);border-radius:10px;padding:16px}
+.stimrow{display:flex;gap:16px;align-items:stretch;flex-wrap:wrap;margin-bottom:8px}
+.stim{flex:0 0 220px;min-height:110px;border:1.5px solid var(--rule);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--paper)}
+.stim .word{font-size:2.6rem;font-weight:800;letter-spacing:0.02em;line-height:1}
+.stim .cap{font-size:.8rem;color:var(--muted);margin-top:8px}
+.readout{flex:1 1 260px;display:flex;flex-direction:column;justify-content:center;padding:4px 4px}
+.readout .big{font-size:1.25rem;font-weight:800;line-height:1.25}
+.readout .big.ok{color:var(--ok)} .readout .big.bad{color:var(--bad)}
+.readout p{margin:6px 0 0;color:var(--muted);max-width:60ch}
+.diagram{overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:620px;height:auto}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+@media (max-width:640px){.charts{grid-template-columns:1fr}}
+.chart h3{font-size:.95rem;margin:0 0 2px;font-weight:600}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:4px;border-radius:2px}
+aside.controls{background:var(--panel);border:1.5px solid var(--rule);border-radius:10px;padding:16px}
+.ctl{margin-bottom:16px}
+.ctl > label,.ctl .lab{display:flex;justify-content:space-between;font-weight:600;font-size:.92rem;margin-bottom:4px}
+.ctl output{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400}
+.ctl small{display:block;color:var(--muted);font-size:.8rem;line-height:1.35;margin-top:3px}
+.seg{display:flex;border:1.5px solid var(--rule);border-radius:6px;overflow:hidden}
+.seg button{flex:1;border:0;border-radius:0;padding:7px 6px;font-size:.88rem;background:transparent}
+.seg button+button{border-left:1.5px solid var(--rule)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--ink)}
+input.pfc{accent-color:var(--pfc)} input.cp{accent-color:var(--cpath)} input.wp{accent-color:var(--wpath)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+section.batch{margin-top:26px;background:var(--panel);border:1.5px solid var(--rule);border-radius:10px;padding:18px}
+section h2{font-size:1.2rem;margin:0 0 6px;font-weight:800}
+section p{max-width:72ch;margin:6px 0}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;margin-top:12px;min-width:520px;width:100%}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--rule);font-size:.92rem;vertical-align:middle}
+th{font-weight:600;color:var(--muted)}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar{height:10px;border-radius:3px;background:var(--ink);opacity:.8}
+.bar.err{background:var(--bad)}
+.note{color:var(--muted);font-size:.88rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>The Stroop model as a rail network</h1>
+  <p>Miller and Cohen (2001) compare the PFC to a railroad switchman: it doesn't carry the trains, it sets which track they take. In their Stroop example (after Cohen, Dunbar and McClelland, 1990), color and word inputs travel along two pathways to shared responses. The word pathway is stronger, so naming the ink color only wins when a PFC task unit biases the color pathway.</p>
+</header>
+
+
+<div class="grid">
+  <div class="stage">
+    <div class="stimrow">
+      <div class="stim" aria-live="polite"><div class="word" id="stimWord">+</div><div class="cap" id="stimCap">Press Run trial</div></div>
+      <div class="readout" aria-live="polite">
+        <div class="big" id="outBig">Ready</div>
+        <p id="outText">Choose a task and a stimulus, then run a trial. Each run adds a little random noise, so trials near the edge can go either way.</p>
+      </div>
+    </div>
+    <div class="diagram"><svg id="net" viewBox="0 0 960 580" role="img" aria-label="Network diagram of the Stroop model drawn as rail tracks"></svg></div>
+    <div class="charts">
+      <div class="chart">
+        <h3>Response unit activation</h3>
+        <div class="legend"><span><i style="background:var(--sred)"></i>say "red"</span><span><i style="background:var(--sgreen)"></i>say "green"</span></div>
+        <svg id="chartA" viewBox="0 0 460 210" aria-label="Activation of response units over time"></svg>
+      </div>
+      <div class="chart">
+        <h3>Evidence toward each response</h3>
+        <div class="legend"><span><i style="background:var(--sred)"></i>"red"</span><span><i style="background:var(--sgreen)"></i>"green"</span><span><i style="background:var(--muted)"></i>response threshold</span></div>
+        <svg id="chartB" viewBox="0 0 460 210" aria-label="Accumulated evidence over time"></svg>
+      </div>
+    </div>
+  </div>
+
+  <aside class="controls">
+    <div class="ctl">
+      <div class="lab">Task</div>
+      <div class="seg" id="segTask">
+        <button data-v="color" aria-pressed="true">Name the color</button>
+        <button data-v="word" aria-pressed="false">Read the word</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <div class="lab">Stimulus</div>
+      <div class="seg" id="segStim">
+        <button data-v="congruent" aria-pressed="false">Congruent</button>
+        <button data-v="neutral" aria-pressed="false">Neutral</button>
+        <button data-v="conflict" aria-pressed="true">Conflict</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <label for="ctrl">PFC control strength <output id="ctrlV"></output></label>
+      <input id="ctrl" class="pfc" type="range" min="0" max="1" step="0.05">
+      <small>How strongly the PFC task unit is active. It adds input to every unit in the task-relevant pathway.</small>
+    </div>
+    <div class="ctl">
+      <label for="cOut">Color pathway strength <output id="cOutV"></output></label>
+      <input id="cOut" class="cp" type="range" min="0.5" max="3.5" step="0.1">
+      <small>Raise this to simulate practice at color naming.</small>
+    </div>
+    <div class="ctl">
+      <label for="wOut">Word pathway strength <output id="wOutV"></output></label>
+      <input id="wOut" class="wp" type="range" min="0.5" max="3.5" step="0.1">
+      <small>Stronger by default: we've read words far more often than we've named ink colors.</small>
+    </div>
+    <div class="ctl">
+      <label for="noise">Noise <output id="noiseV"></output></label>
+      <input id="noise" type="range" min="0" max="0.15" step="0.01">
+    </div>
+    <div class="ctl">
+      <label for="speed">Playback speed <output id="speedV"></output></label>
+      <input id="speed" type="range" min="2" max="60" step="1">
+    </div>
+    <div class="btns">
+      <button class="primary" id="run">Run trial</button>
+      <button id="reset">Reset settings</button>
+    </div>
+  </aside>
+</div>
+
+<section class="batch">
+  <h2>The Stroop effect at these settings</h2>
+  <p>Run many noisy trials of each stimulus type with the current task, PFC strength and pathway strengths. Reaction time is in model cycles and is averaged over correct trials only.</p>
+  <div class="btns" style="margin-top:10px"><button class="primary" id="batch">Run 100 trials of each</button></div>
+  <div class="tablewrap" id="batchOut"></div>
+</section>
+
+</div>
+
+<script>
+(function(){
+const DEF={task:'color',stim:'conflict',ctrl:1,cOut:1.3,wOut:2.5,noise:0.04,speed:10};
+const FIX={cIn:2.2,wIn:2.6,tW:4,bias:-4,tau:0.1,alpha:0.1,thr:1,prep:30,max:300,tail:30};
+const TRAVEL=4; // model cycles for a train to cross one connection
+let S=Object.assign({},DEF);
+const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=id=>document.getElementById(id);
+const lg=x=>1/(1+Math.exp(-x));
+function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+function stimInputs(task,stim){
+  if(stim==='congruent') return {ink:0,word:0};
+  if(stim==='conflict') return {ink:0,word:1};
+  return task==='color'?{ink:0,word:null}:{ink:null,word:0};
+}
+function simulate(s,record){
+  const {ink,word}=stimInputs(s.task,s.stim);
+  const correct=s.task==='color'?ink:word;
+  let nh=[0,0,0,0],no=[0,0],ev=[0,0],rt=null,resp=null;
+  const hist=[];
+  const total=FIX.prep+FIX.max;
+  for(let t=0;t<total;t++){
+    const on=t>=FIX.prep, ts=t-FIX.prep;
+    const c=s.ctrl;
+    const tc=s.task==='color'?c:0, tw=s.task==='word'?c:0;
+    const ci=[0,0],wi=[0,0]; if(on){if(ink!==null)ci[ink]=1; if(word!==null)wi[word]=1;}
+    const tgt=[FIX.cIn*(ci[0]-ci[1])+FIX.tW*tc+FIX.bias, FIX.cIn*(ci[1]-ci[0])+FIX.tW*tc+FIX.bias,
+               FIX.wIn*(wi[0]-wi[1])+FIX.tW*tw+FIX.bias, FIX.wIn*(wi[1]-wi[0])+FIX.tW*tw+FIX.bias];
+    nh=nh.map((n,i)=>FIX.tau*tgt[i]+(1-FIX.tau)*n);
+    const ah=nh.map(lg);
+    const ot=[s.cOut*(ah[0]-ah[1])+s.wOut*(ah[2]-ah[3]), s.cOut*(ah[1]-ah[0])+s.wOut*(ah[3]-ah[2])];
+    no=no.map((n,i)=>FIX.tau*ot[i]+(1-FIX.tau)*n);
+    const ao=no.map(lg);
+    if(on&&rt===null){
+      ev=[Math.max(0,ev[0]+FIX.alpha*(ao[0]-ao[1])+s.noise*gauss()), Math.max(0,ev[1]+FIX.alpha*(ao[1]-ao[0])+s.noise*gauss())];
+      if(ev[0]>=FIX.thr){rt=ts;resp=0;ev[0]=FIX.thr}else if(ev[1]>=FIX.thr){rt=ts;resp=1;ev[1]=FIX.thr}
+    }
+    if(record) hist.push({t:ts,on,tc,tw,ci:ci.slice(),wi:wi.slice(),ah,ao,ev:ev.slice()});
+    if(rt!==null && ts>=rt+FIX.tail) break;
+  }
+  return {rt,resp,correct,ok:resp!==null&&resp===correct,hist,ink,word};
+}
+
+/* ---------- Diagram ---------- */
+const NS='http://www.w3.org/2000/svg';
+const svg=$('net');
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);(parent||svg).appendChild(e);return e;}
+const X={in:110,hid:420,out:730};
+const Y={cR:140,cG:240,wR:340,wG:440,oR:200,oG:380};
+const U={
+  cR:{x:X.in,y:Y.cR,col:'--cpath'}, cG:{x:X.in,y:Y.cG,col:'--cpath'},
+  wR:{x:X.in,y:Y.wR,col:'--wpath'}, wG:{x:X.in,y:Y.wG,col:'--wpath'},
+  hcR:{x:X.hid,y:Y.cR,col:'--cpath'}, hcG:{x:X.hid,y:Y.cG,col:'--cpath'},
+  hwR:{x:X.hid,y:Y.wR,col:'--wpath'}, hwG:{x:X.hid,y:Y.wG,col:'--wpath'},
+  oR:{x:X.out,y:Y.oR,col:'--sred'}, oG:{x:X.out,y:Y.oG,col:'--sgreen'},
+  pC:{x:250,y:52,col:'--pfc'}, pW:{x:250,y:528,col:'--pfc'}
+};
+const R=24;
+function curve(a,b){const x1=a.x+R,x2=b.x-R,mx=(x1+x2)/2;return `M${x1} ${a.y} C${mx} ${a.y} ${mx} ${b.y} ${x2} ${b.y}`;}
+function wire(p,h,up){const x1=p.x+R+2,y1=p.y,x2=h.x-18,y2=h.y+(up?-16:16);return `M${x1} ${y1} C${x2-50} ${y1} ${x2-34} ${y2} ${x2} ${y2}`;}
+const EDGES=[
+  {id:'e1',from:'cR',to:'hcR',kind:'c'},{id:'e2',from:'cG',to:'hcG',kind:'c'},
+  {id:'e3',from:'wR',to:'hwR',kind:'w'},{id:'e4',from:'wG',to:'hwG',kind:'w'},
+  {id:'e5',from:'hcR',to:'oR',kind:'c',out:true},{id:'e6',from:'hcG',to:'oG',kind:'c',out:true},
+  {id:'e7',from:'hwR',to:'oR',kind:'w',out:true},{id:'e8',from:'hwG',to:'oG',kind:'w',out:true},
+  {id:'p1',from:'pC',to:'hcR',kind:'p',up:true},{id:'p2',from:'pC',to:'hcG',kind:'p',up:true},
+  {id:'p3',from:'pW',to:'hwR',kind:'p',up:false},{id:'p4',from:'pW',to:'hwG',kind:'p',up:false}
+];
+const gTracks=el('g',{}), gTrains=el('g',{}), gUnits=el('g',{}), gText=el('g',{});
+// column headers
+[['Stimulus features',X.in],['Pathway units',X.hid],['Responses',X.out],['Evidence',860]].forEach(([t,x])=>{
+  const e=el('text',{x,y:22,'text-anchor':'middle','font-size':14,'font-weight':600,fill:'var(--muted)'},gText);e.textContent=t;});
+const trackEls={};
+EDGES.forEach(E=>{
+  const a=U[E.from],b=U[E.to];
+  if(E.kind==='p'){
+    const d=wire(a,b,E.up);
+    el('path',{d,fill:'none',stroke:'var(--pfc)','stroke-width':2,'stroke-dasharray':'5 5',opacity:.55},gTracks);
+    E.path=el('path',{d,fill:'none',stroke:'none'},gTracks);
+  } else {
+    const d=curve(a,b), col=E.kind==='c'?'var(--cpath)':'var(--wpath)';
+    const ties=el('path',{d,fill:'none',stroke:col,'stroke-width':16,'stroke-dasharray':'2 9',opacity:.3},gTracks);
+    const rail=el('path',{d,fill:'none',stroke:col,'stroke-width':4,opacity:.55},gTracks);
+    trackEls[E.id]={ties,rail,out:!!E.out,kind:E.kind};
+    E.path=rail;
+  }
+});
+// pathway labels
+const lc=el('text',{x:265,y:126,'text-anchor':'middle','font-size':13,fill:'var(--cpath)','font-weight':600},gText);lc.textContent='Color-naming track';
+const lw=el('text',{x:265,y:472,'text-anchor':'middle','font-size':13,fill:'var(--wpath)','font-weight':600},gText);lw.textContent='Word-reading track';
+const jx=el('text',{x:640,y:296,'text-anchor':'middle','font-size':12,fill:'var(--muted)'},gText);jx.textContent='junction';
+// units
+const unitEls={};
+Object.entries(U).forEach(([k,u])=>{
+  const g=el('g',{},gUnits);
+  const base=el('circle',{cx:u.x,cy:u.y,r:R,fill:'var(--panel)',stroke:`var(${u.col})`,'stroke-width':2.5},g);
+  const fill=el('circle',{cx:u.x,cy:u.y,r:R-3,fill:`var(${u.col})`,opacity:0},g);
+  unitEls[k]={base,fill};
+});
+function label(x,y,txt,opts){const e=el('text',Object.assign({x,y,'font-size':14,fill:'var(--ink)','dominant-baseline':'middle'},opts||{}),gText);e.textContent=txt;return e;}
+label(X.in-34,Y.cR,'red ink',{'text-anchor':'end'});
+label(X.in-34,Y.cG,'green ink',{'text-anchor':'end'});
+label(X.in-34,Y.wR,'RED',{'text-anchor':'end','font-weight':800});
+label(X.in-34,Y.wG,'GREEN',{'text-anchor':'end','font-weight':800});
+el('rect',{x:X.in-8,y:Y.cR-8,width:16,height:16,rx:3,fill:'var(--sred)'},gText);
+el('rect',{x:X.in-8,y:Y.cG-8,width:16,height:16,rx:3,fill:'var(--sgreen)'},gText);
+label(X.out,Y.oR-38,'say "red"',{'text-anchor':'middle','font-weight':600});
+label(X.out,Y.oG+40,'say "green"',{'text-anchor':'middle','font-weight':600});
+label(U.pC.x,U.pC.y,'PFC',{'text-anchor':'middle','font-size':11,'font-weight':800,fill:'var(--ink)'});
+label(U.pW.x,U.pW.y,'PFC',{'text-anchor':'middle','font-size':11,'font-weight':800,fill:'var(--ink)'});
+label(U.pC.x-34,U.pC.y,'task unit: name the color',{'text-anchor':'end','font-size':13,fill:'var(--pfc)','font-weight':600});
+label(U.pW.x-34,U.pW.y,'task unit: read the word',{'text-anchor':'end','font-size':13,fill:'var(--pfc)','font-weight':600});
+// evidence bars
+const EVX=790,EVW=140;
+const evEls={};
+[['oR',Y.oR,'--sred'],['oG',Y.oG,'--sgreen']].forEach(([k,y,c])=>{
+  el('rect',{x:EVX,y:y-10,width:EVW,height:20,rx:4,fill:'none',stroke:'var(--rule)','stroke-width':1.5},gUnits);
+  evEls[k]=el('rect',{x:EVX,y:y-10,width:0,height:20,rx:4,fill:`var(${c})`},gUnits);
+  el('line',{x1:EVX+EVW,x2:EVX+EVW,y1:y-16,y2:y+16,stroke:'var(--ink)','stroke-width':2},gUnits);
+});
+label(EVX+EVW,Y.oR+28,'threshold',{'text-anchor':'end','font-size':11,fill:'var(--muted)'});
+const respMark=el('text',{x:EVX+EVW/2,y:0,'text-anchor':'middle','font-size':13,'font-weight':800,fill:'var(--ink)',opacity:0},gText);
+
+// sample paths
+EDGES.forEach(E=>{const L=E.path.getTotalLength();const pts=[];for(let i=0;i<=80;i++){const p=E.path.getPointAtLength(L*i/80);pts.push([p.x,p.y]);}E.pts=pts;E.len=L;});
+function ptAt(E,f){const n=E.pts.length-1,i=Math.min(n-1,Math.floor(f*n)),r=f*n-i,a=E.pts[i],b=E.pts[i+1];return [a[0]+(b[0]-a[0])*r,a[1]+(b[1]-a[1])*r,Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI];}
+
+let trains=[];
+const arrived=new Set();
+function spawn(E){
+  if(trains.length>160) return;
+  const isP=E.kind==='p';
+  const col=isP?'var(--pfc)':(E.kind==='c'?'var(--cpath)':'var(--wpath)');
+  const node=isP?el('circle',{r:3.5,fill:col},gTrains):el('rect',{x:-8,y:-4,width:16,height:8,rx:2.5,fill:col,stroke:'var(--panel)','stroke-width':1},gTrains);
+  trains.push({E,f:0,node,isP,v:1/TRAVEL});
+}
+function moveTrains(cyc){
+  trains=trains.filter(tr=>{
+    tr.f+=tr.v*cyc;
+    if(tr.f>=1){if(!tr.isP)arrived.add(tr.E.to);tr.node.remove();return false;}
+    const [x,y,a]=ptAt(tr.E,tr.f);
+    if(tr.isP){tr.node.setAttribute('cx',x);tr.node.setAttribute('cy',y);}
+    else tr.node.setAttribute('transform',`translate(${x} ${y}) rotate(${a})`);
+    return true;
+  });
+}
+function clearTrains(){trains.forEach(t=>t.node.remove());trains=[];arrived.clear();}
+function setTrackWidths(){
+  Object.values(trackEls).forEach(t=>{
+    if(!t.out) return;
+    const w=t.kind==='c'?S.cOut:S.wOut;
+    t.rail.setAttribute('stroke-width',(1.5+w*1.8).toFixed(1));
+    t.ties.setAttribute('stroke-width',(8+w*4).toFixed(1));
+  });
+}
+
+function drawFrame(h){
+  const act={cR:h.ci[0],cG:h.ci[1],wR:h.wi[0],wG:h.wi[1],hcR:h.ah[0],hcG:h.ah[1],hwR:h.ah[2],hwG:h.ah[3],oR:h.ao[0],oG:h.ao[1],pC:h.tc,pW:h.tw};
+  for(const k in act) unitEls[k].fill.setAttribute('opacity',(0.08+0.92*act[k]).toFixed(3));
+  evEls.oR.setAttribute('width',(EVW*Math.min(1,h.ev[0]/FIX.thr)).toFixed(1));
+  evEls.oG.setAttribute('width',(EVW*Math.min(1,h.ev[1]/FIX.thr)).toFixed(1));
+  if(!reduced){
+    EDGES.forEach(E=>{
+      if(E.out && !arrived.has(E.from)) return;
+      let a;
+      if(E.kind==='p') a=act[E.from]*0.5;
+      else if(E.out){const w=E.kind==='c'?S.cOut:S.wOut; a=act[E.from]*Math.min(1,w/2.5)*0.75;}
+      else a=act[E.from]*0.5;
+      if(Math.random()<a) spawn(E);
+    });
+  }
+}
+
+/* ---------- Charts ---------- */
+const CW=460,CH=210,PADL=34,PADR=8,PADT=10,PADB=26;
+function chartScaffold(id,ymax,threshold){
+  const c=$(id); c.innerHTML='';
+  const g={c};
+  g.x=t=>PADL+(t-g.t0)/(g.t1-g.t0)*(CW-PADL-PADR);
+  g.y=v=>PADT+(1-v/ymax)*(CH-PADT-PADB);
+  return g;
+}
+let A,B;
+function setupCharts(t1){
+  [A,B]=[chartScaffold('chartA',1),chartScaffold('chartB',1)];
+  [A,B].forEach((g,i)=>{
+    g.t0=-FIX.prep; g.t1=t1;
+    const s=(tag,at)=>{const e=document.createElementNS(NS,tag);for(const k in at)e.setAttribute(k,at[k]);g.c.appendChild(e);return e;};
+    s('line',{x1:PADL,x2:CW-PADR,y1:g.y(0),y2:g.y(0),stroke:'var(--rule)'});
+    s('line',{x1:PADL,x2:PADL,y1:PADT,y2:g.y(0),stroke:'var(--rule)'});
+    [0,0.5,1].forEach(v=>{const t=s('text',{x:PADL-6,y:g.y(v)+4,'text-anchor':'end','font-size':11,fill:'var(--muted)'});t.textContent=v;});
+    s('line',{x1:g.x(0),x2:g.x(0),y1:PADT,y2:g.y(0),stroke:'var(--muted)','stroke-dasharray':'3 3'});
+    const so=s('text',{x:g.x(0)+4,y:PADT+10,'font-size':11,fill:'var(--muted)'});so.textContent='stimulus on';
+    const step=t1>200?100:50;
+    for(let t=0;t<=t1;t+=step){const tx=s('text',{x:g.x(t),y:CH-8,'text-anchor':'middle','font-size':11,fill:'var(--muted)'});tx.textContent=t;}
+    const xl=s('text',{x:CW-PADR,y:CH-8,'text-anchor':'end','font-size':11,fill:'var(--muted)'});xl.textContent='cycles';
+    if(i===1) s('line',{x1:PADL,x2:CW-PADR,y1:g.y(FIX.thr),y2:g.y(FIX.thr),stroke:'var(--muted)','stroke-dasharray':'6 4'});
+    g.rt=s('line',{x1:0,x2:0,y1:PADT,y2:g.y(0),stroke:'var(--ink)','stroke-width':1.5,opacity:0});
+    g.lines=['--sred','--sgreen'].map(c=>s('path',{fill:'none',stroke:`var(${c})`,'stroke-width':2.2,'stroke-linejoin':'round'}));
+  });
+}
+function drawCharts(hist,n){
+  const sl=hist.slice(0,n);
+  const mk=(g,fn)=>sl.map((h,i)=>(i?'L':'M')+g.x(h.t).toFixed(1)+' '+g.y(fn(h)).toFixed(1)).join(' ');
+  A.lines[0].setAttribute('d',mk(A,h=>h.ao[0]));
+  A.lines[1].setAttribute('d',mk(A,h=>h.ao[1]));
+  B.lines[0].setAttribute('d',mk(B,h=>Math.min(1,h.ev[0])));
+  B.lines[1].setAttribute('d',mk(B,h=>Math.min(1,h.ev[1])));
+}
+
+/* ---------- Trial playback ---------- */
+const NAMES=['red','green'];
+let playing=null;
+function showStim(on,res){
+  const w=$('stimWord'),c=$('stimCap');
+  if(!on){w.textContent='+';w.style.color='var(--muted)';c.textContent=S.task==='color'?'PFC holds the goal: name the color':'PFC holds the goal: read the word';return;}
+  const word=res.word===null?'XXXX':NAMES[res.word].toUpperCase();
+  w.textContent=word;
+  w.style.color=res.ink===null?'var(--ink)':(res.ink===0?'var(--sred)':'var(--sgreen)');
+  c.textContent=S.task==='color'?'Correct answer: "red"':`Correct answer: "${NAMES[res.word]}"`;
+}
+function explain(res){
+  const big=$('outBig'),txt=$('outText');
+  big.className='big';
+  if(res.resp===null){
+    big.textContent='No response';
+    txt.textContent='Neither response reached threshold within 300 cycles. The PFC bias almost exactly balanced the stronger word pathway, so neither response pulled ahead.';
+    return;
+  }
+  const said=`Said "${NAMES[res.resp]}" after ${res.rt} cycles`;
+  if(res.ok){
+    big.classList.add('ok'); big.textContent=said+', correct';
+    if(S.task==='word') txt.textContent=S.stim==='conflict'?'Word reading is the strong, habitual pathway, so it wins with little interference from the ink color. This is bottom-up processing that barely needs the PFC.':'Word reading is fast and automatic. The PFC signal adds little here.';
+    else if(S.stim==='conflict') txt.textContent=(S.cOut>=2.2?'With a well-practiced color pathway, naming the ink wins even with modest PFC help. Practice has made the behavior more automatic.':'The PFC bias let the weaker color-naming pathway beat the stronger word pathway at the junction. Notice it took longer than a congruent or neutral trial: that slowdown is Stroop interference.');
+    else if(S.stim==='congruent') txt.textContent='Both pathways push toward the same answer, so the response is fast. That speedup is Stroop facilitation.';
+    else txt.textContent='Only the color pathway is active, so there is nothing to compete with. This is the baseline for measuring interference.';
+  } else {
+    big.classList.add('bad'); big.textContent=said+', a Stroop error';
+    txt.textContent=(S.ctrl===0?'With no PFC bias at all, the stronger word pathway wins outright. Without top-down control, the best-established pathway dominates.':'The PFC bias was too weak to let the color pathway compete, so the habitual word response won. This is the deficit pattern seen in patients with frontal damage.');
+  }
+}
+function run(){
+  if(playing) cancelAnimationFrame(playing.raf);
+  clearTrains(); setTrackWidths();
+  respMark.setAttribute('opacity',0);
+  const res=simulate(S,true);
+  const lastT=res.hist[res.hist.length-1].t;
+  setupCharts(Math.max(120,Math.ceil(lastT/50)*50));
+  $('outBig').className='big'; $('outBig').textContent='Running...'; $('outText').textContent='';
+  let idx=0,acc=0,last=performance.now();
+  const stimShown={v:false};
+  showStim(false,res);
+  function frame(now){
+    const dt=Math.min(64,now-last); last=now;
+    acc+=dt*S.speed/1000;
+    let steps=Math.floor(acc); acc-=steps;
+    if(reduced) steps=Math.max(steps,3);
+    while(steps-->0 && idx<res.hist.length){
+      const h=res.hist[idx];
+      if(h.on&&!stimShown.v){stimShown.v=true;showStim(true,res);}
+      drawFrame(h); idx++;
+      if(res.rt!==null && h.t===res.rt){
+        [A,B].forEach(g=>{g.rt.setAttribute('x1',g.x(res.rt));g.rt.setAttribute('x2',g.x(res.rt));g.rt.setAttribute('opacity',.6);});
+        respMark.textContent=`"${NAMES[res.resp]}"`;
+        respMark.setAttribute('y',(res.resp===0?Y.oR:Y.oG)+(res.resp===0?-22:30));
+        respMark.setAttribute('opacity',1);
+      }
+    }
+    drawCharts(res.hist,idx);
+    if(!reduced) moveTrains(dt*S.speed/1000);
+    if(idx<res.hist.length || (!reduced && trains.length)){playing.raf=requestAnimationFrame(frame);}
+    else {playing=null;}
+    if(idx>=res.hist.length && !playing?.done){ if(playing) playing.done=true; explain(res); }
+  }
+  playing={raf:requestAnimationFrame(frame),done:false};
+}
+
+/* ---------- Batch ---------- */
+function batch(){
+  const n=100, rows=[];
+  ['congruent','neutral','conflict'].forEach(stim=>{
+    let rts=[],err=0,none=0;
+    for(let i=0;i<n;i++){const r=simulate(Object.assign({},S,{stim}),false);if(r.resp===null)none++;else if(!r.ok)err++;else rts.push(r.rt);}
+    rows.push({stim,rt:rts.length?rts.reduce((a,b)=>a+b,0)/rts.length:null,err:err/n,none:none/n});
+  });
+  const maxRt=Math.max(...rows.map(r=>r.rt||0),1);
+  const cap={congruent:'Congruent',neutral:'Neutral',conflict:'Conflict'};
+  let html='<table><thead><tr><th>Stimulus</th><th>Mean RT (cycles)</th><th></th><th>Errors</th><th></th><th>No response</th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    html+=`<tr><td>${cap[r.stim]}</td><td class="num">${r.rt===null?'n/a':r.rt.toFixed(0)}</td><td style="width:30%"><div class="bar" style="width:${r.rt?(r.rt/maxRt*100).toFixed(0):0}%"></div></td><td class="num">${(r.err*100).toFixed(0)}%</td><td style="width:18%"><div class="bar err" style="width:${(r.err*100).toFixed(0)}%"></div></td><td class="num">${(r.none*100).toFixed(0)}%</td></tr>`;
+  });
+  html+='</tbody></table>';
+  const task=S.task==='color'?'naming the color':'reading the word';
+  let note=`Task: ${task}, PFC control ${S.ctrl.toFixed(2)}.`;
+  if(S.noise===0) note+=' Noise is set to zero, so every trial is identical. Add noise to see trial-to-trial variability.';
+  else if(S.task==='color') note+=' With strong control you should see the classic pattern: congruent fastest, conflict slowest. Lower PFC control and the conflict row starts producing errors.';
+  else note+=' Word reading shows little interference from the ink color, matching the asymmetry in human data.';
+  $('batchOut').innerHTML=html+`<p class="note">${note}</p>`;
+}
+
+/* ---------- Controls ---------- */
+const sliders=[['ctrl',v=>v.toFixed(2)],['cOut',v=>v.toFixed(1)],['wOut',v=>v.toFixed(1)],['noise',v=>v.toFixed(2)],['speed',v=>v+' cycles/s']];
+function syncUI(){
+  sliders.forEach(([k,f])=>{$(k).value=S[k];$(k+'V').textContent=f(+S[k]);});
+  document.querySelectorAll('#segTask button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===S.task));
+  document.querySelectorAll('#segStim button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===S.stim));
+  setTrackWidths();
+}
+sliders.forEach(([k,f])=>$(k).addEventListener('input',e=>{S[k]=+e.target.value;$(k+'V').textContent=f(S[k]);if(k==='cOut'||k==='wOut')setTrackWidths();}));
+document.querySelectorAll('#segTask button').forEach(b=>b.addEventListener('click',()=>{S.task=b.dataset.v;syncUI();}));
+document.querySelectorAll('#segStim button').forEach(b=>b.addEventListener('click',()=>{S.stim=b.dataset.v;syncUI();}));
+$('run').addEventListener('click',run);
+$('batch').addEventListener('click',batch);
+$('reset').addEventListener('click',()=>{S=Object.assign({},DEF);syncUI();});
+syncUI();
+setupCharts(120);
+drawFrame({ci:[0,0],wi:[0,0],ah:[.02,.02,.02,.02],ao:[.5,.5],tc:0,tw:0,ev:[0,0]});
+})();
+</script>
+</body>
+</html>

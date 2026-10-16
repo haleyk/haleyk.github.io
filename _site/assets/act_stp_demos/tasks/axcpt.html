@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AX-CPT Task</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+  }
+  .screen {
+    display: none;
+    min-height: 100%;
+    box-sizing: border-box;
+    padding: 24px 16px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .screen.active { display: flex; }
+  .content { max-width: 640px; width: 100%; }
+  h1 { font-size: 32px; margin: 0 0 20px; }
+  p { line-height: 1.5; margin: 0 0 14px; }
+  .settings { margin: 28px 0; }
+  .row { margin: 14px 0; }
+  label { margin-right: 8px; }
+  input[type=number] { width: 80px; font-size: 18px; padding: 2px 4px; }
+  input[type=range] { width: 240px; vertical-align: middle; }
+  select { font-size: 18px; padding: 2px 4px; }
+  button {
+    font-size: 18px;
+    padding: 8px 22px;
+    margin: 6px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    cursor: pointer;
+  }
+  #task { cursor: none; }
+  #stim {
+    font-size: 96px;
+    font-weight: bold;
+    user-select: none;
+  }
+  #feedback { font-size: 40px; }
+  table { margin: 20px auto; border-collapse: collapse; }
+  th, td { padding: 6px 16px; text-align: center; }
+  th { border-bottom: 1px solid #000; }
+</style>
+</head>
+<body>
+
+<div id="start" class="screen active">
+  <div class="content">
+    <h1>AX-CPT Task</h1>
+    <p>A stream of letters will appear one at a time in the center of the screen.</p>
+    <p id="ruleText"></p>
+    <p>Do not press anything for any other letter.</p>
+    <p>Use the index finger of your dominant hand.</p>
+    <p>Respond as quickly and as accurately as possible.</p>
+
+    <div class="settings">
+      <div class="row">
+        <label for="version">Version:</label>
+        <select id="version">
+          <option value="AX" selected>AX</option>
+          <option value="X">X</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="nTrials">Number of letters:</label>
+        <input type="number" id="nTrials" min="60" max="2000" value="100">
+      </div>
+      <div class="row">
+        <label for="pAX">A followed by X:</label>
+        <input type="range" id="pAX" min="0" max="100" step="5" value="70">
+        <span id="pAXVal">70%</span>
+      </div>
+      <p style="font-size:15px">Percent of letter pairs. The remaining pairs are split evenly between A-Y, B-X and B-Y.</p>
+      <div class="row">
+        <label for="fb">Show feedback:</label>
+        <input type="checkbox" id="fb">
+      </div>
+    </div>
+
+    <button id="startBtn">Begin</button>
+  </div>
+</div>
+
+<div id="task" class="screen">
+  <div id="stim"></div>
+  <div id="feedback"></div>
+</div>
+
+<div id="results" class="screen">
+  <div class="content">
+    <h1>Results</h1>
+    <table id="resTable"></table>
+    <p id="effect"></p>
+    <button id="downloadBtn">Download data</button>
+    <button id="againBtn">Run again</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STIM_MS = 700;        // letter display time
+  var GAP_BASE = 250;       // blank between letters (jittered +/-10%)
+  var FEEDBACK_MS = 500;
+  var MIN_LETTERS = 60;
+  var FILLER_RATE = 0.25;   // chance of an extra single letter between pairs
+  var RULES = {
+    AX: 'Press the <b>space bar</b> when you see an <b>X</b> that comes right after an <b>A</b>.',
+    X:  'Press the <b>space bar</b> whenever you see an <b>X</b>.'
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var stimEl = $('stim'), fbEl = $('feedback');
+
+  function updateRule() { $('ruleText').innerHTML = RULES[$('version').value]; }
+  $('version').addEventListener('change', updateRule);
+  updateRule();
+  $('pAX').addEventListener('input', function () { $('pAXVal').textContent = this.value + '%'; });
+
+  function show(id) {
+    ['start', 'task', 'results'].forEach(function (s) {
+      $(s).classList.toggle('active', s === id);
+    });
+  }
+
+  function jitter(base) { return base * (0.9 + Math.random() * 0.2); }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function mean(arr) {
+    if (!arr.length) return NaN;
+    return arr.reduce(function (s, x) { return s + x; }, 0) / arr.length;
+  }
+  function randLetter() { return 'ABXY'.charAt(Math.floor(Math.random() * 4)); }
+
+  // Continuous stream: shuffled cue-probe pairs, with occasional single letters between them.
+  function buildStream(nLetters, pAX) {
+    var nPairs = Math.round(nLetters / (2 + FILLER_RATE));
+    var nFill = nLetters - 2 * nPairs;
+    var counts = { AX: Math.round(nPairs * pAX), AY: 0, BX: 0, BY: 0 };
+    var rest = nPairs - counts.AX;
+    var others = ['AY', 'BX', 'BY'];
+    others.forEach(function (t) { counts[t] = Math.floor(rest / 3); });
+    shuffle(others).slice(0, rest % 3).forEach(function (t) { counts[t]++; });
+
+    var pairs = [];
+    Object.keys(counts).forEach(function (t) { for (var i = 0; i < counts[t]; i++) pairs.push(t); });
+    shuffle(pairs);
+
+    // pick which gaps (after a pair) get one filler letter
+    var gaps = [];
+    for (var g = 0; g < pairs.length; g++) gaps.push(g);
+    var fillAfter = {};
+    shuffle(gaps).slice(0, nFill).forEach(function (g) { fillAfter[g] = true; });
+
+    var letters = [];
+    pairs.forEach(function (t, i) {
+      letters.push(t.charAt(0), t.charAt(1));
+      if (fillAfter[i]) letters.push(randLetter());
+    });
+    return letters;
+  }
+
+  // Classify each letter by the one before it
+  function classify(letters, version) {
+    return letters.map(function (L, i) {
+      var prev = i > 0 ? letters[i - 1] : '';
+      var type;
+      if (L === 'A' || L === 'B') type = 'cue';
+      else if (prev === 'A' || prev === 'B') type = prev + L;   // AX, AY, BX, BY
+      else type = 'other';                                         // e.g. X-X, Y-X: not scored
+      var target = version === 'AX' ? (L === 'X' && prev === 'A') : L === 'X';
+      return { letter: L, prev: prev, type: type, target: target };
+    });
+  }
+
+  var trials, data, idx, showFb, version, onset, responded, rtNow, prevIti;
+
+  $('startBtn').addEventListener('click', function () {
+    var n = parseInt($('nTrials').value, 10);
+    if (!(n > 0)) n = 100;
+    n = Math.min(Math.max(n, MIN_LETTERS), 2000);
+    version = $('version').value;
+    trials = classify(buildStream(n, parseInt($('pAX').value, 10) / 100), version);
+    showFb = $('fb').checked;
+    data = [];
+    idx = 0;
+    this.blur();
+    stimEl.textContent = '';
+    fbEl.textContent = '';
+    show('task');
+    prevIti = Math.round(jitter(1000));
+    setTimeout(runTrial, prevIti);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.code !== 'Space' && e.key !== ' ') return;
+    e.preventDefault();
+    if (responded !== false || e.repeat) return;
+    responded = true;
+    rtNow = performance.now() - onset;
+  });
+
+  function runTrial() {
+    var tr = trials[idx];
+    var gap = Math.round(jitter(GAP_BASE));
+    fbEl.textContent = '';
+    stimEl.textContent = tr.letter;
+    requestAnimationFrame(function () {
+      onset = performance.now();
+      responded = false;
+      rtNow = null;
+      // response window runs from letter onset until the next letter appears
+      setTimeout(function () { stimEl.textContent = ''; }, STIM_MS);
+      setTimeout(function () { endTrial(gap); }, STIM_MS + gap);
+    });
+  }
+
+  function endTrial(gap) {
+    var tr = trials[idx];
+    var pressed = responded === true;
+    responded = null;   // ignore presses until the next letter
+    var correct = pressed === tr.target ? 1 : 0;
+    var outcome = tr.target ? (pressed ? 'hit' : 'miss') : (pressed ? 'false alarm' : 'correct rejection');
+    data.push({
+      trial: idx + 1,
+      version: version,
+      letter: tr.letter,
+      previous: tr.prev,
+      type: tr.type,
+      target: tr.target ? 1 : 0,
+      response: pressed ? 'space' : 'none',
+      outcome: outcome,
+      rt: pressed ? Math.round(rtNow) : '',
+      accuracy: correct,
+      iti_before: prevIti
+    });
+    idx++;
+
+    var msg = showFb ? { 'hit': 'Correct', 'miss': 'Missed', 'false alarm': 'Incorrect', 'correct rejection': '' }[outcome] : '';
+    if (msg) {
+      fbEl.textContent = msg;
+      setTimeout(function () {
+        fbEl.textContent = '';
+        if (idx >= trials.length) { showResults(); return; }
+        prevIti = Math.round(jitter(GAP_BASE));
+        setTimeout(runTrial, prevIti);
+      }, FEEDBACK_MS);
+    } else {
+      if (idx >= trials.length) { showResults(); return; }
+      prevIti = gap;
+      runTrial();
+    }
+  }
+
+  function fmt(x, unit) { return isNaN(x) ? '--' : Math.round(x) + unit; }
+
+  function showResults() {
+    var types = ['AX', 'AY', 'BX', 'BY'];
+    var html = '<tr><th>Pair type</th><th>Trials</th><th>Accuracy</th><th>Mean RT</th></tr>';
+    types.forEach(function (t) {
+      var rows = data.filter(function (r) { return r.type === t; });
+      var acc = rows.length ? 100 * mean(rows.map(function (r) { return r.accuracy; })) : NaN;
+      var rts = rows.filter(function (r) { return r.response === 'space'; }).map(function (r) { return r.rt; });
+      html += '<tr><td>' + t.charAt(0) + '-' + t.charAt(1) + '</td><td>' + rows.length + '</td><td>' +
+              fmt(acc, '%') + '</td><td>' + fmt(mean(rts), ' ms') + '</td></tr>';
+    });
+    $('resTable').innerHTML = html;
+
+    var count = function (o) { return data.filter(function (r) { return r.outcome === o; }).length; };
+    var cueFA = data.filter(function (r) { return r.type === 'cue' && r.response === 'space'; }).length;
+    $('effect').innerHTML =
+      'Version: ' + version + '<br>' +
+      'Hits: <b>' + count('hit') + '</b> &nbsp; Misses: <b>' + count('miss') + '</b><br>' +
+      'False alarms: <b>' + count('false alarm') + '</b> &nbsp; Correct rejections: <b>' +
+      count('correct rejection') + '</b><br>' +
+      'Presses on A or B: <b>' + cueFA + '</b><br>' +
+      '<span style="font-size:15px">Mean RT is for trials with a key press: correct presses on targets, ' +
+      'incorrect presses otherwise. Letters that follow X or Y are not included in the table.</span>';
+    show('results');
+  }
+
+  function downloadCSV(rows, cols, prefix) {
+    var lines = [cols.join(',')];
+    rows.forEach(function (r) { lines.push(cols.map(function (c) { return r[c]; }).join(',')); });
+    var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    var a = document.createElement('a');
+    var d = new Date();
+    var p2 = function (x) { return String(x).padStart(2, '0'); };
+    a.href = URL.createObjectURL(blob);
+    a.download = prefix + '_' + d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) +
+                 '_' + p2(d.getHours()) + p2(d.getMinutes()) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  $('downloadBtn').addEventListener('click', function () {
+    downloadCSV(data, ['trial', 'version', 'letter', 'previous', 'type', 'target', 'response', 'outcome',
+                       'rt', 'accuracy', 'iti_before'], 'axcpt');
+  });
+  $('againBtn').addEventListener('click', function () { this.blur(); show('start'); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Sorting Task</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+  }
+  .screen {
+    display: none;
+    min-height: 100%;
+    box-sizing: border-box;
+    padding: 24px 16px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .screen.active { display: flex; }
+  .content { max-width: 640px; width: 100%; }
+  h1 { font-size: 32px; margin: 0 0 20px; }
+  p { line-height: 1.5; margin: 0 0 14px; }
+  .settings { margin: 28px 0; }
+  .row { margin: 14px 0; }
+  label { margin-right: 8px; }
+  input[type=number] { width: 80px; font-size: 18px; padding: 2px 4px; }
+  button {
+    font-size: 18px;
+    padding: 8px 22px;
+    margin: 6px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    cursor: pointer;
+  }
+  #task { user-select: none; }
+  #keyRow { display: flex; gap: 24px; justify-content: center; margin-bottom: 60px; }
+  .card {
+    width: min(110px, 20vw);
+    height: 140px;
+    border: 1px solid #000;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+  }
+  #keyRow .card { cursor: pointer; }
+  .card svg { width: 26px; height: 26px; display: block; }
+  #slot { height: 140px; display: flex; align-items: center; justify-content: center; }
+  #feedback { font-size: 40px; }
+  table { margin: 20px auto; border-collapse: collapse; }
+  th, td { padding: 6px 16px; text-align: center; }
+  th { border-bottom: 1px solid #000; }
+</style>
+</head>
+<body>
+
+<div id="start" class="screen active">
+  <div class="content">
+    <h1>Card Sorting Task</h1>
+    <p>Four cards will appear in a row at the top of the screen, and one card will appear below them.</p>
+    <p>Match the bottom card to one of the four top cards by clicking the top card you think it goes with.</p>
+    <p>You will not be told how to match the cards. After each choice you will see whether it was
+       correct or incorrect. Use this to figure out how to match.</p>
+    <p>The correct way to match may change during the task.</p>
+
+    <div class="settings">
+      <div class="row">
+        <label for="nTrials">Number of trials:</label>
+        <input type="number" id="nTrials" min="10" max="500" value="64">
+      </div>
+    </div>
+
+    <button id="startBtn">Begin</button>
+  </div>
+</div>
+
+<div id="task" class="screen">
+  <div id="keyRow"></div>
+  <div id="slot">
+    <div id="current" class="card" style="display:none"></div>
+    <div id="feedback"></div>
+  </div>
+</div>
+
+<div id="results" class="screen">
+  <div class="content">
+    <h1>Results</h1>
+    <table id="resTable"></table>
+    <p id="effect"></p>
+    <button id="downloadBtn">Download data</button>
+    <button id="againBtn">Run again</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var FEEDBACK_MS = 800;
+  var ISI_BASE = 500;   // blank after feedback (jittered +/-10%)
+  var SWITCH_MIN = 5, SWITCH_MAX = 7;   // correct in a row before the rule changes (random each time)
+  var COLORS = { red: '#d40000', green: '#008a00', yellow: '#e0b000', blue: '#0033cc' };
+  var SHAPES = ['triangle', 'star', 'cross', 'circle'];
+  var COUNTS = [1, 2, 3, 4];
+  var RULES = ['color', 'shape', 'number'];
+  var KEY_CARDS = [
+    { shape: 'triangle', color: 'red',    count: 1 },
+    { shape: 'star',     color: 'green',  count: 2 },
+    { shape: 'cross',    color: 'yellow', count: 3 },
+    { shape: 'circle',   color: 'blue',   count: 4 }
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var curEl = $('current'), fbEl = $('feedback');
+
+  function show(id) {
+    ['start', 'task', 'results'].forEach(function (s) {
+      $(s).classList.toggle('active', s === id);
+    });
+  }
+
+  function jitter(base) { return base * (0.9 + Math.random() * 0.2); }
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function mean(arr) {
+    if (!arr.length) return NaN;
+    return arr.reduce(function (s, x) { return s + x; }, 0) / arr.length;
+  }
+
+  function newThreshold() {
+    return SWITCH_MIN + Math.floor(Math.random() * (SWITCH_MAX - SWITCH_MIN + 1));
+  }
+
+  function shapeSVG(shape, hex) {
+    var points = {
+      triangle: '50,15 90,85 10,85',
+      star: '50,8 61,38 95,38 67,58 78,90 50,70 22,90 33,58 5,38 39,38',
+      cross: '38,10 62,10 62,38 90,38 90,62 62,62 62,90 38,90 38,62 10,62 10,38 38,38'
+    };
+    if (shape === 'circle') return '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="' + hex + '"/></svg>';
+    return '<svg viewBox="0 0 100 100"><polygon points="' + points[shape] + '" fill="' + hex + '"/></svg>';
+  }
+  function cardHTML(c) {
+    var html = '';
+    for (var i = 0; i < c.count; i++) html += shapeSVG(c.shape, COLORS[c.color]);
+    return html;
+  }
+  function cardName(c) { return c.count + ' ' + c.color + ' ' + c.shape; }
+  function dimValue(c, rule) { return rule === 'color' ? c.color : rule === 'shape' ? c.shape : c.count; }
+
+  function buildDeck() {
+    var deck = [];
+    SHAPES.forEach(function (s) {
+      Object.keys(COLORS).forEach(function (col) {
+        COUNTS.forEach(function (n) { deck.push({ shape: s, color: col, count: n }); });
+      });
+    });
+    return shuffle(deck);
+  }
+
+  // Key cards
+  KEY_CARDS.forEach(function (c, i) {
+    var el = document.createElement('div');
+    el.className = 'card';
+    el.innerHTML = cardHTML(c);
+    el.addEventListener('click', function () { choose(i); });
+    $('keyRow').appendChild(el);
+  });
+
+  var nTrials, threshold, deck, deckIdx, current, ruleIdx, streak, categories, firstCatTrial,
+      data, waiting, onset, prevIti;
+
+  $('startBtn').addEventListener('click', function () {
+    nTrials = parseInt($('nTrials').value, 10);
+    if (!(nTrials > 0)) nTrials = 64;
+    nTrials = Math.min(Math.max(nTrials, 1), 500);
+    threshold = newThreshold();
+    deck = buildDeck();
+    deckIdx = 0;
+    ruleIdx = 0;
+    streak = 0;
+    categories = 0;
+    firstCatTrial = null;
+    data = [];
+    waiting = false;
+    this.blur();
+    curEl.style.display = 'none';
+    fbEl.textContent = '';
+    show('task');
+    prevIti = Math.round(jitter(ISI_BASE));
+    setTimeout(nextTrial, prevIti);
+  });
+
+  function nextTrial() {
+    if (deckIdx >= deck.length) { deck = buildDeck(); deckIdx = 0; }
+    current = deck[deckIdx++];
+    fbEl.textContent = '';
+    curEl.innerHTML = cardHTML(current);
+    curEl.style.display = 'flex';
+    requestAnimationFrame(function () { onset = performance.now(); waiting = true; });
+  }
+
+  function choose(i) {
+    if (!waiting) return;
+    waiting = false;
+    var rt = performance.now() - onset;
+    var rule = RULES[ruleIdx];
+    var key = KEY_CARDS[i];
+    var correct = dimValue(key, rule) === dimValue(current, rule) ? 1 : 0;
+    var matches = RULES.filter(function (r) { return dimValue(key, r) === dimValue(current, r); });
+
+    // Perseverative error: wrong under the current rule but matches the previous rule
+    var persev = 0;
+    if (!correct && categories > 0) {
+      var prevRule = RULES[(ruleIdx + RULES.length - 1) % RULES.length];
+      if (dimValue(key, prevRule) === dimValue(current, prevRule)) persev = 1;
+    }
+
+    data.push({
+      trial: data.length + 1,
+      card: cardName(current),
+      rule: rule,
+      chosen: cardName(key),
+      matches: matches.length ? matches.join(';') : 'none',
+      accuracy: correct,
+      perseverative_error: persev,
+      categories_completed: categories,
+      streak_needed: threshold,
+      rt: Math.round(rt),
+      iti_before: prevIti
+    });
+
+    if (correct) {
+      streak++;
+      if (streak >= threshold) {
+        streak = 0;
+        threshold = newThreshold();
+        categories++;
+        if (firstCatTrial === null) firstCatTrial = data.length;
+        ruleIdx = (ruleIdx + 1) % RULES.length;
+      }
+    } else {
+      streak = 0;
+    }
+
+    curEl.style.display = 'none';
+    fbEl.textContent = correct ? 'Correct' : 'Incorrect';
+    setTimeout(function () {
+      fbEl.textContent = '';
+      if (data.length >= nTrials) { showResults(); return; }
+      prevIti = Math.round(jitter(ISI_BASE));
+      setTimeout(nextTrial, prevIti);
+    }, FEEDBACK_MS);
+  }
+
+  function summarize(rows) {
+    var correctRts = rows.filter(function (r) { return r.accuracy === 1; }).map(function (r) { return r.rt; });
+    return {
+      n: rows.length,
+      rt: mean(correctRts),
+      acc: rows.length ? 100 * mean(rows.map(function (r) { return r.accuracy; })) : NaN
+    };
+  }
+  function fmt(x, unit) { return isNaN(x) ? '--' : Math.round(x) + unit; }
+
+  function showResults() {
+    var html = '<tr><th>Rule</th><th>Trials</th><th>Mean RT (correct)</th><th>Accuracy</th></tr>';
+    RULES.forEach(function (r) {
+      var s = summarize(data.filter(function (d) { return d.rule === r; }));
+      html += '<tr><td>' + r.charAt(0).toUpperCase() + r.slice(1) + '</td><td>' + s.n + '</td><td>' +
+              fmt(s.rt, ' ms') + '</td><td>' + fmt(s.acc, '%') + '</td></tr>';
+    });
+    var all = summarize(data);
+    html += '<tr><td>All</td><td>' + all.n + '</td><td>' + fmt(all.rt, ' ms') + '</td><td>' + fmt(all.acc, '%') + '</td></tr>';
+    $('resTable').innerHTML = html;
+
+    var errors = data.filter(function (d) { return d.accuracy === 0; }).length;
+    var persev = data.filter(function (d) { return d.perseverative_error === 1; }).length;
+    $('effect').innerHTML =
+      'Rule changes completed: <b>' + categories + '</b><br>' +
+      'Trials to complete the first rule: <b>' + (firstCatTrial === null ? '--' : firstCatTrial) + '</b><br>' +
+      'Perseverative errors: <b>' + persev + '</b><br>' +
+      'Other errors: <b>' + (errors - persev) + '</b>';
+    show('results');
+  }
+
+  function downloadCSV(rows, cols, prefix) {
+    var lines = [cols.join(',')];
+    rows.forEach(function (r) { lines.push(cols.map(function (c) { return r[c]; }).join(',')); });
+    var blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+    var a = document.createElement('a');
+    var d = new Date();
+    var p2 = function (x) { return String(x).padStart(2, '0'); };
+    a.href = URL.createObjectURL(blob);
+    a.download = prefix + '_' + d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) +
+                 '_' + p2(d.getHours()) + p2(d.getMinutes()) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  $('downloadBtn').addEventListener('click', function () {
+    downloadCSV(data, ['trial', 'card', 'rule', 'chosen', 'matches', 'accuracy', 'perseverative_error',
+                       'categories_completed', 'streak_needed', 'rt', 'iti_before'], 'wcst');
+  });
+  $('againBtn').addEventListener('click', function () { this.blur(); show('start'); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histogram Bin Practice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .bin-input {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            gap: 10px;
+        }
+        .bin-input input {
+            width: 100px;
+            padding: 8px;
+        }
+        .bin-input span {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #bee5eb;
+            margin-bottom: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .data-summary {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> Histogram Bin Practice</h1>
+        
+        <div class="info">
+            <strong>Instructions:</strong> Enter your dataset, then create bins using [a, b) notation. All bins must be the same width!
+        </div>
+
+        <div class="section">
+            <label for="dataset">Enter your dataset (up to 10 numbers, separated by commas):</label>
+            <input type="text" id="dataset" placeholder="e.g., 0, 3, 5, 7, 10">
+            
+            <label for="numBins" style="margin-top: 15px;">Number of bins (2-10):</label>
+            <input type="number" id="numBins" min="2" max="10" value="2">
+            
+            <button onclick="setupBins()">Start Practice</button>
+        </div>
+
+        <div id="practiceSection" class="section hidden">
+            <div class="data-summary" id="dataSummary"></div>
+            
+            <h3>Enter your bins:</h3>
+            <p style="color: #666; font-size: 14px;">Remember: Use [ for inclusive, ( for exclusive.</p>
+            
+            <div id="binInputs"></div>
+            
+            <button onclick="checkAnswer()">Check My Answer</button>
+        </div>
+
+        <div id="feedback" class="feedback hidden"></div>
+    </div>
+
+    <script>
+        let data = [];
+        let numBins = 0;
+        let minVal = 0;
+        let maxVal = 0;
+
+        function setupBins() {
+            const datasetInput = document.getElementById('dataset').value;
+            numBins = parseInt(document.getElementById('numBins').value);
+            
+            // Parse dataset
+            try {
+                data = datasetInput.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+            } catch (e) {
+                showFeedback('Please enter valid numbers separated by commas.', 'error');
+                return;
+            }
+            
+            // Validate dataset
+            if (data.length === 0) {
+                showFeedback('Please enter at least one number.', 'error');
+                return;
+            }
+            if (data.length > 10) {
+                showFeedback('Please enter 10 or fewer numbers.', 'error');
+                return;
+            }
+            
+            // Validate number of bins
+            if (numBins < 2 || numBins > 10 || isNaN(numBins)) {
+                showFeedback('Number of bins must be between 2 and 10.', 'error');
+                return;
+            }
+            
+            minVal = Math.min(...data);
+            maxVal = Math.max(...data);
+            
+            // Show practice section
+            document.getElementById('practiceSection').classList.remove('hidden');
+            document.getElementById('feedback').classList.add('hidden');
+            
+            // Show data summary
+            document.getElementById('dataSummary').innerHTML = `
+                <strong>Your dataset:</strong> ${data.sort((a,b) => a-b).join(', ')}<br>
+                <strong>Min:</strong> ${minVal} | <strong>Max:</strong> ${maxVal}<br>
+                <strong>Create ${numBins} bins of equal width</strong>
+            `;
+            
+            // Create bin input fields
+            const binInputsDiv = document.getElementById('binInputs');
+            binInputsDiv.innerHTML = '';
+            
+            for (let i = 0; i < numBins; i++) {
+                const binDiv = document.createElement('div');
+                binDiv.className = 'bin-input';
+                binDiv.innerHTML = `
+                    <span>Bin ${i + 1}:</span>
+                    <span>[</span>
+                    <input type="text" id="bin${i}lower" placeholder="lower">
+                    <span>,</span>
+                    <input type="text" id="bin${i}upper" placeholder="upper">
+                    <span>)</span>
+                `;
+                binInputsDiv.appendChild(binDiv);
+            }
+        }
+
+        function checkAnswer() {
+            const bins = [];
+            
+            // Collect bin boundaries
+            for (let i = 0; i < numBins; i++) {
+                const lower = parseFloat(document.getElementById(`bin${i}lower`).value);
+                const upper = parseFloat(document.getElementById(`bin${i}upper`).value);
+                
+                if (isNaN(lower) || isNaN(upper)) {
+                    showFeedback('Please fill in all bin boundaries with valid numbers.', 'error');
+                    return;
+                }
+                
+                bins.push({ lower, upper, width: upper - lower });
+            }
+            
+            // Check 1: All bins have the same width
+            const firstWidth = bins[0].width;
+            const tolerance = 0.0001; // for floating point comparison
+            
+            for (let i = 1; i < bins.length; i++) {
+                if (Math.abs(bins[i].width - firstWidth) > tolerance) {
+                    showFeedback(`All bins must have the same width! Bin 1 has width ${firstWidth.toFixed(2)}, but Bin ${i + 1} has width ${bins[i].width.toFixed(2)}.`, 'error');
+                    return;
+                }
+            }
+            
+            // Check 2: Bins are continuous (each bin starts where the previous ended)
+            for (let i = 1; i < bins.length; i++) {
+                if (Math.abs(bins[i].lower - bins[i-1].upper) > tolerance) {
+                    showFeedback(`Bins must be continuous! Bin ${i} ends at ${bins[i-1].upper} but Bin ${i + 1} starts at ${bins[i].lower}.`, 'error');
+                    return;
+                }
+            }
+            
+            // Check 3: First bin starts at or below minimum value
+            if (bins[0].lower > minVal) {
+                showFeedback(`The first bin must start at or below the minimum value (${minVal}). Your first bin starts at ${bins[0].lower}.`, 'error');
+                return;
+            }
+            
+            // Check 4: Last bin ends at or above maximum value
+            if (bins[numBins - 1].upper <= maxVal) {
+                showFeedback(`The last bin must include the maximum value (${maxVal}). Your last bin ends at ${bins[numBins - 1].upper}, which doesn't include ${maxVal} because our bins are lower inclusive, upper exclusive.`, 'error');
+                return;
+            }
+            
+            // Check 5: Doesn't extend too far beyond max (more than one bin width)
+            const overage = bins[numBins - 1].upper - maxVal;
+            if (overage > firstWidth + tolerance) {
+                showFeedback(`Your bins extend too far beyond the maximum value. They go ${overage.toFixed(2)} units beyond ${maxVal}, but there are smaller bins you could pick that still have reasonable values.`, 'error');
+                return;
+            }
+            
+            // Check 6: Bins have positive width
+            if (firstWidth <= 0) {
+                showFeedback('Bin width must be positive!', 'error');
+                return;
+            }
+            
+            // All checks passed!
+            showFeedback(`Excellent! Your bins are correct! Each bin has width ${firstWidth.toFixed(2)}, covers all values from ${minVal} to ${maxVal}, and uses proper [a, b) notation.`, 'success');
+        }
+
+        function showFeedback(message, type) {
+            const feedbackDiv = document.getElementById('feedback');
+            feedbackDiv.textContent = message;
+            feedbackDiv.className = `feedback ${type}`;
+            feedbackDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

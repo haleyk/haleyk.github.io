@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi-Square Test Practice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        .setup-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px 0;
+            font-weight: bold;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            max-width: 300px;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .problem-section {
+            margin: 20px 0;
+            display: none;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        .answer-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #e8f8f5;
+            border-radius: 5px;
+        }
+        .answer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .answer-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .answer-item label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .answer-item input,
+        .answer-item select {
+            width: 100%;
+            max-width: none;
+        }
+        .solution-section {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fef9e7;
+            border-radius: 5px;
+        }
+        .correct {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border-left: 4px solid #3498db;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+        .hypothesis-result {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        .reject-null {
+            background-color: #fadbd8;
+            border-left: 5px solid #e74c3c;
+        }
+        .fail-to-reject {
+            background-color: #d5f4e6;
+            border-left: 5px solid #27ae60;
+        }
+        .chi-square-table-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+        .chi-square-table {
+            font-size: 12px;
+            width: 100%;
+        }
+        .chi-square-table th {
+            background-color: #34495e;
+            font-size: 11px;
+            padding: 8px 5px;
+        }
+        .chi-square-table td {
+            padding: 6px 4px;
+        }
+        .chi-square-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .feedback-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>χ² (Chi-Square) Test Practice</h1>
+        
+        <div class="setup-section">
+            <h2>Setup Your Problem</h2>
+            
+            <label for="testType">1. Choose Test Type:</label>
+            <select id="testType" onchange="updateSetup()">
+                <option value="">-- Select --</option>
+                <option value="goodness">Goodness of Fit</option>
+                <option value="contingency">Contingency Table (Test of Independence)</option>
+            </select>
+            
+            <div id="goodnessSetup" style="display:none;">
+                <label for="numCategories">2. Number of Categories:</label>
+                <select id="numCategories">
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="12">12 (e.g., months)</option>
+                </select>
+            </div>
+            
+            <div id="contingencySetup" style="display:none;">
+                <label for="numRows">2. Number of Rows (first variable categories):</label>
+                <select id="numRows">
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+                
+                <label for="numCols">3. Number of Columns (second variable categories):</label>
+                <select id="numCols">
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+            
+            <label for="alphaLevel">Significance Level (α):</label>
+            <select id="alphaLevel">
+                <option value="0.10">0.10</option>
+                <option value="0.05" selected>0.05</option>
+                <option value="0.025">0.025</option>
+                <option value="0.01">0.01</option>
+                <option value="0.005">0.005</option>
+            </select>
+            
+            <button onclick="generateProblem()" style="margin-top: 20px;">Generate New Problem</button>
+        </div>
+        
+        <div id="problemSection" class="problem-section">
+            <h2>Your Problem</h2>
+            <div id="problemDisplay"></div>
+            
+            <div class="answer-section">
+                <h3>Enter Your Answers:</h3>
+                <div class="answer-grid">
+                    <div class="answer-item">
+                        <label for="studentDF">Degrees of Freedom (df):</label>
+                        <input type="number" id="studentDF" step="1" min="1" placeholder="Enter df">
+                    </div>
+                    <div class="answer-item">
+                        <label for="studentChiSquare">Chi-Square Statistic (χ²):</label>
+                        <input type="number" id="studentChiSquare" step="0.001" placeholder="Enter χ²">
+                    </div>
+                    <div class="answer-item">
+                        <label for="studentCritical">Critical Value:</label>
+                        <input type="number" id="studentCritical" step="0.001" placeholder="Enter critical value">
+                    </div>
+                    <div class="answer-item">
+                        <label for="studentDecision">Decision:</label>
+                        <select id="studentDecision">
+                            <option value="">-- Select --</option>
+                            <option value="reject">Reject H₀</option>
+                            <option value="fail">Fail to Reject H₀</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="checkAnswer()">Check Answer</button>
+                <button onclick="showSolution()">Show Solution</button>
+                <div id="feedback" style="margin-top: 15px;"></div>
+            </div>
+            
+            <div id="solutionSection" class="solution-section">
+                <h2>Step-by-Step Solution</h2>
+                <div id="solutionDisplay"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chi-square-table-container">
+        <h2>Chi-Square (χ²) Critical Values Table</h2>
+        <p style="font-size: 14px; color: #555;">Use this table to find the critical value for your test. Compare your calculated χ² statistic to the critical value at your chosen significance level (α) and degrees of freedom (df).</p>
+        <table class="chi-square-table">
+            <thead>
+                <tr>
+                    <th>df</th>
+                    <th>χ²<sub>0.995</sub></th>
+                    <th>χ²<sub>0.990</sub></th>
+                    <th>χ²<sub>0.975</sub></th>
+                    <th>χ²<sub>0.950</sub></th>
+                    <th>χ²<sub>0.900</sub></th>
+                    <th>χ²<sub>0.100</sub></th>
+                    <th>χ²<sub>0.050</sub></th>
+                    <th>χ²<sub>0.025</sub></th>
+                    <th>χ²<sub>0.010</sub></th>
+                    <th>χ²<sub>0.005</sub></th>
+                </tr>
+            </thead>
+            <tbody id="chiSquareTableBody">
+                <!-- Table will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Chi-square critical values table
+        const chiSquareTable = {
+            1: [0.000, 0.000, 0.001, 0.004, 0.016, 2.706, 3.841, 5.024, 6.635, 7.879],
+            2: [0.010, 0.020, 0.051, 0.103, 0.211, 4.605, 5.991, 7.378, 9.210, 10.597],
+            3: [0.072, 0.115, 0.216, 0.352, 0.584, 6.251, 7.815, 9.348, 11.345, 12.838],
+            4: [0.207, 0.297, 0.484, 0.711, 1.064, 7.779, 9.488, 11.143, 13.277, 14.860],
+            5: [0.412, 0.554, 0.831, 1.145, 1.610, 9.236, 11.070, 12.833, 15.086, 16.750],
+            6: [0.676, 0.872, 1.237, 1.635, 2.204, 10.645, 12.592, 14.449, 16.812, 18.548],
+            7: [0.989, 1.239, 1.690, 2.167, 2.833, 12.017, 14.067, 16.013, 18.475, 20.278],
+            8: [1.344, 1.646, 2.180, 2.733, 3.490, 13.362, 15.507, 17.535, 20.090, 21.955],
+            9: [1.735, 2.088, 2.700, 3.325, 4.168, 14.684, 16.919, 19.023, 21.666, 23.589],
+            10: [2.156, 2.558, 3.247, 3.940, 4.865, 15.987, 18.307, 20.483, 23.209, 25.188],
+            11: [2.603, 3.053, 3.816, 4.575, 5.578, 17.275, 19.675, 21.920, 24.725, 26.757],
+            12: [3.074, 3.571, 4.404, 5.226, 6.304, 18.549, 21.026, 23.337, 26.217, 28.300],
+            13: [3.565, 4.107, 5.009, 5.892, 7.042, 19.812, 22.362, 24.736, 27.688, 29.819],
+            14: [4.075, 4.660, 5.629, 6.571, 7.790, 21.064, 23.685, 26.119, 29.141, 31.319],
+            15: [4.601, 5.229, 6.262, 7.261, 8.547, 22.307, 24.996, 27.488, 30.578, 32.801],
+            16: [5.142, 5.812, 6.908, 7.962, 9.312, 23.542, 26.296, 28.845, 32.000, 34.267],
+            17: [5.697, 6.408, 7.564, 8.672, 10.085, 24.769, 27.587, 30.191, 33.409, 35.718],
+            18: [6.265, 7.015, 8.231, 9.390, 10.865, 25.989, 28.869, 31.526, 34.805, 37.156],
+            19: [6.844, 7.633, 8.907, 10.117, 11.651, 27.204, 30.144, 32.852, 36.191, 38.582],
+            20: [7.434, 8.260, 9.591, 10.851, 12.443, 28.412, 31.410, 34.170, 37.566, 39.997],
+        };
+
+        const alphaColumns = {
+            '0.005': 9,
+            '0.01': 8,
+            '0.025': 7,
+            '0.05': 6,
+            '0.10': 5
+        };
+
+        let currentProblem = null;
+        let correctAnswer = null;
+        let degreesOfFreedom = null;
+
+        // Populate the chi-square table on page load
+        window.onload = function() {
+            populateChiSquareTable();
+        };
+
+        function populateChiSquareTable() {
+            const tbody = document.getElementById('chiSquareTableBody');
+            let html = '';
+            
+            for (let df in chiSquareTable) {
+                html += `<tr>
+                    <td><strong>${df}</strong></td>
+                    ${chiSquareTable[df].map(val => `<td>${val.toFixed(3)}</td>`).join('')}
+                </tr>`;
+            }
+            
+            tbody.innerHTML = html;
+        }
+
+        function updateSetup() {
+            const testType = document.getElementById('testType').value;
+            document.getElementById('goodnessSetup').style.display = testType === 'goodness' ? 'block' : 'none';
+            document.getElementById('contingencySetup').style.display = testType === 'contingency' ? 'block' : 'none';
+        }
+
+        function generateProblem() {
+            const testType = document.getElementById('testType').value;
+            if (!testType) {
+                alert('Please select a test type');
+                return;
+            }
+
+            // Clear all student inputs
+            document.getElementById('studentDF').value = '';
+            document.getElementById('studentChiSquare').value = '';
+            document.getElementById('studentCritical').value = '';
+            document.getElementById('studentDecision').value = '';
+            document.getElementById('feedback').innerHTML = '';
+            document.getElementById('solutionSection').style.display = 'none';
+
+            if (testType === 'goodness') {
+                generateGoodnessOfFit();
+            } else {
+                generateContingencyTable();
+            }
+
+            document.getElementById('problemSection').style.display = 'block';
+        }
+
+        function generateGoodnessOfFit() {
+            const k = parseInt(document.getElementById('numCategories').value);
+            const n = 40 + Math.floor(Math.random() * 60); // sample size between 40 and 100
+            
+            // Generate probabilities that sum to 1
+            let probs = [];
+            let sum = 0;
+            for (let i = 0; i < k - 1; i++) {
+                let p = Math.random() * (1 - sum);
+                probs.push(p);
+                sum += p;
+            }
+            probs.push(1 - sum);
+            
+            // Normalize to make them reasonable proportions
+            probs = probs.map(p => Math.round(p * 1000) / 1000);
+            let probSum = probs.reduce((a, b) => a + b, 0);
+            probs = probs.map(p => p / probSum);
+            
+            // Generate observed frequencies that sum to n
+            let observed = [];
+            let remaining = n;
+            for (let i = 0; i < k - 1; i++) {
+                let expected = probs[i] * n;
+                // Limit the random variation so we don't run out of counts
+                let maxVariation = Math.min(8, expected * 0.5);
+                let obs = Math.round(expected + (Math.random() - 0.5) * maxVariation);
+                // Make sure we don't use more than what's remaining
+                obs = Math.max(0, Math.min(obs, remaining - (k - i - 1)));
+                observed.push(obs);
+                remaining -= obs;
+            }
+            // The last value is whatever is left
+            observed.push(Math.max(0, remaining));
+
+            degreesOfFreedom = k - 1;
+
+            currentProblem = {
+                type: 'goodness',
+                k: k,
+                n: n,
+                observed: observed,
+                probs: probs
+            };
+
+            displayGoodnessOfFit();
+            calculateGoodnessOfFit();
+        }
+
+        function displayGoodnessOfFit() {
+            const p = currentProblem;
+            const alpha = document.getElementById('alphaLevel').value;
+            let html = `
+                <p><strong>Test Type:</strong> Goodness of Fit Test</p>
+                <p><strong>Sample Size (n):</strong> ${p.n}</p>
+                <p><strong>Significance Level:</strong> α = ${alpha}</p>
+                <p>Calculate the χ² statistic to test whether the observed frequencies match the expected distribution.</p>
+                
+                <table>
+                    <tr>
+                        <th>Category</th>
+                        ${Array.from({length: p.k}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                    </tr>
+                    <tr>
+                        <th>Observed Frequency</th>
+                        ${p.observed.map(o => `<td>${o}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <th>Expected Probability</th>
+                        ${p.probs.map(pr => `<td>${pr.toFixed(3)}</td>`).join('')}
+                    </tr>
+                </table>
+            `;
+            document.getElementById('problemDisplay').innerHTML = html;
+        }
+
+        function calculateGoodnessOfFit() {
+            const p = currentProblem;
+            const expected = p.probs.map(pr => pr * p.n);
+            const obsMinusExp = p.observed.map((o, i) => o - expected[i]);
+            const obsMinusExpSq = obsMinusExp.map(x => x * x);
+            const obsMinusExpSqNorm = obsMinusExpSq.map((x, i) => x / expected[i]);
+            const chiSquared = obsMinusExpSqNorm.reduce((a, b) => a + b, 0);
+
+            correctAnswer = chiSquared;
+
+            // Store for solution display
+            currentProblem.expected = expected;
+            currentProblem.obsMinusExp = obsMinusExp;
+            currentProblem.obsMinusExpSq = obsMinusExpSq;
+            currentProblem.obsMinusExpSqNorm = obsMinusExpSqNorm;
+        }
+
+        function generateContingencyTable() {
+            const rows = parseInt(document.getElementById('numRows').value);
+            const cols = parseInt(document.getElementById('numCols').value);
+            
+            // Generate observed frequencies
+            let observed = [];
+            for (let i = 0; i < rows; i++) {
+                let row = [];
+                for (let j = 0; j < cols; j++) {
+                    row.push(Math.floor(Math.random() * 15) + 1); // 1 to 15
+                }
+                observed.push(row);
+            }
+
+            degreesOfFreedom = (rows - 1) * (cols - 1);
+
+            currentProblem = {
+                type: 'contingency',
+                rows: rows,
+                cols: cols,
+                observed: observed
+            };
+
+            displayContingencyTable();
+            calculateContingencyTable();
+        }
+
+        function displayContingencyTable() {
+            const p = currentProblem;
+            const alpha = document.getElementById('alphaLevel').value;
+            let html = `
+                <p><strong>Test Type:</strong> Contingency Table (Test of Independence)</p>
+                <p><strong>Significance Level:</strong> α = ${alpha}</p>
+                <p>Calculate the χ² statistic to test whether the two variables are independent.</p>
+                
+                <table>
+                    <tr>
+                        <th>Variable 1 \\ Variable 2</th>
+                        ${Array.from({length: p.cols}, (_, i) => `<th>Col ${i + 1}</th>`).join('')}
+                    </tr>
+                    ${p.observed.map((row, i) => `
+                        <tr>
+                            <th>Row ${i + 1}</th>
+                            ${row.map(val => `<td>${val}</td>`).join('')}
+                        </tr>
+                    `).join('')}
+                </table>
+            `;
+            document.getElementById('problemDisplay').innerHTML = html;
+        }
+
+        function calculateContingencyTable() {
+            const p = currentProblem;
+            
+            // Calculate row and column totals
+            const rowTotals = p.observed.map(row => row.reduce((a, b) => a + b, 0));
+            const colTotals = [];
+            for (let j = 0; j < p.cols; j++) {
+                let sum = 0;
+                for (let i = 0; i < p.rows; i++) {
+                    sum += p.observed[i][j];
+                }
+                colTotals.push(sum);
+            }
+            const n = rowTotals.reduce((a, b) => a + b, 0);
+
+            // Calculate expected frequencies
+            const expected = [];
+            for (let i = 0; i < p.rows; i++) {
+                let row = [];
+                for (let j = 0; j < p.cols; j++) {
+                    row.push((rowTotals[i] * colTotals[j]) / n);
+                }
+                expected.push(row);
+            }
+
+            // Calculate chi-squared
+            const obsMinusExp = [];
+            const obsMinusExpSq = [];
+            const obsMinusExpSqNorm = [];
+            let chiSquared = 0;
+
+            for (let i = 0; i < p.rows; i++) {
+                let row1 = [], row2 = [], row3 = [];
+                for (let j = 0; j < p.cols; j++) {
+                    let diff = p.observed[i][j] - expected[i][j];
+                    let diffSq = diff * diff;
+                    let norm = diffSq / expected[i][j];
+                    row1.push(diff);
+                    row2.push(diffSq);
+                    row3.push(norm);
+                    chiSquared += norm;
+                }
+                obsMinusExp.push(row1);
+                obsMinusExpSq.push(row2);
+                obsMinusExpSqNorm.push(row3);
+            }
+
+            correctAnswer = chiSquared;
+
+            // Store for solution display
+            currentProblem.rowTotals = rowTotals;
+            currentProblem.colTotals = colTotals;
+            currentProblem.n = n;
+            currentProblem.expected = expected;
+            currentProblem.obsMinusExp = obsMinusExp;
+            currentProblem.obsMinusExpSq = obsMinusExpSq;
+            currentProblem.obsMinusExpSqNorm = obsMinusExpSqNorm;
+        }
+
+        function getCriticalValue(df, alpha) {
+            // If df is not in table, return null
+            if (!chiSquareTable[df]) {
+                return null;
+            }
+            
+            const columnIndex = alphaColumns[alpha];
+            return chiSquareTable[df][columnIndex];
+        }
+
+        function checkAnswer() {
+            const studentDF = parseInt(document.getElementById('studentDF').value);
+            const studentChiSquare = parseFloat(document.getElementById('studentChiSquare').value);
+            const studentCritical = parseFloat(document.getElementById('studentCritical').value);
+            const studentDecision = document.getElementById('studentDecision').value;
+            
+            if (isNaN(studentDF) || isNaN(studentChiSquare) || isNaN(studentCritical) || !studentDecision) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const alpha = document.getElementById('alphaLevel').value;
+            const correctCritical = getCriticalValue(degreesOfFreedom, alpha);
+            const correctDecision = correctAnswer > correctCritical ? 'reject' : 'fail';
+
+            const dfCorrect = studentDF === degreesOfFreedom;
+            const chiSquareCorrect = Math.abs(studentChiSquare - correctAnswer) < 0.01;
+            const criticalCorrect = correctCritical !== null && Math.abs(studentCritical - correctCritical) < 0.01;
+            const decisionCorrect = studentDecision === correctDecision;
+
+            let feedback = '<div>';
+            
+            // Degrees of Freedom
+            feedback += '<div class="feedback-item">';
+            feedback += dfCorrect ? 
+                `<span class="correct">✓ Degrees of Freedom: ${studentDF} is correct!</span>` :
+                `<span class="incorrect">✗ Degrees of Freedom: You entered ${studentDF}, correct answer is ${degreesOfFreedom}</span>`;
+            feedback += '</div>';
+
+            // Chi-Square Statistic
+            feedback += '<div class="feedback-item">';
+            feedback += chiSquareCorrect ? 
+                `<span class="correct">✓ χ² Statistic: ${studentChiSquare.toFixed(3)} is correct!</span>` :
+                `<span class="incorrect">✗ χ² Statistic: You entered ${studentChiSquare.toFixed(3)}, correct answer is ${correctAnswer.toFixed(3)}</span>`;
+            feedback += '</div>';
+
+            // Critical Value
+            feedback += '<div class="feedback-item">';
+            if (correctCritical !== null) {
+                feedback += criticalCorrect ? 
+                    `<span class="correct">✓ Critical Value: ${studentCritical.toFixed(3)} is correct!</span>` :
+                    `<span class="incorrect">✗ Critical Value: You entered ${studentCritical.toFixed(3)}, correct answer is ${correctCritical.toFixed(3)}</span>`;
+            } else {
+                feedback += '<span>Critical value not available for this df in the table.</span>';
+            }
+            feedback += '</div>';
+
+            // Decision
+            feedback += '<div class="feedback-item">';
+            const decisionText = studentDecision === 'reject' ? 'Reject H₀' : 'Fail to Reject H₀';
+            const correctDecisionText = correctDecision === 'reject' ? 'Reject H₀' : 'Fail to Reject H₀';
+            feedback += decisionCorrect ? 
+                `<span class="correct">✓ Decision: ${decisionText} is correct!</span>` :
+                `<span class="incorrect">✗ Decision: You chose "${decisionText}", correct answer is "${correctDecisionText}"</span>`;
+            feedback += '</div>';
+
+            feedback += '</div>';
+
+            if (dfCorrect && chiSquareCorrect && criticalCorrect && decisionCorrect) {
+                feedback += '<p style="margin-top: 15px; font-size: 18px;" class="correct">🎉 Perfect! All answers are correct!</p>';
+            }
+
+            feedback += getHypothesisTestResult();
+
+            document.getElementById('feedback').innerHTML = feedback;
+        }
+
+        function getHypothesisTestResult() {
+            const alpha = document.getElementById('alphaLevel').value;
+            const criticalValue = getCriticalValue(degreesOfFreedom, alpha);
+            
+            if (criticalValue === null) {
+                return '<p><em>Degrees of freedom outside table range. Cannot determine critical value.</em></p>';
+            }
+
+            const reject = correctAnswer > criticalValue;
+            
+            let html = `
+                <div class="hypothesis-result ${reject ? 'reject-null' : 'fail-to-reject'}" style="margin-top: 20px;">
+                    <p><strong>Complete Solution:</strong></p>
+                    <p>Degrees of Freedom: df = ${degreesOfFreedom}</p>
+                    <p>Significance Level: α = ${alpha}</p>
+                    <p>Critical Value: χ²<sub>${alpha}</sub> = ${criticalValue.toFixed(3)}</p>
+                    <p>Calculated χ² = ${correctAnswer.toFixed(3)}</p>
+                    <p><strong>${reject ? 
+                        `Since ${correctAnswer.toFixed(3)} > ${criticalValue.toFixed(3)}, we REJECT the null hypothesis.` :
+                        `Since ${correctAnswer.toFixed(3)} ≤ ${criticalValue.toFixed(3)}, we FAIL TO REJECT the null hypothesis.`
+                    }</strong></p>
+                    ${currentProblem.type === 'goodness' ?
+                        `<p><em>${reject ? 
+                            'The observed frequencies differ significantly from the expected distribution.' :
+                            'The observed frequencies do not differ significantly from the expected distribution.'
+                        }</em></p>` :
+                        `<p><em>${reject ?
+                            'There is sufficient evidence that the two variables are NOT independent (they are associated).' :
+                            'There is not sufficient evidence to conclude the two variables are associated (they may be independent).'
+                        }</em></p>`
+                    }
+                </div>
+            `;
+            
+            return html;
+        }
+
+        function showSolution() {
+            if (currentProblem.type === 'goodness') {
+                displayGoodnessOfFitSolution();
+            } else {
+                displayContingencyTableSolution();
+            }
+            document.getElementById('solutionSection').style.display = 'block';
+        }
+
+        function displayGoodnessOfFitSolution() {
+            const p = currentProblem;
+            const alpha = document.getElementById('alphaLevel').value;
+            const criticalValue = getCriticalValue(degreesOfFreedom, alpha);
+            
+            let html = `
+                <div class="step">
+                    <h3>Step 0: Calculate Degrees of Freedom</h3>
+                    <p><strong>df = k - 1 = ${p.k} - 1 = ${degreesOfFreedom}</strong></p>
+                    <p>Where k is the number of categories.</p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 1: Calculate Expected Frequencies</h3>
+                    <p>Expected frequency = Probability × Sample size (n = ${p.n})</p>
+                    <table>
+                        <tr>
+                            <th>Category</th>
+                            ${Array.from({length: p.k}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Probability</th>
+                            ${p.probs.map(pr => `<td>${pr.toFixed(3)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Expected (E)</th>
+                            ${p.expected.map(e => `<td>${e.toFixed(2)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 2: Calculate (O - E)</h3>
+                    <p>Observed - Expected for each category</p>
+                    <table>
+                        <tr>
+                            <th>Category</th>
+                            ${Array.from({length: p.k}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Observed (O)</th>
+                            ${p.observed.map(o => `<td>${o}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Expected (E)</th>
+                            ${p.expected.map(e => `<td>${e.toFixed(2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>O - E</th>
+                            ${p.obsMinusExp.map(x => `<td>${x.toFixed(2)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 3: Square Each (O - E)</h3>
+                    <p>(O - E)²</p>
+                    <table>
+                        <tr>
+                            <th>Category</th>
+                            ${Array.from({length: p.k}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>(O - E)²</th>
+                            ${p.obsMinusExpSq.map(x => `<td>${x.toFixed(2)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 4: Divide by Expected Frequency</h3>
+                    <p>(O - E)² / E</p>
+                    <table>
+                        <tr>
+                            <th>Category</th>
+                            ${Array.from({length: p.k}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>(O - E)² / E</th>
+                            ${p.obsMinusExpSqNorm.map(x => `<td>${x.toFixed(4)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 5: Sum All Values</h3>
+                    <p><strong>χ² = ${p.obsMinusExpSqNorm.map(x => x.toFixed(4)).join(' + ')}</strong></p>
+                    <p><strong>χ² = ${correctAnswer.toFixed(4)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 6: Find Critical Value and Make Decision</h3>
+                    ${criticalValue !== null ? `
+                        <p>At significance level α = ${alpha} with df = ${degreesOfFreedom}:</p>
+                        <p><strong>Critical value from table: χ²<sub>${alpha}</sub> = ${criticalValue.toFixed(3)}</strong></p>
+                        <p>Calculated χ² = ${correctAnswer.toFixed(4)}</p>
+                        ${getHypothesisTestResult()}
+                    ` : '<p>Degrees of freedom outside table range.</p>'}
+                </div>
+            `;
+
+            document.getElementById('solutionDisplay').innerHTML = html;
+        }
+
+        function displayContingencyTableSolution() {
+            const p = currentProblem;
+            const alpha = document.getElementById('alphaLevel').value;
+            const criticalValue = getCriticalValue(degreesOfFreedom, alpha);
+            
+            let html = `
+                <div class="step">
+                    <h3>Step 0: Calculate Degrees of Freedom</h3>
+                    <p><strong>df = (rows - 1) × (cols - 1) = (${p.rows} - 1) × (${p.cols} - 1) = ${degreesOfFreedom}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 1: Calculate Row and Column Totals</h3>
+                    <table>
+                        <tr>
+                            <th>Observed</th>
+                            ${Array.from({length: p.cols}, (_, i) => `<th>Col ${i + 1}</th>`).join('')}
+                            <th>Row Total</th>
+                        </tr>
+                        ${p.observed.map((row, i) => `
+                            <tr>
+                                <th>Row ${i + 1}</th>
+                                ${row.map(val => `<td>${val}</td>`).join('')}
+                                <td><strong>${p.rowTotals[i]}</strong></td>
+                            </tr>
+                        `).join('')}
+                        <tr>
+                            <th>Column Total</th>
+                            ${p.colTotals.map(ct => `<td><strong>${ct}</strong></td>`).join('')}
+                            <td><strong>n = ${p.n}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 2: Calculate Expected Frequencies</h3>
+                    <p>E<sub>ij</sub> = (Row<sub>i</sub> Total × Col<sub>j</sub> Total) / n</p>
+                    <table>
+                        <tr>
+                            <th>Expected (E)</th>
+                            ${Array.from({length: p.cols}, (_, i) => `<th>Col ${i + 1}</th>`).join('')}
+                        </tr>
+                        ${p.expected.map((row, i) => `
+                            <tr>
+                                <th>Row ${i + 1}</th>
+                                ${row.map((val, j) => `<td>${val.toFixed(2)}<br><small>(${p.rowTotals[i]}×${p.colTotals[j]})/${p.n}</small></td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 3: Calculate (O - E)</h3>
+                    <table>
+                        <tr>
+                            <th>O - E</th>
+                            ${Array.from({length: p.cols}, (_, i) => `<th>Col ${i + 1}</th>`).join('')}
+                        </tr>
+                        ${p.obsMinusExp.map((row, i) => `
+                            <tr>
+                                <th>Row ${i + 1}</th>
+                                ${row.map(val => `<td>${val.toFixed(2)}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 4: Square Each Value</h3>
+                    <table>
+                        <tr>
+                            <th>(O - E)²</th>
+                            ${Array.from({length: p.cols}, (_, i) => `<th>Col ${i + 1}</th>`).join('')}
+                        </tr>
+                        ${p.obsMinusExpSq.map((row, i) => `
+                            <tr>
+                                <th>Row ${i + 1}</th>
+                                ${row.map(val => `<td>${val.toFixed(2)}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 5: Divide by Expected</h3>
+                    <table>
+                        <tr>
+                            <th>(O - E)² / E</th>
+                            ${Array.from({length: p.cols}, (_, i) => `<th>Col ${i + 1}</th>`).join('')}
+                        </tr>
+                        ${p.obsMinusExpSqNorm.map((row, i) => `
+                            <tr>
+                                <th>Row ${i + 1}</th>
+                                ${row.map(val => `<td>${val.toFixed(4)}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 6: Sum All Values</h3>
+                    <p><strong>χ² = </strong>${p.obsMinusExpSqNorm.flat().map(x => x.toFixed(4)).join(' + ')}</p>
+                    <p><strong>χ² = ${correctAnswer.toFixed(4)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 7: Find Critical Value and Make Decision</h3>
+                    ${criticalValue !== null ? `
+                        <p>At significance level α = ${alpha} with df = ${degreesOfFreedom}:</p>
+                        <p><strong>Critical value from table: χ²<sub>${alpha}</sub> = ${criticalValue.toFixed(3)}</strong></p>
+                        <p>Calculated χ² = ${correctAnswer.toFixed(4)}</p>
+                        ${getHypothesisTestResult()}
+                    ` : '<p>Degrees of freedom outside table range.</p>'}
+                </div>
+            `;
+
+            document.getElementById('solutionDisplay').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

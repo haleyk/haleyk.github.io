@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Practice Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .dataset-section {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .dataset-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-top: 10px;
+        }
+        .control-group {
+            margin: 15px 0;
+        }
+        label {
+            display: inline-block;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .explain-btn {
+            background-color: #2196F3;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .explain-btn:hover {
+            background-color: #0b7dda;
+        }
+        .stats-selection {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .stat-checkbox {
+            display: flex;
+            align-items: center;
+        }
+        .stat-checkbox input {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+        }
+        .practice-section {
+            margin-top: 20px;
+        }
+        .stat-input {
+            background-color: #fff3e0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+        }
+        .stat-input input {
+            width: 150px;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .stat-input label {
+            min-width: 180px;
+        }
+        .feedback {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+        .correct {
+            color: #2e7d32;
+            background-color: #c8e6c9;
+        }
+        .incorrect {
+            color: #c62828;
+            background-color: #ffcdd2;
+        }
+        .explanation-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .explanation-box h3 {
+            color: #1976D2;
+            margin-top: 0;
+        }
+        .explanation-box pre {
+            background-color: white;
+            padding: 10px;
+            border-radius: 3px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+        .explanation-box .formula {
+            font-style: italic;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 3px;
+        }
+        input[type="number"] {
+            width: 80px;
+        }
+        #datasetSize {
+            width: 60px;
+            padding: 5px;
+            font-size: 16px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Statistics Practice Demo</h1>
+        
+        <div class="control-group">
+            <label for="datasetSize">Number of values in dataset (3-10):</label>
+            <input type="number" id="datasetSize" min="3" max="10" value="5">
+            <button onclick="generateDataset()">Generate New Dataset</button>
+        </div>
+
+        <div class="dataset-section">
+            <h3>Your Dataset:</h3>
+            <div id="datasetDisplay" class="dataset-display">Click "Generate New Dataset" to begin</div>
+        </div>
+
+        <h3>Select statistics to practice:</h3>
+        <div class="stats-selection">
+            <div class="stat-checkbox">
+                <input type="checkbox" id="check-mean" value="mean">
+                <label for="check-mean">Mean</label>
+            </div>
+            <div class="stat-checkbox">
+                <input type="checkbox" id="check-median" value="median">
+                <label for="check-median">Median</label>
+            </div>
+            <div class="stat-checkbox">
+                <input type="checkbox" id="check-mode" value="mode">
+                <label for="check-mode">Mode</label>
+            </div>
+            <div class="stat-checkbox">
+                <input type="checkbox" id="check-range" value="range">
+                <label for="check-range">Range</label>
+            </div>
+            <div class="stat-checkbox">
+                <input type="checkbox" id="check-q1" value="q1">
+                <label for="check-q1">First Quartile (Q1)</label>
+            </div>
+            <div class="stat-checkbox">
+                <input type="checkbox" id="check-q3" value="q3">
+                <label for="check-q3">Third Quartile (Q3)</label>
+            </div>
+            <div class="stat-checkbox">
+                <input type="checkbox" id="check-iqr" value="iqr">
+                <label for="check-iqr">IQR</label>
+            </div>
+            <div class="stat-checkbox">
+                <input type="checkbox" id="check-variance" value="variance">
+                <label for="check-variance">Variance</label>
+            </div>
+            <div class="stat-checkbox">
+                <input type="checkbox" id="check-sd" value="sd">
+                <label for="check-sd">Standard Deviation</label>
+            </div>
+        </div>
+
+        <button onclick="showPracticeProblems()">Start Practice</button>
+
+        <div id="practiceSection" class="practice-section hidden">
+            <h3>Enter your answers:</h3>
+            <div id="practiceProblems"></div>
+            <button onclick="checkAnswers()">Check Answers</button>
+            
+            <div id="explanationContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let dataset = [];
+        let correctAnswers = {};
+
+        function generateDataset() {
+            const size = parseInt(document.getElementById('datasetSize').value);
+            if (size < 3 || size > 10) {
+                alert('Please enter a number between 3 and 10');
+                return;
+            }
+
+            // Generate random values (1-10, including .5 increments)
+            dataset = [];
+            const possibleValues = [];
+            for (let i = 1; i <= 10; i++) {
+                possibleValues.push(i);
+                if (i < 10) possibleValues.push(i + 0.5);
+            }
+
+            for (let i = 0; i < size; i++) {
+                const randomValue = possibleValues[Math.floor(Math.random() * possibleValues.length)];
+                dataset.push(randomValue);
+            }
+
+            document.getElementById('datasetDisplay').textContent = dataset.join(', ');
+            document.getElementById('practiceSection').classList.add('hidden');
+            
+            // Calculate all correct answers
+            calculateCorrectAnswers();
+        }
+
+        function calculateCorrectAnswers() {
+            const sorted = [...dataset].sort((a, b) => a - b);
+            
+            // Mean
+            const mean = dataset.reduce((sum, val) => sum + val, 0) / dataset.length;
+            correctAnswers.mean = Math.round(mean * 100) / 100;
+
+            // Median
+            const mid = Math.floor(sorted.length / 2);
+            correctAnswers.median = sorted.length % 2 === 0 
+                ? (sorted[mid - 1] + sorted[mid]) / 2 
+                : sorted[mid];
+            correctAnswers.median = Math.round(correctAnswers.median * 100) / 100;
+
+            // Mode
+            const frequency = {};
+            let maxFreq = 0;
+            sorted.forEach(val => {
+                frequency[val] = (frequency[val] || 0) + 1;
+                maxFreq = Math.max(maxFreq, frequency[val]);
+            });
+            const modes = Object.keys(frequency).filter(key => frequency[key] === maxFreq).map(Number);
+            correctAnswers.mode = modes.length === sorted.length ? 'none' : modes.join(', ');
+
+            // Range
+            correctAnswers.range = sorted[sorted.length - 1] - sorted[0];
+            correctAnswers.range = Math.round(correctAnswers.range * 100) / 100;
+
+            // Q1
+            const j1 = 0.25 * dataset.length;
+            if (Number.isInteger(j1)) {
+                correctAnswers.q1 = (sorted[j1 - 1] + sorted[j1]) / 2;
+            } else {
+                correctAnswers.q1 = sorted[Math.ceil(j1) - 1];
+            }
+            correctAnswers.q1 = Math.round(correctAnswers.q1 * 100) / 100;
+
+            // Q3
+            const j3 = 0.75 * dataset.length;
+            if (Number.isInteger(j3)) {
+                correctAnswers.q3 = (sorted[j3 - 1] + sorted[j3]) / 2;
+            } else {
+                correctAnswers.q3 = sorted[Math.ceil(j3) - 1];
+            }
+            correctAnswers.q3 = Math.round(correctAnswers.q3 * 100) / 100;
+
+            // IQR
+            correctAnswers.iqr = correctAnswers.q3 - correctAnswers.q1;
+            correctAnswers.iqr = Math.round(correctAnswers.iqr * 100) / 100;
+
+            // Variance
+            const squaredDiffs = dataset.map(val => Math.pow(val - mean, 2));
+            const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / (dataset.length - 1);
+            correctAnswers.variance = Math.round(variance * 100) / 100;
+
+            // Standard Deviation
+            correctAnswers.sd = Math.sqrt(variance);
+            correctAnswers.sd = Math.round(correctAnswers.sd * 100) / 100;
+        }
+
+        function showPracticeProblems() {
+            if (dataset.length === 0) {
+                alert('Please generate a dataset first!');
+                return;
+            }
+
+            const selectedStats = [];
+            const checkboxes = document.querySelectorAll('.stat-checkbox input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    selectedStats.push(cb.value);
+                }
+            });
+
+            if (selectedStats.length === 0) {
+                alert('Please select at least one statistic to practice!');
+                return;
+            }
+
+            const problemsDiv = document.getElementById('practiceProblems');
+            problemsDiv.innerHTML = '';
+
+            const statNames = {
+                mean: 'Mean',
+                median: 'Median',
+                mode: 'Mode (enter "none" if no mode, or comma-separated if multiple)',
+                range: 'Range',
+                q1: 'First Quartile (Q1)',
+                q3: 'Third Quartile (Q3)',
+                iqr: 'Inter-Quartile Range (IQR)',
+                variance: 'Variance',
+                sd: 'Standard Deviation'
+            };
+
+            selectedStats.forEach(stat => {
+                const div = document.createElement('div');
+                div.className = 'stat-input';
+                div.innerHTML = `
+                    <label for="input-${stat}">${statNames[stat]}:</label>
+                    <input type="text" id="input-${stat}" data-stat="${stat}">
+                    <span id="feedback-${stat}" class="feedback"></span>
+                `;
+                problemsDiv.appendChild(div);
+            });
+
+            document.getElementById('practiceSection').classList.remove('hidden');
+            document.getElementById('explanationContainer').innerHTML = '';
+        }
+
+        function checkAnswers() {
+            const inputs = document.querySelectorAll('.stat-input input');
+            
+            inputs.forEach(input => {
+                const stat = input.dataset.stat;
+                const userAnswer = input.value.trim().toLowerCase();
+                const correctAnswer = String(correctAnswers[stat]).toLowerCase();
+                const feedbackSpan = document.getElementById(`feedback-${stat}`);
+
+                let isCorrect = false;
+
+                if (stat === 'mode') {
+                    // For mode, handle multiple answers and "none"
+                    const userModes = userAnswer.split(',').map(s => s.trim()).sort();
+                    const correctModes = correctAnswer.split(',').map(s => s.trim()).sort();
+                    isCorrect = JSON.stringify(userModes) === JSON.stringify(correctModes);
+                } else {
+                    // For numeric answers, allow small rounding differences
+                    const userNum = parseFloat(userAnswer);
+                    const correctNum = parseFloat(correctAnswer);
+                    isCorrect = Math.abs(userNum - correctNum) < 0.01;
+                }
+
+                if (isCorrect) {
+                    feedbackSpan.textContent = '✓ Correct!';
+                    feedbackSpan.className = 'feedback correct';
+                } else {
+                    feedbackSpan.textContent = `✗ Incorrect (Answer: ${correctAnswers[stat]})`;
+                    feedbackSpan.className = 'feedback incorrect';
+                }
+
+                // Add or update Explain button
+                let explainBtn = document.getElementById(`explain-${stat}`);
+                if (!explainBtn) {
+                    explainBtn = document.createElement('button');
+                    explainBtn.id = `explain-${stat}`;
+                    explainBtn.className = 'explain-btn';
+                    explainBtn.textContent = 'Explain This';
+                    explainBtn.onclick = () => showExplanation(stat);
+                    feedbackSpan.parentNode.appendChild(explainBtn);
+                }
+            });
+        }
+
+        function showExplanation(stat) {
+            const container = document.getElementById('explanationContainer');
+            const sorted = [...dataset].sort((a, b) => a - b);
+            
+            let explanation = '';
+            
+            switch(stat) {
+                case 'mean':
+                    explanation = generateMeanExplanation();
+                    break;
+                case 'median':
+                    explanation = generateMedianExplanation(sorted);
+                    break;
+                case 'mode':
+                    explanation = generateModeExplanation(sorted);
+                    break;
+                case 'range':
+                    explanation = generateRangeExplanation(sorted);
+                    break;
+                case 'q1':
+                    explanation = generateQ1Explanation(sorted);
+                    break;
+                case 'q3':
+                    explanation = generateQ3Explanation(sorted);
+                    break;
+                case 'iqr':
+                    explanation = generateIQRExplanation();
+                    break;
+                case 'variance':
+                    explanation = generateVarianceExplanation();
+                    break;
+                case 'sd':
+                    explanation = generateSDExplanation();
+                    break;
+            }
+            
+            container.innerHTML = explanation;
+        }
+
+        function generateMeanExplanation() {
+            const sum = dataset.reduce((s, v) => s + v, 0);
+            const n = dataset.length;
+            
+            return `
+                <div class="explanation-box">
+                    <h3>Mean Calculation</h3>
+                    <div class="formula">Formula: Mean = Σx / n</div>
+                    <p><strong>Step 1:</strong> Add all values together:</p>
+                    <pre>${dataset.join(' + ')} = ${sum}</pre>
+                    <p><strong>Step 2:</strong> Divide by the number of values (n = ${n}):</p>
+                    <pre>Mean = ${sum} / ${n} = ${correctAnswers.mean}</pre>
+                    <p><strong>Answer: ${correctAnswers.mean}</strong></p>
+                </div>
+            `;
+        }
+
+        function generateMedianExplanation(sorted) {
+            const n = sorted.length;
+            const mid = Math.floor(n / 2);
+            
+            let midVisual = sorted.map((v, i) => {
+                if (n % 2 === 0 && (i === mid - 1 || i === mid)) {
+                    return `<strong>${v}</strong>`;
+                } else if (n % 2 === 1 && i === mid) {
+                    return `<strong>${v}</strong>`;
+                }
+                return v;
+            }).join(', ');
+            
+            let calculation = '';
+            if (n % 2 === 0) {
+                calculation = `
+                    <p><strong>Step 2:</strong> Since we have an even number of values (${n}), the median is the average of the two middle values:</p>
+                    <pre>Median = (${sorted[mid-1]} + ${sorted[mid]}) / 2 = ${(sorted[mid-1] + sorted[mid])} / 2 = ${correctAnswers.median}</pre>
+                `;
+            } else {
+                calculation = `
+                    <p><strong>Step 2:</strong> Since we have an odd number of values (${n}), the median is the middle value:</p>
+                    <pre>Median = ${sorted[mid]} (position ${mid + 1})</pre>
+                `;
+            }
+            
+            return `
+                <div class="explanation-box">
+                    <h3>Median Calculation</h3>
+                    <p><strong>Step 1:</strong> Sort the data in order:</p>
+                    <pre>${midVisual}</pre>
+                    ${calculation}
+                    <p><strong>Answer: ${correctAnswers.median}</strong></p>
+                </div>
+            `;
+        }
+
+        function generateModeExplanation(sorted) {
+            const frequency = {};
+            sorted.forEach(val => {
+                frequency[val] = (frequency[val] || 0) + 1;
+            });
+            
+            let freqTable = '<p><strong>Step 2:</strong> Count the frequency of each value:</p><pre>';
+            Object.keys(frequency).sort((a, b) => a - b).forEach(val => {
+                freqTable += `${val}: ${'|'.repeat(frequency[val])} (${frequency[val]})\n`;
+            });
+            freqTable += '</pre>';
+            
+            const maxFreq = Math.max(...Object.values(frequency));
+            let result = '';
+            
+            if (correctAnswers.mode === 'none') {
+                result = '<p><strong>Step 3:</strong> All values appear with the same frequency, so there is no mode.</p>';
+            } else {
+                result = `<p><strong>Step 3:</strong> The value(s) with the highest frequency (${maxFreq}) is/are the mode(s).</p>`;
+            }
+            
+            return `
+                <div class="explanation-box">
+                    <h3>Mode Calculation</h3>
+                    <p><strong>Step 1:</strong> List the values in order:</p>
+                    <pre>${sorted.join(', ')}</pre>
+                    ${freqTable}
+                    ${result}
+                    <p><strong>Answer: ${correctAnswers.mode}</strong></p>
+                </div>
+            `;
+        }
+
+        function generateRangeExplanation(sorted) {
+            const min = sorted[0];
+            const max = sorted[sorted.length - 1];
+            
+            return `
+                <div class="explanation-box">
+                    <h3>Range Calculation</h3>
+                    <div class="formula">Formula: Range = Maximum - Minimum</div>
+                    <p><strong>Step 1:</strong> Identify the minimum and maximum values:</p>
+                    <pre>Minimum = ${min}
+Maximum = ${max}</pre>
+                    <p><strong>Step 2:</strong> Subtract minimum from maximum:</p>
+                    <pre>Range = ${max} - ${min} = ${correctAnswers.range}</pre>
+                    <p><strong>Answer: ${correctAnswers.range}</strong></p>
+                </div>
+            `;
+        }
+
+        function generateQ1Explanation(sorted) {
+            const n = dataset.length;
+            const j = 0.25 * n;
+            
+            let calculation = '';
+            if (Number.isInteger(j)) {
+                calculation = `
+                    <p><strong>Step 2:</strong> Since j = ${j} is an integer, we take the average of X${j} and X${j+1}:</p>
+                    <pre>Q1 = (X${j} + X${j+1}) / 2 = (${sorted[j-1]} + ${sorted[j]}) / 2 = ${correctAnswers.q1}</pre>
+                    <p>Note: X${j} means the ${j}${getOrdinalSuffix(j)} value in the sorted list.</p>
+                `;
+            } else {
+                const pos = Math.ceil(j);
+                calculation = `
+                    <p><strong>Step 2:</strong> Since j = ${j} is not an integer, we round up to ${pos} and take that position:</p>
+                    <pre>Q1 = X${pos} = ${sorted[pos-1]}</pre>
+                    <p>Note: X${pos} means the ${pos}${getOrdinalSuffix(pos)} value in the sorted list.</p>
+                `;
+            }
+            
+            return `
+                <div class="explanation-box">
+                    <h3>First Quartile (Q1) Calculation</h3>
+                    <p>Sorted data: ${sorted.join(', ')}</p>
+                    <p><strong>Step 1:</strong> Calculate j = 0.25 × n:</p>
+                    <pre>j = 0.25 × ${n} = ${j}</pre>
+                    ${calculation}
+                    <p><strong>Answer: ${correctAnswers.q1}</strong></p>
+                </div>
+            `;
+        }
+
+        function generateQ3Explanation(sorted) {
+            const n = dataset.length;
+            const j = 0.75 * n;
+            
+            let calculation = '';
+            if (Number.isInteger(j)) {
+                calculation = `
+                    <p><strong>Step 2:</strong> Since j = ${j} is an integer, we take the average of X${j} and X${j+1}:</p>
+                    <pre>Q3 = (X${j} + X${j+1}) / 2 = (${sorted[j-1]} + ${sorted[j]}) / 2 = ${correctAnswers.q3}</pre>
+                    <p>Note: X${j} means the ${j}${getOrdinalSuffix(j)} value in the sorted list.</p>
+                `;
+            } else {
+                const pos = Math.ceil(j);
+                calculation = `
+                    <p><strong>Step 2:</strong> Since j = ${j} is not an integer, we round up to ${pos} and take that position:</p>
+                    <pre>Q3 = X${pos} = ${sorted[pos-1]}</pre>
+                    <p>Note: X${pos} means the ${pos}${getOrdinalSuffix(pos)} value in the sorted list.</p>
+                `;
+            }
+            
+            return `
+                <div class="explanation-box">
+                    <h3>Third Quartile (Q3) Calculation</h3>
+                    <p>Sorted data: ${sorted.join(', ')}</p>
+                    <p><strong>Step 1:</strong> Calculate j = 0.75 × n:</p>
+                    <pre>j = 0.75 × ${n} = ${j}</pre>
+                    ${calculation}
+                    <p><strong>Answer: ${correctAnswers.q3}</strong></p>
+                </div>
+            `;
+        }
+
+        function generateIQRExplanation() {
+            return `
+                <div class="explanation-box">
+                    <h3>Inter-Quartile Range (IQR) Calculation</h3>
+                    <div class="formula">Formula: IQR = Q3 - Q1</div>
+                    <p>The IQR represents the range of the middle 50% of the data.</p>
+                    <p><strong>Step 1:</strong> Find Q1 and Q3 (see their individual explanations if needed):</p>
+                    <pre>Q1 = ${correctAnswers.q1}
+Q3 = ${correctAnswers.q3}</pre>
+                    <p><strong>Step 2:</strong> Subtract Q1 from Q3:</p>
+                    <pre>IQR = ${correctAnswers.q3} - ${correctAnswers.q1} = ${correctAnswers.iqr}</pre>
+                    <p><strong>Answer: ${correctAnswers.iqr}</strong></p>
+                </div>
+            `;
+        }
+
+        function generateVarianceExplanation() {
+            const mean = correctAnswers.mean;
+            const n = dataset.length;
+            
+            let table = '<table border="1" cellpadding="5" style="border-collapse: collapse; margin: 10px 0;"><tr><th>x</th><th>(x - x̄)</th><th>(x - x̄)²</th></tr>';
+            let sumSquares = 0;
+            
+            dataset.forEach(val => {
+                const diff = val - mean;
+                const diffSquared = Math.pow(diff, 2);
+                sumSquares += diffSquared;
+                table += `<tr><td>${val}</td><td>${diff.toFixed(3)}</td><td>${diffSquared.toFixed(2)}</td></tr>`;
+            });
+            
+            table += '</table>';
+            
+            return `
+                <div class="explanation-box">
+                    <h3>Variance Calculation</h3>
+                    <div class="formula">Formula: s² = Σ(x - x̄)² / (n - 1)</div>
+                    <p>Mean (x̄) = ${mean}</p>
+                    <p><strong>Step 1:</strong> Calculate the squared deviation for each value:</p>
+                    ${table}
+                    <p><strong>Step 2:</strong> Sum the squared deviations:</p>
+                    <pre>Σ(x - x̄)² = ${sumSquares.toFixed(2)}</pre>
+                    <p><strong>Step 3:</strong> Divide by (n - 1) where n = ${n}:</p>
+                    <pre>Variance = ${sumSquares.toFixed(2)} / ${n - 1} = ${correctAnswers.variance}</pre>
+                    <p><strong>Answer: ${correctAnswers.variance}</strong></p>
+                </div>
+            `;
+        }
+
+        function generateSDExplanation() {
+            return `
+                <div class="explanation-box">
+                    <h3>Standard Deviation Calculation</h3>
+                    <div class="formula">Formula: s = √(variance)</div>
+                    <p>The standard deviation is the square root of the variance.</p>
+                    <p><strong>Step 1:</strong> Calculate the variance (see variance explanation if needed):</p>
+                    <pre>Variance = ${correctAnswers.variance}</pre>
+                    <p><strong>Step 2:</strong> Take the square root:</p>
+                    <pre>Standard Deviation = √${correctAnswers.variance} = ${correctAnswers.sd}</pre>
+                    <p><strong>Answer: ${correctAnswers.sd}</strong></p>
+                </div>
+            `;
+        }
+
+        function getOrdinalSuffix(num) {
+            const j = num % 10;
+            const k = num % 100;
+            if (j === 1 && k !== 11) return "st";
+            if (j === 2 && k !== 12) return "nd";
+            if (j === 3 && k !== 13) return "rd";
+            return "th";
+        }
+    </script>
+</body>
+</html>

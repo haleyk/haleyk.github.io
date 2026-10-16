@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tower of Hanoi</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+  }
+  .screen {
+    display: none;
+    min-height: 100%;
+    box-sizing: border-box;
+    padding: 24px 16px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .screen.active { display: flex; }
+  .content { max-width: 640px; width: 100%; }
+  h1 { font-size: 32px; margin: 0 0 20px; }
+  p { line-height: 1.5; margin: 0 0 14px; }
+  .settings { margin: 28px 0; }
+  .row { margin: 14px 0; }
+  label { margin-right: 8px; }
+  select { font-size: 18px; padding: 2px 4px; }
+  button {
+    font-size: 18px;
+    padding: 8px 22px;
+    margin: 6px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    cursor: pointer;
+  }
+  #board {
+    display: flex;
+    width: min(720px, 94vw);
+    border-bottom: 4px solid #000;
+    user-select: none;
+  }
+  .peg {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+  }
+  .holder {
+    height: 48px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 8px;
+  }
+  .stack {
+    position: relative;
+    flex: none;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+  }
+  .stack::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 6px;
+    height: 100%;
+    margin-left: -3px;
+    background: #000;
+  }
+  .disk {
+    position: relative;
+    height: 28px;
+    margin-top: 4px;
+    background: #888;
+    border: 1px solid #000;
+    box-sizing: border-box;
+  }
+  table { margin: 20px auto; border-collapse: collapse; }
+  td { padding: 6px 16px; }
+  td:first-child { text-align: right; }
+  td:last-child { text-align: left; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div id="start" class="screen active">
+  <div class="content">
+    <h1>Tower of Hanoi</h1>
+    <p>A stack of disks will appear on the left peg.</p>
+    <p>Move the whole stack to the <b>right</b> peg.</p>
+    <p>Click a peg to pick up its top disk, then click another peg to place it there.
+       Click the same peg again to put the disk back down.</p>
+    <p>Only one disk can be moved at a time, and a disk can never be placed on top of a smaller disk.</p>
+    <p>Try to finish in as few moves as possible.</p>
+
+    <div class="settings">
+      <div class="row">
+        <label for="nDisks">Number of disks:</label>
+        <select id="nDisks">
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="startBtn">Begin</button>
+  </div>
+</div>
+
+<div id="task" class="screen">
+  <div id="board"></div>
+</div>
+
+<div id="results" class="screen">
+  <div class="content">
+    <h1>Results</h1>
+    <table id="resTable"></table>
+    <button id="againBtn">Run again</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var DISK_H = 32;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var boardEl = $('board');
+
+  function show(id) {
+    ['start', 'task', 'results'].forEach(function (s) {
+      $(s).classList.toggle('active', s === id);
+    });
+  }
+
+  var nDisks, pegs, held, startTime, lastTime, firstPickup, moves, illegal, done;
+
+  $('startBtn').addEventListener('click', function () {
+    nDisks = parseInt($('nDisks').value, 10);
+    pegs = [[], [], []];
+    for (var s = nDisks; s >= 1; s--) pegs[0].push(s);   // bottom to top
+    held = null;          // index of peg whose top disk is picked up
+    moves = 0;
+    illegal = 0;
+    done = false;
+    firstPickup = null;
+    this.blur();
+    buildBoard();
+    render();
+    show('task');
+    startTime = lastTime = performance.now();
+  });
+
+  function buildBoard() {
+    boardEl.innerHTML = '';
+    for (var p = 0; p < 3; p++) {
+      var peg = document.createElement('div');
+      peg.className = 'peg';
+      peg.innerHTML = '<div class="holder"></div><div class="stack"></div>';
+      peg.querySelector('.stack').style.height = ((nDisks + 2) * DISK_H) + 'px';
+      (function (idx) { peg.addEventListener('click', function () { clickPeg(idx); }); })(p);
+      boardEl.appendChild(peg);
+    }
+  }
+
+  function diskEl(size) {
+    var d = document.createElement('div');
+    d.className = 'disk';
+    d.style.width = (22 + 70 * size / nDisks) + '%';
+    return d;
+  }
+
+  function render() {
+    var pegEls = boardEl.querySelectorAll('.peg');
+    for (var p = 0; p < 3; p++) {
+      var holder = pegEls[p].querySelector('.holder');
+      var stack = pegEls[p].querySelector('.stack');
+      holder.innerHTML = '';
+      stack.innerHTML = '';
+      var disks = pegs[p];
+      for (var i = 0; i < disks.length; i++) {
+        var isHeld = held === p && i === disks.length - 1;
+        var el = diskEl(disks[i]);
+        (isHeld ? holder : stack).appendChild(el);
+      }
+    }
+  }
+
+  function clickPeg(p) {
+    if (done) return;
+    var now = performance.now();
+    if (held === null) {
+      if (!pegs[p].length) return;
+      held = p;
+      if (firstPickup === null) firstPickup = now - startTime;
+      render();
+      return;
+    }
+    if (p === held) { held = null; render(); return; }
+
+    var disk = pegs[held][pegs[held].length - 1];
+    var target = pegs[p];
+    var legal = !target.length || target[target.length - 1] > disk;
+    lastTime = now;
+    if (legal) {
+      target.push(pegs[held].pop());
+      moves++;
+    } else {
+      illegal++;
+    }
+    held = null;
+    render();
+
+    if (pegs[2].length === nDisks) {
+      done = true;
+      setTimeout(showResults, 600);
+    }
+  }
+
+  function fmtTime(ms) { return (ms / 1000).toFixed(1) + ' s'; }
+
+  function showResults() {
+    var minMoves = Math.pow(2, nDisks) - 1;
+    var rows = [
+      ['Disks', nDisks],
+      ['Minimum possible moves', minMoves],
+      ['Moves made', moves],
+      ['Extra moves', moves - minMoves],
+      ['Moves not allowed', illegal],
+      ['Time before first move', fmtTime(firstPickup)],
+      ['Total time', fmtTime(lastTime - startTime)],
+      ['Mean time per move', fmtTime((lastTime - startTime) / Math.max(moves, 1))]
+    ];
+    $('resTable').innerHTML = rows.map(function (r) {
+      return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>';
+    }).join('');
+    show('results');
+  }
+
+  $('againBtn').addEventListener('click', function () { this.blur(); show('start'); });
+})();
+</script>
+</body>
+</html>

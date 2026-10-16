@@ -1,0 +1,3296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics Calculator - Grading Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .tool-heading {
+            margin-top: 0;
+        }
+        .input-section {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px 0;
+            font-weight: bold;
+        }
+        select, input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            max-width: 400px;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            font-family: monospace;
+            height: 100px;
+        }
+        button {
+            background-color: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px 5px 5px 0;
+        }
+        button:hover {
+            background-color: #229954;
+        }
+        .results-section {
+            display: none;
+            margin-top: 30px;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: white;
+            width: 100%;
+            overflow-x: auto;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .step {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #2980b9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .close-card-btn {
+            background: none;
+            border: none;
+            color: #2980b9;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0 4px;
+            margin: 0;
+        }
+        .close-card-btn:hover {
+            background: none;
+            color: #1f618d;
+        }
+        .result-box {
+            background-color: #e8f8f5;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 5px solid #27ae60;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .data-input-help {
+            background-color: #fef9e7;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        .error {
+            color: #e74c3c;
+            background-color: #fadbd8;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .edit-toolbar, .pearson-toolbar {
+            background-color: #fef9e7;
+            border: 1px solid #f1c40f;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+        .edit-toolbar .legend, .pearson-toolbar .legend {
+            margin-top: 6px;
+        }
+        .legend-item {
+            display: inline-block;
+            margin-right: 18px;
+        }
+        .legend-swatch {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+        .reset-btn {
+            background-color: #7f8c8d;
+        }
+        .reset-btn:hover {
+            background-color: #616a6b;
+        }
+        .editable-num {
+            border-bottom: 1px dashed #95a5a6;
+            padding: 0 2px;
+            cursor: text;
+            border-radius: 2px;
+        }
+        .editable-num:hover {
+            background-color: #eaf2f8;
+        }
+        .editable-num:focus {
+            outline: none;
+            background-color: #d6eaf8;
+        }
+        .editable-num.overridden {
+            color: #c0392b;
+            font-weight: bold;
+            border-bottom: 1px dashed #c0392b;
+            background-color: #fdedec;
+        }
+        .editable-num.affected {
+            color: #d35400;
+            font-weight: bold;
+            border-bottom: 1px dashed #d35400;
+            background-color: #fdf2e9;
+        }
+        .result-box .editable-num.overridden,
+        .result-box .editable-num.affected {
+            background-color: transparent;
+        }
+
+        /* --- Chi-Square specific --- */
+        .goodness-setup, .contingency-setup {
+            display: none;
+        }
+        .contingency-inputs {
+            display: inline-block;
+            margin-right: 20px;
+            margin-bottom: 20px;
+        }
+        .data-grid {
+            display: grid;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        input[type="number"].data-cell {
+            width: 60px;
+            max-width: 60px;
+            margin: 2px;
+        }
+
+        /* --- t-Test specific --- */
+        .test-setup {
+            display: none;
+        }
+        .critical-values-table {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        .critical-values-table table {
+            font-size: 13px;
+        }
+        .critical-values-table th {
+            background-color: #34495e;
+            font-size: 12px;
+            padding: 6px 4px;
+        }
+        .critical-values-table td {
+            padding: 4px 6px;
+            font-size: 12px;
+        }
+
+        /* --- Descriptive statistics specific --- */
+        .stat-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0 5px 0;
+        }
+        .stat-btn {
+            background-color: #3498db;
+        }
+        .stat-btn:hover {
+            background-color: #2980b9;
+        }
+        .stat-btn.active {
+            background-color: #1f618d;
+        }
+
+        /* --- Top-level problem-type selector --- */
+        .problem-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0 10px 0;
+        }
+        .problem-btn {
+            background-color: #8e44ad;
+            font-size: 16px;
+            padding: 12px 22px;
+        }
+        .problem-btn:hover {
+            background-color: #76359c;
+        }
+        .problem-btn.active {
+            background-color: #5b2c6f;
+        }
+        .problem-section {
+            display: none;
+            margin-top: 10px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+        }
+        .problem-section.active {
+            display: block;
+        }
+        .problem-placeholder {
+            color: #7f8c8d;
+            font-style: italic;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Statistics Calculator - Grading Tool</h1>
+
+        <div class="problem-selector">
+            <button class="problem-btn" id="problem-btn-corr" onclick="showProblem('corr')">Correlation</button>
+            <button class="problem-btn" id="problem-btn-chisq" onclick="showProblem('chisq')">Chi-Square</button>
+            <button class="problem-btn" id="problem-btn-ttest" onclick="showProblem('ttest')">t-Test</button>
+            <button class="problem-btn" id="problem-btn-desc" onclick="showProblem('desc')">Descriptive Statistics</button>
+        </div>
+        <p class="problem-placeholder" id="problem-placeholder">Select a problem type above to begin.</p>
+
+        <div id="section-corr" class="problem-section">
+        <h2 class="tool-heading">Correlation Calculator (Pearson / Spearman)</h2>
+        
+        <div class="input-section">
+            <label for="corr-corrType">Correlation Type:</label>
+            <select id="corr-corrType">
+                <option value="pearson">Pearson Correlation</option>
+                <option value="spearman">Spearman Rank Correlation</option>
+            </select>
+            
+            <label for="corr-xData">X values (space or comma separated):</label>
+            <textarea id="corr-xData" rows="2" placeholder="e.g., 10 20 30 40 50"></textarea>
+            
+            <label for="corr-yData">Y values (space or comma separated):</label>
+            <textarea id="corr-yData" rows="2" placeholder="e.g., 15 25 35 45 55"></textarea>
+            
+            <button onclick="corr_calculate()">Calculate</button>
+            <button onclick="corr_clearAll()">Clear</button>
+            
+            <div class="data-input-help">
+                <strong>Input format:</strong> Enter values separated by spaces or commas. X and Y must have the same number of values.
+            </div>
+        </div>
+        
+        <div id="corr-resultsSection" class="results-section">
+            <div id="corr-errorMessage"></div>
+            <div id="corr-output"></div>
+        </div>        </div>
+
+        <div id="section-chisq" class="problem-section">
+        <h2 class="tool-heading">Chi-Square Calculator</h2>
+        
+        <div class="input-section">
+            <label for="chisq-testType">Test Type:</label>
+            <select id="chisq-testType" onchange="chisq_updateSetup()">
+                <option value="goodness">Goodness of Fit</option>
+                <option value="contingency">Contingency Table (Independence)</option>
+            </select>
+            
+            <!-- Goodness of Fit Setup -->
+            <div class="goodness-setup" id="chisq-goodnessSetup">
+                <label for="chisq-numCategories">Number of Categories:</label>
+                <input type="number" id="chisq-numCategories" min="2" max="20" value="4">
+                
+                <label for="chisq-probabilities">Expected Probabilities (space or comma separated):</label>
+                <textarea id="chisq-probabilities" placeholder="e.g., 0.25 0.25 0.25 0.25"></textarea>
+                
+                <label for="chisq-observed">Observed Frequencies (space or comma separated):</label>
+                <textarea id="chisq-observed" placeholder="e.g., 20 18 22 25"></textarea>
+                
+                <div class="data-input-help">
+                    <strong>Format:</strong> Enter probabilities that sum to 1, and observed frequencies. Both should have the same number of values.
+                </div>
+            </div>
+            
+            <!-- Contingency Table Setup -->
+            <div class="contingency-setup" id="chisq-contingencySetup">
+                <div class="contingency-inputs">
+                    <label for="chisq-numRows">Number of Rows:</label>
+                    <input type="number" id="chisq-numRows" min="2" max="10" value="2" onchange="chisq_updateContingencyGrid()">
+                </div>
+                
+                <div class="contingency-inputs">
+                    <label for="chisq-numCols">Number of Columns:</label>
+                    <input type="number" id="chisq-numCols" min="2" max="10" value="2" onchange="chisq_updateContingencyGrid()">
+                </div>
+                
+                <div id="chisq-contingencyGridContainer" style="margin: 20px 0;"></div>
+                
+                <div class="data-input-help">
+                    <strong>Format:</strong> Enter observed frequencies in the grid below.
+                </div>
+            </div>
+            
+            <button onclick="chisq_calculate()" style="margin-top: 20px;">Calculate</button>
+            <button onclick="chisq_clearAll()">Clear</button>
+        </div>
+        
+        <div id="chisq-resultsSection" class="results-section">
+            <div id="chisq-errorMessage"></div>
+            <div id="chisq-output"></div>
+        </div>        </div>
+
+        <div id="section-ttest" class="problem-section">
+        <h2 class="tool-heading">t-Test Calculator</h2>
+        
+        <div class="input-section">
+            <label for="ttest-testType">Test Type:</label>
+            <select id="ttest-testType" onchange="ttest_updateSetup()">
+                <option value="oneSample">One Sample t-Test</option>
+                <option value="twoIndependent">Two Independent Samples t-Test</option>
+                <option value="twoPaired">Paired Samples t-Test</option>
+            </select>
+            
+            <!-- One Sample Setup -->
+            <div class="test-setup" id="ttest-oneSampleSetup">
+                <label for="ttest-populationMean">Population Mean (μ₀):</label>
+                <input type="number" id="ttest-populationMean" value="100" step="0.1">
+                
+                <label for="ttest-oneSampleData">Sample Data (space or comma separated):</label>
+                <textarea id="ttest-oneSampleData" placeholder="e.g., 98 102 101 99 103"></textarea>
+                
+                <div class="data-input-help">
+                    <strong>Format:</strong> Enter individual sample values separated by spaces or commas.
+                </div>
+            </div>
+            
+            <!-- Two Independent Samples Setup -->
+            <div class="test-setup" id="ttest-twoIndependentSetup">
+                <label for="ttest-sample1Data">Sample 1 Data (space or comma separated):</label>
+                <textarea id="ttest-sample1Data" placeholder="e.g., 95 98 102 101 100"></textarea>
+                
+                <label for="ttest-sample2Data">Sample 2 Data (space or comma separated):</label>
+                <textarea id="ttest-sample2Data" placeholder="e.g., 102 105 103 106 104"></textarea>
+                
+                <div class="data-input-help">
+                    <strong>Format:</strong> Enter individual values for each sample separated by spaces or commas.
+                </div>
+            </div>
+            
+            <!-- Paired Samples Setup -->
+            <div class="test-setup" id="ttest-twopairedSetup">
+                <label for="ttest-pairedBefore">Before/Measurement 1 (space or comma separated):</label>
+                <textarea id="ttest-pairedBefore" placeholder="e.g., 100 102 98 101 99"></textarea>
+                
+                <label for="ttest-pairedAfter">After/Measurement 2 (space or comma separated):</label>
+                <textarea id="ttest-pairedAfter" placeholder="e.g., 105 107 103 106 104"></textarea>
+                
+                <div class="data-input-help">
+                    <strong>Format:</strong> Must have same number of values. Each pair at same position.
+                </div>
+            </div>
+            
+            <button onclick="ttest_calculate()" style="margin-top: 20px;">Calculate</button>
+            <button onclick="ttest_clearAll()">Clear</button>
+        </div>
+        
+        <div id="ttest-resultsSection" class="results-section">
+            <div id="ttest-errorMessage"></div>
+            <div id="ttest-output"></div>
+        </div>        </div>
+
+        <div id="section-desc" class="problem-section">
+        <h2 class="tool-heading">Descriptive Statistics Calculator</h2>
+
+        <div class="input-section">
+            <label for="desc-datasetInput">Dataset (space or comma separated):</label>
+            <textarea id="desc-datasetInput" placeholder="e.g. 4 5.5 7 8 9.5"></textarea>
+
+            <div class="data-input-help">
+                <strong>Format:</strong> Enter numeric values separated by spaces or commas (at least 2 values).
+            </div>
+
+            <button onclick="desc_calculate()" style="margin-top: 10px;">Calculate</button>
+            <button onclick="desc_clearAll()">Clear</button>
+        </div>
+
+        <div id="desc-resultsSection" class="results-section">
+            <div id="desc-errorMessage"></div>
+            <div id="desc-output"></div>
+        </div>        </div>
+
+    </div>
+
+    <script>
+
+        const PROBLEM_TYPES = ['corr', 'chisq', 'ttest', 'desc'];
+
+        function showProblem(type) {
+            PROBLEM_TYPES.forEach(t => {
+                const section = document.getElementById('section-' + t);
+                const btn = document.getElementById('problem-btn-' + t);
+                const isActive = (t === type);
+                if (section) section.classList.toggle('active', isActive);
+                if (btn) btn.classList.toggle('active', isActive);
+            });
+            const placeholder = document.getElementById('problem-placeholder');
+            if (placeholder) placeholder.style.display = 'none';
+        }
+
+(function() {
+
+        const pearsonCriticalTable = {
+            3: {0.10: 0.988, 0.05: 0.997, 0.01: 0.9999, df: 1},
+            4: {0.10: 0.900, 0.05: 0.950, 0.01: 0.990, df: 2},
+            5: {0.10: 0.805, 0.05: 0.878, 0.01: 0.959, df: 3},
+            6: {0.10: 0.729, 0.05: 0.811, 0.01: 0.917, df: 4},
+            7: {0.10: 0.669, 0.05: 0.754, 0.01: 0.875, df: 5},
+            8: {0.10: 0.620, 0.05: 0.707, 0.01: 0.834, df: 6},
+            9: {0.10: 0.581, 0.05: 0.666, 0.01: 0.798, df: 7},
+            10: {0.10: 0.549, 0.05: 0.632, 0.01: 0.765, df: 8},
+            15: {0.10: 0.441, 0.05: 0.514, 0.01: 0.641, df: 13},
+            20: {0.10: 0.378, 0.05: 0.444, 0.01: 0.561, df: 18},
+            30: {0.10: 0.296, 0.05: 0.349, 0.01: 0.449, df: 28}
+        };
+
+        function parseData(input) {
+            return input.trim().split(/[\s,]+/).map(x => parseFloat(x)).filter(x => !isNaN(x));
+        }
+
+        function corr_calculate() {
+            const corrType = document.getElementById('corr-corrType').value;
+            const xInput = document.getElementById('corr-xData').value;
+            const yInput = document.getElementById('corr-yData').value;
+            
+            const xData = parseData(xInput);
+            const yData = parseData(yInput);
+            
+            const errorDiv = document.getElementById('corr-errorMessage');
+            const outputDiv = document.getElementById('corr-output');
+            
+            // Validation
+            if (xData.length === 0 || yData.length === 0) {
+                errorDiv.innerHTML = '<div class="error">Error: Please enter data for both X and Y</div>';
+                document.getElementById('corr-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            if (xData.length !== yData.length) {
+                errorDiv.innerHTML = '<div class="error">Error: X and Y must have the same number of values</div>';
+                document.getElementById('corr-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            if (xData.length < 3) {
+                errorDiv.innerHTML = '<div class="error">Error: Need at least 3 data points</div>';
+                document.getElementById('corr-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            errorDiv.innerHTML = '';
+            
+            if (corrType === 'pearson') {
+                calculatePearson(xData, yData, outputDiv);
+            } else {
+                calculateSpearman(xData, yData, outputDiv);
+            }
+            
+            document.getElementById('corr-resultsSection').style.display = 'block';
+        }
+
+        // ---- Interactive Pearson state ----
+        // pearsonState holds the original (TA-entered, "correct") data plus a
+        // map of manual overrides representing a student's mistake at some
+        // step. Every value downstream of an override is recalculated using
+        // the SAME formulas as before -- nothing about the math changes,
+        // only where the numbers going into those formulas come from.
+        let pearsonState = null;
+        let pearsonEditingWired = false;
+
+        // Computes every intermediate quantity of the Pearson calculation.
+        // For each quantity, if the user has manually overridden it (stored
+        // in `overrides`, keyed by name), that manual value is used as-is;
+        // otherwise it is computed from the (possibly already-overridden)
+        // values that feed into it. This naturally cascades: overriding an
+        // early value changes everything computed after it, while anything
+        // before it in the chain is left untouched.
+        function computePearsonSteps(xOrig, yOrig, n, overrides) {
+            const ov = (key, fallback) => overrides.has(key) ? overrides.get(key) : fallback;
+
+            const xVal = xOrig.map((v, i) => ov(`X_${i}`, v));
+            const yVal = yOrig.map((v, i) => ov(`Y_${i}`, v));
+
+            const meanX = ov('meanX', xVal.reduce((a, b) => a + b, 0) / n);
+            const meanY = ov('meanY', yVal.reduce((a, b) => a + b, 0) / n);
+
+            const devX = xVal.map((v, i) => ov(`devX_${i}`, v - meanX));
+            const devY = yVal.map((v, i) => ov(`devY_${i}`, v - meanY));
+
+            const sqX = devX.map((v, i) => ov(`sqX_${i}`, v * v));
+            const sqY = devY.map((v, i) => ov(`sqY_${i}`, v * v));
+            const prod = devX.map((v, i) => ov(`prod_${i}`, v * devY[i]));
+
+            const sumXY = ov('sumXY', prod.reduce((a, b) => a + b, 0));
+            const sumX2 = ov('sumX2', sqX.reduce((a, b) => a + b, 0));
+            const sumY2 = ov('sumY2', sqY.reduce((a, b) => a + b, 0));
+
+            const r = ov('r', sumXY / Math.sqrt(sumX2 * sumY2));
+            const tStat = ov('tStat', r * Math.sqrt(n - 2) / Math.sqrt(1 - r * r));
+
+            return { xVal, yVal, meanX, meanY, devX, devY, sqX, sqY, prod, sumXY, sumX2, sumY2, r, tStat };
+        }
+
+        function calculatePearson(xData, yData, outputDiv) {
+            const n = xData.length;
+            const overrides = new Map();
+            const pristine = computePearsonSteps(xData, yData, n, overrides);
+
+            pearsonState = {
+                xOrig: xData.slice(),
+                yOrig: yData.slice(),
+                n,
+                overrides,
+                pristine,
+                current: pristine
+            };
+
+            renderPearson(outputDiv);
+            setupPearsonEditing(outputDiv);
+        }
+
+        function corr_resetPearsonEdits() {
+            if (!pearsonState) return;
+            pearsonState.overrides.clear();
+            pearsonState.current = computePearsonSteps(pearsonState.xOrig, pearsonState.yOrig, pearsonState.n, pearsonState.overrides);
+            renderPearson(document.getElementById('corr-output'));
+        }
+
+        // Builds one editable number span. Color reflects the cell's status:
+        // red = manually overridden here, orange = unchanged formula but the
+        // result shifted because of an override earlier in the chain.
+        function pearsonCell(key, value, decimals) {
+            const isOverridden = pearsonState.overrides.has(key);
+            const pristineVal = pearsonState.pristine._flat ? pearsonState.pristine._flat.get(key) : undefined;
+            let cls = 'editable-num';
+            if (isOverridden) {
+                cls += ' overridden';
+            } else if (pristineVal !== undefined && Math.abs(value - pristineVal) > 1e-9) {
+                cls += ' affected';
+            }
+            return `<span class="${cls}" data-key="${key}" contenteditable="true" spellcheck="false">${value.toFixed(decimals)}</span>`;
+        }
+
+        function flattenPearsonSteps(steps, n) {
+            const flat = new Map();
+            for (let i = 0; i < n; i++) {
+                flat.set(`X_${i}`, steps.xVal[i]);
+                flat.set(`Y_${i}`, steps.yVal[i]);
+                flat.set(`devX_${i}`, steps.devX[i]);
+                flat.set(`devY_${i}`, steps.devY[i]);
+                flat.set(`sqX_${i}`, steps.sqX[i]);
+                flat.set(`sqY_${i}`, steps.sqY[i]);
+                flat.set(`prod_${i}`, steps.prod[i]);
+            }
+            flat.set('meanX', steps.meanX);
+            flat.set('meanY', steps.meanY);
+            flat.set('sumXY', steps.sumXY);
+            flat.set('sumX2', steps.sumX2);
+            flat.set('sumY2', steps.sumY2);
+            flat.set('r', steps.r);
+            flat.set('tStat', steps.tStat);
+            return flat;
+        }
+
+        function renderPearson(outputDiv) {
+            const s = pearsonState.current;
+            const n = pearsonState.n;
+            if (!pearsonState.pristine._flat) {
+                pearsonState.pristine._flat = flattenPearsonSteps(pearsonState.pristine, n);
+            }
+
+            const html = `
+                <h2>Pearson Correlation - Step by Step</h2>
+
+                <div class="pearson-toolbar">
+                    Click any number below to type over it (e.g. to enter a student's mistake). Everything calculated from that number will update automatically.
+                    <div class="legend">
+                        <span class="legend-item"><span class="legend-swatch" style="background:#c0392b;"></span>value you edited</span>
+                        <span class="legend-item"><span class="legend-swatch" style="background:#d35400;"></span>recalculated because of an edit</span>
+                    </div>
+                    <button class="reset-btn" onclick="corr_resetPearsonEdits()" type="button">Reset Edits</button>
+                </div>
+
+                <div class="step">
+                    <h3>Step 1: Calculate Sample Means</h3>
+                    <p>n = ${n}</p>
+                    <p>x̄ = (${s.xVal.map(v => v.toFixed(1)).join(' + ')}) / ${n}</p>
+                    <p><strong>x̄ = ${pearsonCell('meanX', s.meanX, 3)}</strong></p>
+                    <p>ȳ = (${s.yVal.map(v => v.toFixed(1)).join(' + ')}) / ${n}</p>
+                    <p><strong>ȳ = ${pearsonCell('meanY', s.meanY, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 2: Calculate Deviations</h3>
+                    <table>
+                        <tr>
+                            <th>i</th>
+                            ${Array.from({length: n}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>X</th>
+                            ${s.xVal.map((v, i) => `<td>${pearsonCell(`X_${i}`, v, 1)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Y</th>
+                            ${s.yVal.map((v, i) => `<td>${pearsonCell(`Y_${i}`, v, 1)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>X - x̄</th>
+                            ${s.devX.map((v, i) => `<td>${pearsonCell(`devX_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Y - ȳ</th>
+                            ${s.devY.map((v, i) => `<td>${pearsonCell(`devY_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>(X - x̄)(Y - ȳ)</th>
+                            ${s.prod.map((v, i) => `<td>${pearsonCell(`prod_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>(X - x̄)²</th>
+                            ${s.sqX.map((v, i) => `<td>${pearsonCell(`sqX_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>(Y - ȳ)²</th>
+                            ${s.sqY.map((v, i) => `<td>${pearsonCell(`sqY_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 3: Calculate Sums</h3>
+                    <p>Σ(X - x̄)(Y - ȳ) = ${s.prod.map(v => v.toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ(X - x̄)(Y - ȳ) = ${pearsonCell('sumXY', s.sumXY, 3)}</strong></p>
+                    <br>
+                    <p>Σ(X - x̄)² = ${s.sqX.map(v => v.toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ(X - x̄)² = ${pearsonCell('sumX2', s.sumX2, 3)}</strong></p>
+                    <br>
+                    <p>Σ(Y - ȳ)² = ${s.sqY.map(v => v.toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ(Y - ȳ)² = ${pearsonCell('sumY2', s.sumY2, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 4: Calculate Pearson Correlation Coefficient</h3>
+                    <p>r = Σ(X - x̄)(Y - ȳ) / √[Σ(X - x̄)² × Σ(Y - ȳ)²]</p>
+                    <p>r = ${s.sumXY.toFixed(3)} / √[${s.sumX2.toFixed(3)} × ${s.sumY2.toFixed(3)}]</p>
+                    <p>r = ${s.sumXY.toFixed(3)} / √(${(s.sumX2 * s.sumY2).toFixed(3)})</p>
+                    <p>r = ${s.sumXY.toFixed(3)} / ${Math.sqrt(s.sumX2 * s.sumY2).toFixed(3)}</p>
+                    <div class="result-box">r = ${pearsonCell('r', s.r, 3)}</div>
+                </div>
+
+                <div class="step">
+                    <h3>Step 5: Calculate t-Statistic</h3>
+                    <p>df = n - 2 = ${n} - 2 = ${n - 2}</p>
+                    <p>t = r × √(n - 2) / √(1 - r²)</p>
+                    <p>t = ${s.r.toFixed(3)} × √${n - 2} / √(1 - ${s.r.toFixed(3)}²)</p>
+                    <p>t = ${s.r.toFixed(3)} × ${Math.sqrt(n - 2).toFixed(3)} / √(${(1 - s.r * s.r).toFixed(3)})</p>
+                    <p>t = ${(s.r * Math.sqrt(n - 2)).toFixed(3)} / ${Math.sqrt(1 - s.r * s.r).toFixed(3)}</p>
+                    <div class="result-box">t = ${pearsonCell('tStat', s.tStat, 3)}</div>
+                </div>
+            `;
+
+            outputDiv.innerHTML = html;
+        }
+
+        function pearsonRecalcAndRender() {
+            pearsonState.current = computePearsonSteps(pearsonState.xOrig, pearsonState.yOrig, pearsonState.n, pearsonState.overrides);
+            renderPearson(document.getElementById('corr-output'));
+        }
+
+        // Wires up editing exactly once. Because renderPearson() replaces
+        // the inner HTML of #output on every recalculation, listeners are
+        // attached to #output itself (event delegation) so they keep
+        // working across re-renders instead of needing to be re-attached.
+        function setupPearsonEditing(outputDiv) {
+            if (pearsonEditingWired) return;
+            pearsonEditingWired = true;
+
+            outputDiv.addEventListener('focusin', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                e.target.dataset.beforeEdit = e.target.textContent;
+                // Select all text so typing immediately replaces the value
+                const range = document.createRange();
+                range.selectNodeContents(e.target);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+
+            outputDiv.addEventListener('keydown', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.target.blur();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.target.textContent = e.target.dataset.beforeEdit;
+                    e.target.blur();
+                }
+            });
+
+            outputDiv.addEventListener('paste', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                document.execCommand('insertText', false, text);
+            });
+
+            outputDiv.addEventListener('focusout', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                const key = e.target.dataset.key;
+                const before = e.target.dataset.beforeEdit;
+                const rawText = e.target.textContent.trim();
+
+                if (rawText === before) {
+                    // Nothing changed, just re-render to restore clean formatting
+                    pearsonRecalcAndRender();
+                    return;
+                }
+
+                const parsed = parseFloat(rawText.replace(/[^\d.\-eE]/g, ''));
+                if (isNaN(parsed)) {
+                    // Invalid entry - revert
+                    pearsonRecalcAndRender();
+                    return;
+                }
+
+                pearsonState.overrides.set(key, parsed);
+                pearsonRecalcAndRender();
+            });
+
+            // Double-click an edited (red or orange) value to clear just that override
+            outputDiv.addEventListener('dblclick', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                const key = e.target.dataset.key;
+                if (pearsonState.overrides.has(key)) {
+                    pearsonState.overrides.delete(key);
+                    pearsonRecalcAndRender();
+                }
+            });
+        }
+
+        // ---- Interactive Spearman state (mirrors the Pearson approach) ----
+        let spearmanState = null;
+        let spearmanEditingWired = false;
+
+        function formatRank(v) {
+            return Number.isInteger(v) ? String(v) : v.toFixed(1);
+        }
+
+        // Same idea as computePearsonSteps: every quantity uses its manual
+        // override if one exists, otherwise it's computed from the (possibly
+        // already-overridden) values feeding into it, so an edit at the
+        // ranking stage cascades all the way through to r_s.
+        function computeSpearmanSteps(xData, yData, n, baseRankX, baseRankY, overrides) {
+            const ov = (key, fallback) => overrides.has(key) ? overrides.get(key) : fallback;
+
+            const rankX = baseRankX.map((v, i) => ov(`rankX_${i}`, v));
+            const rankY = baseRankY.map((v, i) => ov(`rankY_${i}`, v));
+
+            const meanRX = ov('meanRX', rankX.reduce((a, b) => a + b, 0) / n);
+            const meanRY = ov('meanRY', rankY.reduce((a, b) => a + b, 0) / n);
+
+            const devRX = rankX.map((v, i) => ov(`devRX_${i}`, v - meanRX));
+            const devRY = rankY.map((v, i) => ov(`devRY_${i}`, v - meanRY));
+
+            const sqRX = devRX.map((v, i) => ov(`sqRX_${i}`, v * v));
+            const sqRY = devRY.map((v, i) => ov(`sqRY_${i}`, v * v));
+            const prodR = devRX.map((v, i) => ov(`prodR_${i}`, v * devRY[i]));
+
+            const sumXY = ov('sumXY', prodR.reduce((a, b) => a + b, 0));
+            const sumX2 = ov('sumX2', sqRX.reduce((a, b) => a + b, 0));
+            const sumY2 = ov('sumY2', sqRY.reduce((a, b) => a + b, 0));
+
+            const rs = ov('rs', sumXY / Math.sqrt(sumX2 * sumY2));
+
+            return { rankX, rankY, meanRX, meanRY, devRX, devRY, sqRX, sqRY, prodR, sumXY, sumX2, sumY2, rs };
+        }
+
+        function calculateSpearman(xData, yData, outputDiv) {
+            const n = xData.length;
+            const baseRankX = getRanks(xData);
+            const baseRankY = getRanks(yData);
+            const overrides = new Map();
+            const pristine = computeSpearmanSteps(xData, yData, n, baseRankX, baseRankY, overrides);
+
+            spearmanState = {
+                xData: xData.slice(),
+                yData: yData.slice(),
+                n,
+                baseRankX,
+                baseRankY,
+                overrides,
+                pristine,
+                current: pristine
+            };
+
+            renderSpearman(outputDiv);
+            setupSpearmanEditing(outputDiv);
+        }
+
+        function corr_resetSpearmanEdits() {
+            if (!spearmanState) return;
+            spearmanState.overrides.clear();
+            spearmanState.current = computeSpearmanSteps(spearmanState.xData, spearmanState.yData, spearmanState.n, spearmanState.baseRankX, spearmanState.baseRankY, spearmanState.overrides);
+            renderSpearman(document.getElementById('corr-output'));
+        }
+
+        function flattenSpearmanSteps(steps, n) {
+            const flat = new Map();
+            for (let i = 0; i < n; i++) {
+                flat.set(`rankX_${i}`, steps.rankX[i]);
+                flat.set(`rankY_${i}`, steps.rankY[i]);
+                flat.set(`devRX_${i}`, steps.devRX[i]);
+                flat.set(`devRY_${i}`, steps.devRY[i]);
+                flat.set(`sqRX_${i}`, steps.sqRX[i]);
+                flat.set(`sqRY_${i}`, steps.sqRY[i]);
+                flat.set(`prodR_${i}`, steps.prodR[i]);
+            }
+            flat.set('meanRX', steps.meanRX);
+            flat.set('meanRY', steps.meanRY);
+            flat.set('sumXY', steps.sumXY);
+            flat.set('sumX2', steps.sumX2);
+            flat.set('sumY2', steps.sumY2);
+            flat.set('rs', steps.rs);
+            return flat;
+        }
+
+        // decimals === null means "format like a rank" (integer or .5)
+        function spearmanCell(key, value, decimals) {
+            const isOverridden = spearmanState.overrides.has(key);
+            const pristineVal = spearmanState.pristine._flat ? spearmanState.pristine._flat.get(key) : undefined;
+            let cls = 'editable-num';
+            if (isOverridden) {
+                cls += ' overridden';
+            } else if (pristineVal !== undefined && Math.abs(value - pristineVal) > 1e-9) {
+                cls += ' affected';
+            }
+            const text = decimals === null ? formatRank(value) : value.toFixed(decimals);
+            return `<span class="${cls}" data-key="${key}" data-rank="${decimals === null ? '1' : '0'}" contenteditable="true" spellcheck="false">${text}</span>`;
+        }
+
+        function renderSpearman(outputDiv) {
+            const s = spearmanState.current;
+            const n = spearmanState.n;
+            if (!spearmanState.pristine._flat) {
+                spearmanState.pristine._flat = flattenSpearmanSteps(spearmanState.pristine, n);
+            }
+
+            const html = `
+                <h2>Spearman Rank Correlation - Step by Step</h2>
+
+                <div class="pearson-toolbar">
+                    Click any number below to type over it (e.g. to enter a student's mistake). Everything calculated from that number will update automatically.
+                    <div class="legend">
+                        <span class="legend-item"><span class="legend-swatch" style="background:#c0392b;"></span>value you edited</span>
+                        <span class="legend-item"><span class="legend-swatch" style="background:#d35400;"></span>recalculated because of an edit</span>
+                    </div>
+                    <button class="reset-btn" onclick="corr_resetSpearmanEdits()" type="button">Reset Edits</button>
+                </div>
+
+                <div class="step">
+                    <h3>Step 1: Rank the Data</h3>
+                    <p>Rank each variable (1 = smallest, n = largest):</p>
+                    <table>
+                        <tr>
+                            <th>Original X</th>
+                            ${spearmanState.xData.map(v => `<td>${v.toFixed(1)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(X)</th>
+                            ${s.rankX.map((v, i) => `<td>${spearmanCell(`rankX_${i}`, v, null)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Original Y</th>
+                            ${spearmanState.yData.map(v => `<td>${v.toFixed(1)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(Y)</th>
+                            ${s.rankY.map((v, i) => `<td>${spearmanCell(`rankY_${i}`, v, null)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 2: Calculate Mean Ranks</h3>
+                    <p>Mean Rank(X) = (${s.rankX.map(formatRank).join(' + ')}) / ${n}</p>
+                    <p><strong>Mean Rank(X) = ${spearmanCell('meanRX', s.meanRX, 3)}</strong></p>
+                    <br>
+                    <p>Mean Rank(Y) = (${s.rankY.map(formatRank).join(' + ')}) / ${n}</p>
+                    <p><strong>Mean Rank(Y) = ${spearmanCell('meanRY', s.meanRY, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 3: Calculate Deviations</h3>
+                    <table>
+                        <tr>
+                            <th>i</th>
+                            ${Array.from({length: n}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(X)</th>
+                            ${s.rankX.map((v, i) => `<td>${spearmanCell(`rankX_${i}`, v, null)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(Y)</th>
+                            ${s.rankY.map((v, i) => `<td>${spearmanCell(`rankY_${i}`, v, null)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(X) - Mean</th>
+                            ${s.devRX.map((v, i) => `<td>${spearmanCell(`devRX_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Rank(Y) - Mean</th>
+                            ${s.devRY.map((v, i) => `<td>${spearmanCell(`devRY_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>[Rank(X) - Mean][Rank(Y) - Mean]</th>
+                            ${s.prodR.map((v, i) => `<td>${spearmanCell(`prodR_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>[Rank(X) - Mean]²</th>
+                            ${s.sqRX.map((v, i) => `<td>${spearmanCell(`sqRX_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>[Rank(Y) - Mean]²</th>
+                            ${s.sqRY.map((v, i) => `<td>${spearmanCell(`sqRY_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 4: Calculate Sums</h3>
+                    <p>Σ[Rank(X) - Mean][Rank(Y) - Mean] = ${s.prodR.map(v => v.toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ = ${spearmanCell('sumXY', s.sumXY, 3)}</strong></p>
+                    <br>
+                    <p>Σ[Rank(X) - Mean]² = ${s.sqRX.map(v => v.toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ = ${spearmanCell('sumX2', s.sumX2, 3)}</strong></p>
+                    <br>
+                    <p>Σ[Rank(Y) - Mean]² = ${s.sqRY.map(v => v.toFixed(2)).join(' + ')}</p>
+                    <p><strong>Σ = ${spearmanCell('sumY2', s.sumY2, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 5: Calculate Spearman Correlation Coefficient</h3>
+                    <p>rₛ = Σ[Rank(X) - Mean Rank(X)][Rank(Y) - Mean Rank(Y)] / √{Σ[Rank(X) - Mean]² × Σ[Rank(Y) - Mean]²}</p>
+                    <p>rₛ = ${s.sumXY.toFixed(3)} / √[${s.sumX2.toFixed(3)} × ${s.sumY2.toFixed(3)}]</p>
+                    <p>rₛ = ${s.sumXY.toFixed(3)} / √(${(s.sumX2 * s.sumY2).toFixed(3)})</p>
+                    <p>rₛ = ${s.sumXY.toFixed(3)} / ${Math.sqrt(s.sumX2 * s.sumY2).toFixed(3)}</p>
+                    <div class="result-box">rₛ = ${spearmanCell('rs', s.rs, 3)}</div>
+                </div>
+            `;
+
+            outputDiv.innerHTML = html;
+        }
+
+        function spearmanRecalcAndRender() {
+            spearmanState.current = computeSpearmanSteps(spearmanState.xData, spearmanState.yData, spearmanState.n, spearmanState.baseRankX, spearmanState.baseRankY, spearmanState.overrides);
+            renderSpearman(document.getElementById('corr-output'));
+        }
+
+        function setupSpearmanEditing(outputDiv) {
+            if (spearmanEditingWired) return;
+            spearmanEditingWired = true;
+
+            outputDiv.addEventListener('focusin', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num') || !spearmanState) return;
+                e.target.dataset.beforeEdit = e.target.textContent;
+                const range = document.createRange();
+                range.selectNodeContents(e.target);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+
+            outputDiv.addEventListener('keydown', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.target.blur();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.target.textContent = e.target.dataset.beforeEdit;
+                    e.target.blur();
+                }
+            });
+
+            outputDiv.addEventListener('paste', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                document.execCommand('insertText', false, text);
+            });
+
+            outputDiv.addEventListener('focusout', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num') || !spearmanState) return;
+                const key = e.target.dataset.key;
+                const before = e.target.dataset.beforeEdit;
+                const rawText = e.target.textContent.trim();
+
+                if (rawText === before) {
+                    spearmanRecalcAndRender();
+                    return;
+                }
+
+                const parsed = parseFloat(rawText.replace(/[^\d.\-eE]/g, ''));
+                if (isNaN(parsed)) {
+                    spearmanRecalcAndRender();
+                    return;
+                }
+
+                spearmanState.overrides.set(key, parsed);
+                spearmanRecalcAndRender();
+            });
+
+            outputDiv.addEventListener('dblclick', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num') || !spearmanState) return;
+                const key = e.target.dataset.key;
+                if (spearmanState.overrides.has(key)) {
+                    spearmanState.overrides.delete(key);
+                    spearmanRecalcAndRender();
+                }
+            });
+        }
+
+
+        function getRanks(data) {
+            const indexed = data.map((val, idx) => ({val, idx}));
+            indexed.sort((a, b) => a.val - b.val);
+            
+            const ranks = new Array(data.length);
+            let i = 0;
+            
+            while (i < indexed.length) {
+                // Find the start of a group of tied values
+                let j = i;
+                
+                // Find the end of the group (where values are equal)
+                while (j < indexed.length && indexed[j].val === indexed[i].val) {
+                    j++;
+                }
+                
+                // Calculate the average rank for this group
+                // Positions are i+1, i+2, ..., j (in 1-based ranking)
+                const avgRank = (i + 1 + j) / 2;
+                
+                // Assign the average rank to all values in the group
+                for (let k = i; k < j; k++) {
+                    ranks[indexed[k].idx] = avgRank;
+                }
+                
+                // Move to the next group
+                i = j;
+            }
+            
+            return ranks;
+        }
+
+        function corr_clearAll() {
+            document.getElementById('corr-xData').value = '';
+            document.getElementById('corr-yData').value = '';
+            document.getElementById('corr-resultsSection').style.display = 'none';
+            document.getElementById('corr-errorMessage').innerHTML = '';
+            document.getElementById('corr-output').innerHTML = '';
+        }
+    
+
+        // expose handlers referenced from onclick/onchange attributes
+        window.corr_calculate = corr_calculate;
+        window.corr_clearAll = corr_clearAll;
+        window.corr_resetPearsonEdits = corr_resetPearsonEdits;
+        window.corr_resetSpearmanEdits = corr_resetSpearmanEdits;
+    })();
+
+(function() {
+
+        const chiSquareTable = {
+            1: [0.000, 0.000, 0.001, 0.004, 0.016, 2.706, 3.841, 5.024, 6.635, 7.879],
+            2: [0.010, 0.020, 0.051, 0.103, 0.211, 4.605, 5.991, 7.378, 9.210, 10.597],
+            3: [0.072, 0.115, 0.216, 0.352, 0.584, 6.251, 7.815, 9.348, 11.345, 12.838],
+            4: [0.207, 0.297, 0.484, 0.711, 1.064, 7.779, 9.488, 11.143, 13.277, 14.860],
+            5: [0.412, 0.554, 0.831, 1.145, 1.610, 9.236, 11.070, 12.833, 15.086, 16.750],
+            6: [0.676, 0.872, 1.237, 1.635, 2.204, 10.645, 12.592, 14.449, 16.812, 18.548],
+            7: [0.989, 1.239, 1.690, 2.167, 2.833, 12.017, 14.067, 16.013, 18.475, 20.278],
+            8: [1.344, 1.646, 2.180, 2.733, 3.490, 13.362, 15.507, 17.535, 20.090, 21.955],
+            9: [1.735, 2.088, 2.700, 3.325, 4.168, 14.684, 16.919, 19.023, 21.666, 23.589],
+            10: [2.156, 2.558, 3.247, 3.940, 4.865, 15.987, 18.307, 20.483, 23.209, 25.188],
+            11: [2.603, 3.053, 3.816, 4.575, 5.578, 17.275, 19.675, 21.920, 24.725, 26.757],
+            12: [3.074, 3.571, 4.404, 5.226, 6.304, 18.549, 21.026, 23.337, 26.217, 28.300],
+            13: [3.565, 4.107, 5.009, 5.892, 7.042, 19.812, 22.362, 24.736, 27.688, 29.819],
+            14: [4.075, 4.660, 5.629, 6.571, 7.790, 21.064, 23.685, 26.119, 29.141, 31.319],
+            15: [4.601, 5.229, 6.262, 7.261, 8.547, 22.307, 24.996, 27.488, 30.578, 32.801],
+            16: [5.142, 5.812, 6.908, 7.962, 9.312, 23.542, 26.296, 28.845, 32.000, 34.267],
+            17: [5.697, 6.408, 7.564, 8.672, 10.085, 24.769, 27.587, 30.191, 33.409, 35.718],
+            18: [6.265, 7.015, 8.231, 9.390, 10.865, 25.989, 28.869, 31.526, 34.805, 37.156],
+            19: [6.844, 7.633, 8.907, 10.117, 11.651, 27.204, 30.144, 32.852, 36.191, 38.582],
+            20: [7.434, 8.260, 9.591, 10.851, 12.443, 28.412, 31.410, 34.170, 37.566, 39.997],
+        };
+
+        function chisq_updateSetup() {
+            const testType = document.getElementById('chisq-testType').value;
+            document.getElementById('chisq-goodnessSetup').style.display = testType === 'goodness' ? 'block' : 'none';
+            document.getElementById('chisq-contingencySetup').style.display = testType === 'contingency' ? 'block' : 'none';
+            if (testType === 'contingency') {
+                chisq_updateContingencyGrid();
+            }
+        }
+
+        function chisq_updateContingencyGrid() {
+            const rows = parseInt(document.getElementById('chisq-numRows').value) || 2;
+            const cols = parseInt(document.getElementById('chisq-numCols').value) || 2;
+            
+            let html = '<table style="margin: 10px 0;"><tr><th></th>';
+            
+            // Column headers
+            for (let j = 0; j < cols; j++) {
+                html += `<th>Col ${j + 1}</th>`;
+            }
+            html += '</tr>';
+            
+            // Rows
+            for (let i = 0; i < rows; i++) {
+                html += `<tr><th>Row ${i + 1}</th>`;
+                for (let j = 0; j < cols; j++) {
+                    const id = `cell_${i}_${j}`;
+                    html += `<td><input type="number" id="${id}" class="data-cell" value="0" min="0"></td>`;
+                }
+                html += '</tr>';
+            }
+            html += '</table>';
+            
+            document.getElementById('chisq-contingencyGridContainer').innerHTML = html;
+        }
+
+        function parseData(input) {
+            return input.trim().split(/[\s,]+/).map(x => parseFloat(x)).filter(x => !isNaN(x));
+        }
+
+        // ---- Generic interactive-editing infrastructure ----
+        // Only one calculation (goodness OR contingency) is shown at a time,
+        // so a single "active controller" drives whichever one is on screen.
+        // Each controller owns its own overrides map, its pristine (original,
+        // never-edited) values for red/orange comparison, and knows how to
+        // recompute + re-render itself. Nothing here changes any formula --
+        // it only decides where the numbers going into those formulas come
+        // from (the original calculation, or a manually typed-in value).
+        let activeController = null;
+        let editingWired = false;
+
+        function chisq_resetActiveEdits() {
+            if (activeController) activeController.reset();
+        }
+
+        function formatNum(value, decimals) {
+            if (decimals === 'count') {
+                return Number.isInteger(value) ? String(value) : value.toFixed(2);
+            }
+            return value.toFixed(decimals);
+        }
+
+        // Builds one editable number span bound to `key` on the given controller.
+        function cell(controller, key, value, decimals) {
+            const isOverridden = controller.overrides.has(key);
+            const pristineVal = controller.pristineFlat.get(key);
+            let cls = 'editable-num';
+            if (isOverridden) {
+                cls += ' overridden';
+            } else if (pristineVal !== undefined && Math.abs(value - pristineVal) > 1e-9) {
+                cls += ' affected';
+            }
+            return `<span class="${cls}" data-key="${key}" contenteditable="true" spellcheck="false">${formatNum(value, decimals)}</span>`;
+        }
+
+        function editToolbarHtml() {
+            return `
+                <div class="edit-toolbar">
+                    Click any number below to type over it (e.g. to enter a student's mistake). Everything calculated from that number will update automatically.
+                    <div class="legend">
+                        <span class="legend-item"><span class="legend-swatch" style="background:#c0392b;"></span>value you edited</span>
+                        <span class="legend-item"><span class="legend-swatch" style="background:#d35400;"></span>recalculated because of an edit</span>
+                    </div>
+                    <button class="reset-btn" onclick="chisq_resetActiveEdits()" type="button">Reset Edits</button>
+                </div>
+            `;
+        }
+
+        // Wired once; because render() replaces #output's innerHTML on every
+        // recalculation, listeners live on #output itself (event delegation)
+        // so they keep working across re-renders and across switching
+        // between goodness-of-fit and contingency calculations.
+        function wireEditableOutput(outputDiv) {
+            if (editingWired) return;
+            editingWired = true;
+
+            outputDiv.addEventListener('focusin', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                e.target.dataset.beforeEdit = e.target.textContent;
+                const range = document.createRange();
+                range.selectNodeContents(e.target);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+
+            outputDiv.addEventListener('keydown', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.target.blur();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.target.textContent = e.target.dataset.beforeEdit;
+                    e.target.blur();
+                }
+            });
+
+            outputDiv.addEventListener('paste', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                document.execCommand('insertText', false, text);
+            });
+
+            outputDiv.addEventListener('focusout', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num') || !activeController) return;
+                const key = e.target.dataset.key;
+                const before = e.target.dataset.beforeEdit;
+                const rawText = e.target.textContent.trim();
+
+                if (rawText === before) {
+                    activeController.recalcAndRender();
+                    return;
+                }
+
+                const parsed = parseFloat(rawText.replace(/[^\d.\-eE]/g, ''));
+                if (isNaN(parsed)) {
+                    activeController.recalcAndRender();
+                    return;
+                }
+
+                activeController.overrides.set(key, parsed);
+                activeController.recalcAndRender();
+            });
+
+            // Double-click an edited (red) value to clear just that override
+            outputDiv.addEventListener('dblclick', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num') || !activeController) return;
+                const key = e.target.dataset.key;
+                if (activeController.overrides.has(key)) {
+                    activeController.overrides.delete(key);
+                    activeController.recalcAndRender();
+                }
+            });
+        }
+
+        function chisq_calculate() {
+            const testType = document.getElementById('chisq-testType').value;
+            const errorDiv = document.getElementById('chisq-errorMessage');
+            const outputDiv = document.getElementById('chisq-output');
+            
+            errorDiv.innerHTML = '';
+            
+            if (testType === 'goodness') {
+                calculateGoodness(errorDiv, outputDiv);
+            } else {
+                calculateContingency(errorDiv, outputDiv);
+            }
+        }
+
+        // Computes every quantity of the goodness-of-fit test. If a value has
+        // been manually overridden (in `overrides`, keyed by name) that value
+        // is used as-is; otherwise it's computed from the (possibly already
+        // overridden) values feeding into it -- so an edit cascades forward
+        // through the exact same formulas as before.
+        function computeGoodnessSteps(probsOrig, observedOrig, k, overrides) {
+            const ov = (key, fallback) => overrides.has(key) ? overrides.get(key) : fallback;
+
+            const probs = probsOrig.map((p, i) => ov(`prob_${i}`, p));
+            const observed = observedOrig.map((o, i) => ov(`obs_${i}`, o));
+            const n = ov('n', observed.reduce((a, b) => a + b, 0));
+            const expected = probs.map((p, i) => ov(`exp_${i}`, p * n));
+
+            const oMinusE = observed.map((o, i) => ov(`oe_${i}`, o - expected[i]));
+            const oMinusESq = oMinusE.map((v, i) => ov(`oesq_${i}`, v * v));
+            const component = oMinusESq.map((v, i) => ov(`comp_${i}`, v / expected[i]));
+
+            const chiSquared = ov('chiSquared', component.reduce((a, b) => a + b, 0));
+
+            return { probs, observed, n, expected, oMinusE, oMinusESq, component, chiSquared };
+        }
+
+        function flattenGoodnessSteps(steps, k) {
+            const flat = new Map();
+            for (let i = 0; i < k; i++) {
+                flat.set(`prob_${i}`, steps.probs[i]);
+                flat.set(`obs_${i}`, steps.observed[i]);
+                flat.set(`exp_${i}`, steps.expected[i]);
+                flat.set(`oe_${i}`, steps.oMinusE[i]);
+                flat.set(`oesq_${i}`, steps.oMinusESq[i]);
+                flat.set(`comp_${i}`, steps.component[i]);
+            }
+            flat.set('n', steps.n);
+            flat.set('chiSquared', steps.chiSquared);
+            return flat;
+        }
+
+        function calculateGoodness(errorDiv, outputDiv) {
+            const probInput = document.getElementById('chisq-probabilities').value;
+            const obsInput = document.getElementById('chisq-observed').value;
+            
+            const probs = parseData(probInput);
+            const observed = parseData(obsInput);
+            
+            // Validation
+            if (probs.length === 0 || observed.length === 0) {
+                errorDiv.innerHTML = '<div class="error">Error: Please enter probabilities and observed frequencies</div>';
+                document.getElementById('chisq-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            if (probs.length !== observed.length) {
+                errorDiv.innerHTML = '<div class="error">Error: Number of probabilities must equal number of observed frequencies</div>';
+                document.getElementById('chisq-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            if (Math.abs(probs.reduce((a, b) => a + b, 0) - 1.0) > 0.01) {
+                errorDiv.innerHTML = '<div class="error">Error: Probabilities must sum to 1 (sum = ' + probs.reduce((a, b) => a + b, 0).toFixed(3) + ')</div>';
+                document.getElementById('chisq-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            const k = observed.length;
+            const df = k - 1;
+
+            const controller = {
+                overrides: new Map(),
+                pristineFlat: null,
+                current: null,
+                compute() {
+                    this.current = computeGoodnessSteps(probs, observed, k, this.overrides);
+                    if (!this.pristineFlat) {
+                        this.pristineFlat = flattenGoodnessSteps(this.current, k);
+                    }
+                },
+                render() {
+                    displayGoodnessResults(k, df, this.current, this);
+                },
+                recalcAndRender() {
+                    this.compute();
+                    this.render();
+                },
+                reset() {
+                    this.overrides.clear();
+                    this.recalcAndRender();
+                }
+            };
+
+            controller.compute();
+            activeController = controller;
+            controller.render();
+            wireEditableOutput(outputDiv);
+            document.getElementById('chisq-resultsSection').style.display = 'block';
+        }
+
+        function displayGoodnessResults(k, df, s, controller) {
+            const outputDiv = document.getElementById('chisq-output');
+            let html = `
+                <h2>Goodness of Fit Test - Step by Step</h2>
+
+                ${editToolbarHtml()}
+
+                <div class="step">
+                    <h3>Step 0: Summary</h3>
+                    <p>Number of categories (k): ${k}</p>
+                    <p>Sample size (n): ${cell(controller, 'n', s.n, 'count')}</p>
+                    <p><strong>Degrees of freedom = k - 1 = ${k} - 1 = ${df}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 1: Calculate Expected Frequencies</h3>
+                    <p>Expected frequency = Probability × n</p>
+                    <table>
+                        <tr>
+                            <th>Category</th>
+                            ${Array.from({length: k}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Probability</th>
+                            ${s.probs.map((p, i) => `<td>${cell(controller, `prob_${i}`, p, 3)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Expected (E)</th>
+                            ${s.expected.map((e, i) => `<td>${cell(controller, `exp_${i}`, e, 2)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 2: Calculate (O - E)</h3>
+                    <table>
+                        <tr>
+                            <th>Category</th>
+                            ${Array.from({length: k}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Observed (O)</th>
+                            ${s.observed.map((o, i) => `<td>${cell(controller, `obs_${i}`, o, 'count')}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Expected (E)</th>
+                            ${s.expected.map((e, i) => `<td>${cell(controller, `exp_${i}`, e, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>O - E</th>
+                            ${s.oMinusE.map((v, i) => `<td>${cell(controller, `oe_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 3: Square Each (O - E)</h3>
+                    <table>
+                        <tr>
+                            <th>Category</th>
+                            ${Array.from({length: k}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>(O - E)²</th>
+                            ${s.oMinusESq.map((v, i) => `<td>${cell(controller, `oesq_${i}`, v, 2)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 4: Divide by Expected Frequency</h3>
+                    <table>
+                        <tr>
+                            <th>Category</th>
+                            ${Array.from({length: k}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>(O - E)² / E</th>
+                            ${s.component.map((v, i) => `<td>${cell(controller, `comp_${i}`, v, 4)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 5: Sum to Find Chi-Square Statistic</h3>
+                    <p>χ² = ${s.component.map(v => v.toFixed(4)).join(' + ')}</p>
+                    <div class="result-box">χ² = ${cell(controller, 'chiSquared', s.chiSquared, 4)}</div>
+                </div>
+
+                ${displayCriticalValueInfo(df)}
+            `;
+            
+            outputDiv.innerHTML = html;
+        }
+
+        // Same cascading approach as computeGoodnessSteps: observed cells are
+        // the leaves; row/column totals, n, expected frequencies, and every
+        // step after them recompute from whatever is current (edited or
+        // original) using the same formulas as before.
+        function computeContingencySteps(observedOrig, rows, cols, overrides) {
+            const ov = (key, fallback) => overrides.has(key) ? overrides.get(key) : fallback;
+
+            const observed = observedOrig.map((row, i) => row.map((v, j) => ov(`obs_${i}_${j}`, v)));
+
+            const rowTotals = observed.map((row, i) => ov(`rt_${i}`, row.reduce((a, b) => a + b, 0)));
+            const colTotals = [];
+            for (let j = 0; j < cols; j++) {
+                let sum = 0;
+                for (let i = 0; i < rows; i++) sum += observed[i][j];
+                colTotals.push(ov(`ct_${j}`, sum));
+            }
+            const n = ov('n', rowTotals.reduce((a, b) => a + b, 0));
+
+            const expected = [];
+            for (let i = 0; i < rows; i++) {
+                let row = [];
+                for (let j = 0; j < cols; j++) {
+                    row.push(ov(`exp_${i}_${j}`, (rowTotals[i] * colTotals[j]) / n));
+                }
+                expected.push(row);
+            }
+
+            const oMinusE = [], oMinusESq = [], component = [];
+            let chiSquared = 0;
+            for (let i = 0; i < rows; i++) {
+                let oeRow = [], oeSqRow = [], compRow = [];
+                for (let j = 0; j < cols; j++) {
+                    const oe = ov(`oe_${i}_${j}`, observed[i][j] - expected[i][j]);
+                    const oeSq = ov(`oesq_${i}_${j}`, oe * oe);
+                    const comp = ov(`comp_${i}_${j}`, oeSq / expected[i][j]);
+                    oeRow.push(oe);
+                    oeSqRow.push(oeSq);
+                    compRow.push(comp);
+                }
+                oMinusE.push(oeRow);
+                oMinusESq.push(oeSqRow);
+                component.push(compRow);
+            }
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) chiSquared += component[i][j];
+            }
+            chiSquared = ov('chiSquared', chiSquared);
+
+            return { observed, rowTotals, colTotals, n, expected, oMinusE, oMinusESq, component, chiSquared };
+        }
+
+        function flattenContingencySteps(steps, rows, cols) {
+            const flat = new Map();
+            for (let i = 0; i < rows; i++) {
+                flat.set(`rt_${i}`, steps.rowTotals[i]);
+                for (let j = 0; j < cols; j++) {
+                    flat.set(`obs_${i}_${j}`, steps.observed[i][j]);
+                    flat.set(`exp_${i}_${j}`, steps.expected[i][j]);
+                    flat.set(`oe_${i}_${j}`, steps.oMinusE[i][j]);
+                    flat.set(`oesq_${i}_${j}`, steps.oMinusESq[i][j]);
+                    flat.set(`comp_${i}_${j}`, steps.component[i][j]);
+                }
+            }
+            for (let j = 0; j < cols; j++) flat.set(`ct_${j}`, steps.colTotals[j]);
+            flat.set('n', steps.n);
+            flat.set('chiSquared', steps.chiSquared);
+            return flat;
+        }
+
+        function calculateContingency(errorDiv, outputDiv) {
+            const rows = parseInt(document.getElementById('chisq-numRows').value);
+            const cols = parseInt(document.getElementById('chisq-numCols').value);
+            
+            // Read contingency table data
+            const observed = [];
+            for (let i = 0; i < rows; i++) {
+                let row = [];
+                for (let j = 0; j < cols; j++) {
+                    const val = parseFloat(document.getElementById(`cell_${i}_${j}`).value) || 0;
+                    row.push(val);
+                }
+                observed.push(row);
+            }
+            
+            // Validation
+            if (observed.flat().every(x => x === 0)) {
+                errorDiv.innerHTML = '<div class="error">Error: Please enter observed frequencies in the table</div>';
+                document.getElementById('chisq-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+
+            const df = (rows - 1) * (cols - 1);
+
+            const controller = {
+                overrides: new Map(),
+                pristineFlat: null,
+                current: null,
+                compute() {
+                    this.current = computeContingencySteps(observed, rows, cols, this.overrides);
+                    if (!this.pristineFlat) {
+                        this.pristineFlat = flattenContingencySteps(this.current, rows, cols);
+                    }
+                },
+                render() {
+                    displayContingencyResults(rows, cols, df, this.current, this);
+                },
+                recalcAndRender() {
+                    this.compute();
+                    this.render();
+                },
+                reset() {
+                    this.overrides.clear();
+                    this.recalcAndRender();
+                }
+            };
+
+            controller.compute();
+            activeController = controller;
+            controller.render();
+            wireEditableOutput(outputDiv);
+            document.getElementById('chisq-resultsSection').style.display = 'block';
+        }
+
+        function displayContingencyResults(rows, cols, df, s, controller) {
+            const outputDiv = document.getElementById('chisq-output');
+            let html = `
+                <h2>Contingency Table Test - Step by Step</h2>
+
+                ${editToolbarHtml()}
+
+                <div class="step">
+                    <h3>Step 0: Summary</h3>
+                    <p>Table dimensions: ${rows} × ${cols}</p>
+                    <p>Total sample size (n): ${cell(controller, 'n', s.n, 'count')}</p>
+                    <p><strong>Degrees of freedom = (rows - 1) × (cols - 1) = (${rows} - 1) × (${cols} - 1) = ${df}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 1: Observed Frequencies and Totals</h3>
+                    <table>
+                        <tr>
+                            <th>Observed</th>
+                            ${Array.from({length: cols}, (_, j) => `<th>Col ${j + 1}</th>`).join('')}
+                            <th>Row Total</th>
+                        </tr>
+                        ${s.observed.map((row, i) => `
+                            <tr>
+                                <th>Row ${i + 1}</th>
+                                ${row.map((val, j) => `<td>${cell(controller, `obs_${i}_${j}`, val, 'count')}</td>`).join('')}
+                                <td><strong>${cell(controller, `rt_${i}`, s.rowTotals[i], 'count')}</strong></td>
+                            </tr>
+                        `).join('')}
+                        <tr>
+                            <th>Column Total</th>
+                            ${s.colTotals.map((ct, j) => `<td><strong>${cell(controller, `ct_${j}`, ct, 'count')}</strong></td>`).join('')}
+                            <td><strong>${cell(controller, 'n', s.n, 'count')}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 2: Calculate Expected Frequencies</h3>
+                    <p>E<sub>ij</sub> = (Row Total × Column Total) / n</p>
+                    <table>
+                        <tr>
+                            <th>Expected (E)</th>
+                            ${Array.from({length: cols}, (_, j) => `<th>Col ${j + 1}</th>`).join('')}
+                        </tr>
+                        ${s.expected.map((row, i) => `
+                            <tr>
+                                <th>Row ${i + 1}</th>
+                                ${row.map((val, j) => `<td>${cell(controller, `exp_${i}_${j}`, val, 2)}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 3: Calculate (O - E)</h3>
+                    <table>
+                        <tr>
+                            <th>O - E</th>
+                            ${Array.from({length: cols}, (_, j) => `<th>Col ${j + 1}</th>`).join('')}
+                        </tr>
+                        ${s.oMinusE.map((row, i) => `
+                            <tr>
+                                <th>Row ${i + 1}</th>
+                                ${row.map((val, j) => `<td>${cell(controller, `oe_${i}_${j}`, val, 2)}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 4: Square Each Value</h3>
+                    <table>
+                        <tr>
+                            <th>(O - E)²</th>
+                            ${Array.from({length: cols}, (_, j) => `<th>Col ${j + 1}</th>`).join('')}
+                        </tr>
+                        ${s.oMinusESq.map((row, i) => `
+                            <tr>
+                                <th>Row ${i + 1}</th>
+                                ${row.map((val, j) => `<td>${cell(controller, `oesq_${i}_${j}`, val, 2)}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 5: Divide by Expected Frequency</h3>
+                    <table>
+                        <tr>
+                            <th>(O - E)² / E</th>
+                            ${Array.from({length: cols}, (_, j) => `<th>Col ${j + 1}</th>`).join('')}
+                        </tr>
+                        ${s.component.map((row, i) => `
+                            <tr>
+                                <th>Row ${i + 1}</th>
+                                ${row.map((val, j) => `<td>${cell(controller, `comp_${i}_${j}`, val, 4)}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 6: Sum to Find Chi-Square Statistic</h3>
+                    <p>χ² = ${s.component.flat().map(v => v.toFixed(4)).join(' + ')}</p>
+                    <div class="result-box">χ² = ${cell(controller, 'chiSquared', s.chiSquared, 4)}</div>
+                </div>
+
+                ${displayCriticalValueInfo(df)}
+            `;
+            
+            outputDiv.innerHTML = html;
+        }
+
+        function displayCriticalValueInfo(df) {
+            if (!chiSquareTable[df]) {
+                return `<div class="step">
+                    <h3>Critical Values</h3>
+                    <p>Degrees of freedom (${df}) not in standard table. Please refer to a comprehensive chi-square table.</p>
+                </div>`;
+            }
+            
+            const values = chiSquareTable[df];
+            const alphas = ['0.995', '0.990', '0.975', '0.950', '0.900', '0.100', '0.050', '0.025', '0.010', '0.005'];
+            
+            return `<div class="step">
+                <h3>Critical Values (df = ${df})</h3>
+                <table>
+                    <tr>
+                        <th>α</th>
+                        ${alphas.map(a => `<th>χ²<sub>${a}</sub></th>`).join('')}
+                    </tr>
+                    <tr>
+                        <th>Critical Value</th>
+                        ${values.map(v => `<td>${v.toFixed(3)}</td>`).join('')}
+                    </tr>
+                </table>
+            </div>`;
+        }
+
+        function chisq_clearAll() {
+            document.getElementById('chisq-testType').value = 'goodness';
+            document.getElementById('chisq-probabilities').value = '';
+            document.getElementById('chisq-observed').value = '';
+            document.getElementById('chisq-numCategories').value = '4';
+            document.getElementById('chisq-numRows').value = '2';
+            document.getElementById('chisq-numCols').value = '2';
+            document.getElementById('chisq-resultsSection').style.display = 'none';
+            document.getElementById('chisq-errorMessage').innerHTML = '';
+            document.getElementById('chisq-output').innerHTML = '';
+            chisq_updateSetup();
+        }
+
+        // Initialize on load
+        window.addEventListener('load', function() {
+            chisq_updateSetup();
+        });
+    
+
+        // expose handlers referenced from onclick/onchange attributes
+        window.chisq_calculate = chisq_calculate;
+        window.chisq_clearAll = chisq_clearAll;
+        window.chisq_resetActiveEdits = chisq_resetActiveEdits;
+        window.chisq_updateContingencyGrid = chisq_updateContingencyGrid;
+        window.chisq_updateSetup = chisq_updateSetup;
+    })();
+
+(function() {
+
+        const tCriticalTable = {
+            1: [6.314, 12.706, 25.452, 63.657],
+            2: [2.920, 4.303, 6.205, 9.925],
+            3: [2.353, 3.182, 4.177, 5.841],
+            4: [2.132, 2.776, 3.495, 4.604],
+            5: [2.015, 2.571, 3.163, 4.032],
+            6: [1.943, 2.447, 2.969, 3.707],
+            7: [1.895, 2.365, 2.841, 3.499],
+            8: [1.860, 2.306, 2.752, 3.355],
+            9: [1.833, 2.262, 2.685, 3.250],
+            10: [1.812, 2.228, 2.634, 3.169],
+            11: [1.796, 2.201, 2.593, 3.106],
+            12: [1.782, 2.179, 2.560, 3.055],
+            13: [1.771, 2.160, 2.533, 3.012],
+            14: [1.761, 2.145, 2.510, 2.977],
+            15: [1.753, 2.131, 2.490, 2.947],
+            16: [1.746, 2.120, 2.473, 2.921],
+            17: [1.740, 2.110, 2.458, 2.898],
+            18: [1.734, 2.101, 2.445, 2.878],
+            19: [1.729, 2.093, 2.433, 2.861],
+            20: [1.725, 2.086, 2.423, 2.845],
+            21: [1.721, 2.080, 2.414, 2.831],
+            22: [1.717, 2.074, 2.405, 2.819],
+            23: [1.714, 2.069, 2.398, 2.807],
+            24: [1.711, 2.064, 2.391, 2.797],
+            25: [1.708, 2.060, 2.385, 2.787],
+            26: [1.706, 2.056, 2.379, 2.779],
+            27: [1.703, 2.052, 2.373, 2.771],
+            28: [1.701, 2.048, 2.368, 2.763],
+            29: [1.699, 2.045, 2.364, 2.756],
+            30: [1.697, 2.042, 2.360, 2.750]
+        };
+
+        const alphaColumns = {
+            '0.10': 0,
+            '0.05': 1,
+            '0.025': 2,
+            '0.01': 3
+        };
+
+        function ttest_updateSetup() {
+            const testType = document.getElementById('ttest-testType').value;
+            document.getElementById('ttest-oneSampleSetup').style.display = testType === 'oneSample' ? 'block' : 'none';
+            document.getElementById('ttest-twoIndependentSetup').style.display = testType === 'twoIndependent' ? 'block' : 'none';
+            document.getElementById('ttest-twopairedSetup').style.display = testType === 'twoPaired' ? 'block' : 'none';
+        }
+
+        function parseData(input) {
+            return input.trim().split(/[\s,]+/).map(x => parseFloat(x)).filter(x => !isNaN(x));
+        }
+
+        function calculateMean(data) {
+            return data.reduce((a, b) => a + b, 0) / data.length;
+        }
+
+        function calculateSD(data) {
+            const mean = calculateMean(data);
+            const variance = data.reduce((sum, x) => sum + Math.pow(x - mean, 2), 0) / (data.length - 1);
+            return Math.sqrt(variance);
+        }
+
+        // ---- Generic interactive-editing infrastructure ----
+        // Only one calculation is shown at a time, so a single "active
+        // controller" drives whichever one is on screen. Each controller
+        // owns its own overrides map, its pristine (original, never-edited)
+        // values for red/orange comparison, and knows how to recompute +
+        // re-render itself. Nothing here changes any formula -- it only
+        // decides where the numbers going into those formulas come from
+        // (the original calculation, or a manually typed-in value).
+        let activeController = null;
+        let editingWired = false;
+
+        function ttest_resetActiveEdits() {
+            if (activeController) activeController.reset();
+        }
+
+        function formatNum(value, decimals) {
+            if (decimals === 'count') {
+                return Number.isInteger(value) ? String(value) : value.toFixed(2);
+            }
+            return value.toFixed(decimals);
+        }
+
+        // Builds one editable number span bound to `key` on the given controller.
+        function cell(controller, key, value, decimals) {
+            const isOverridden = controller.overrides.has(key);
+            const pristineVal = controller.pristineFlat.get(key);
+            let cls = 'editable-num';
+            if (isOverridden) {
+                cls += ' overridden';
+            } else if (pristineVal !== undefined && Math.abs(value - pristineVal) > 1e-9) {
+                cls += ' affected';
+            }
+            return `<span class="${cls}" data-key="${key}" contenteditable="true" spellcheck="false">${formatNum(value, decimals)}</span>`;
+        }
+
+        function editToolbarHtml() {
+            return `
+                <div class="edit-toolbar">
+                    Click any number below to type over it (e.g. to enter a student's mistake). Everything calculated from that number will update automatically.
+                    <div class="legend">
+                        <span class="legend-item"><span class="legend-swatch" style="background:#c0392b;"></span>value you edited</span>
+                        <span class="legend-item"><span class="legend-swatch" style="background:#d35400;"></span>recalculated because of an edit</span>
+                    </div>
+                    <button class="reset-btn" onclick="ttest_resetActiveEdits()" type="button">Reset Edits</button>
+                </div>
+            `;
+        }
+
+        // Wired once; because render() replaces #output's innerHTML on every
+        // recalculation, listeners live on #output itself (event delegation)
+        // so they keep working across re-renders and across switching
+        // between one-sample, two-independent, and paired tests.
+        function wireEditableOutput(outputDiv) {
+            if (editingWired) return;
+            editingWired = true;
+
+            outputDiv.addEventListener('focusin', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                e.target.dataset.beforeEdit = e.target.textContent;
+                const range = document.createRange();
+                range.selectNodeContents(e.target);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+
+            outputDiv.addEventListener('keydown', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.target.blur();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.target.textContent = e.target.dataset.beforeEdit;
+                    e.target.blur();
+                }
+            });
+
+            outputDiv.addEventListener('paste', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                document.execCommand('insertText', false, text);
+            });
+
+            outputDiv.addEventListener('focusout', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num') || !activeController) return;
+                const key = e.target.dataset.key;
+                const before = e.target.dataset.beforeEdit;
+                const rawText = e.target.textContent.trim();
+
+                if (rawText === before) {
+                    activeController.recalcAndRender();
+                    return;
+                }
+
+                const parsed = parseFloat(rawText.replace(/[^\d.\-eE]/g, ''));
+                if (isNaN(parsed)) {
+                    activeController.recalcAndRender();
+                    return;
+                }
+
+                activeController.overrides.set(key, parsed);
+                activeController.recalcAndRender();
+            });
+
+            // Double-click an edited (red) value to clear just that override
+            outputDiv.addEventListener('dblclick', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num') || !activeController) return;
+                const key = e.target.dataset.key;
+                if (activeController.overrides.has(key)) {
+                    activeController.overrides.delete(key);
+                    activeController.recalcAndRender();
+                }
+            });
+        }
+
+        function ttest_calculate() {
+            const testType = document.getElementById('ttest-testType').value;
+            const errorDiv = document.getElementById('ttest-errorMessage');
+            const outputDiv = document.getElementById('ttest-output');
+            
+            errorDiv.innerHTML = '';
+            
+            if (testType === 'oneSample') {
+                calculateOneSample(errorDiv, outputDiv);
+            } else if (testType === 'twoIndependent') {
+                calculateTwoIndependent(errorDiv, outputDiv);
+            } else {
+                calculateTwoPaired(errorDiv, outputDiv);
+            }
+        }
+
+        // Same cascading approach used throughout: raw data points and μ₀ are
+        // the leaves; mean, deviations, squares, sum, s, SE, and t recompute
+        // from whatever is current (edited or original) using the same
+        // formulas as before.
+        function computeOneSampleSteps(dataOrig, n, df, overrides) {
+            const ov = (key, fallback) => overrides.has(key) ? overrides.get(key) : fallback;
+
+            const mu0 = ov('mu0', dataOrig.mu0);
+            const data = dataOrig.data.map((x, i) => ov(`x_${i}`, x));
+            const mean = ov('mean', data.reduce((a, b) => a + b, 0) / n);
+            const deviations = data.map((x, i) => ov(`dev_${i}`, x - mean));
+            const squaredDev = deviations.map((d, i) => ov(`sq_${i}`, d * d));
+            const sumSq = ov('sumSq', squaredDev.reduce((a, b) => a + b, 0));
+            const sd = ov('sd', Math.sqrt(sumSq / df));
+            const se = ov('se', sd / Math.sqrt(n));
+            const t = ov('t', (mean - mu0) / se);
+
+            return { mu0, data, mean, deviations, squaredDev, sumSq, sd, se, t };
+        }
+
+        function flattenOneSampleSteps(steps, n) {
+            const flat = new Map();
+            for (let i = 0; i < n; i++) {
+                flat.set(`x_${i}`, steps.data[i]);
+                flat.set(`dev_${i}`, steps.deviations[i]);
+                flat.set(`sq_${i}`, steps.squaredDev[i]);
+            }
+            flat.set('mu0', steps.mu0);
+            flat.set('mean', steps.mean);
+            flat.set('sumSq', steps.sumSq);
+            flat.set('sd', steps.sd);
+            flat.set('se', steps.se);
+            flat.set('t', steps.t);
+            return flat;
+        }
+
+        function calculateOneSample(errorDiv, outputDiv) {
+            const mu0 = parseFloat(document.getElementById('ttest-populationMean').value);
+            const data = parseData(document.getElementById('ttest-oneSampleData').value);
+            
+            if (data.length === 0) {
+                errorDiv.innerHTML = '<div class="error">Error: Please enter sample data</div>';
+                document.getElementById('ttest-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            if (data.length < 2) {
+                errorDiv.innerHTML = '<div class="error">Error: Need at least 2 data points</div>';
+                document.getElementById('ttest-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            const n = data.length;
+            const df = n - 1;
+
+            const controller = {
+                overrides: new Map(),
+                pristineFlat: null,
+                current: null,
+                compute() {
+                    this.current = computeOneSampleSteps({ data, mu0 }, n, df, this.overrides);
+                    if (!this.pristineFlat) {
+                        this.pristineFlat = flattenOneSampleSteps(this.current, n);
+                    }
+                },
+                render() {
+                    displayOneSampleResults(n, df, this.current, this);
+                },
+                recalcAndRender() {
+                    this.compute();
+                    this.render();
+                },
+                reset() {
+                    this.overrides.clear();
+                    this.recalcAndRender();
+                }
+            };
+
+            controller.compute();
+            activeController = controller;
+            controller.render();
+            wireEditableOutput(outputDiv);
+            document.getElementById('ttest-resultsSection').style.display = 'block';
+        }
+
+        function displayOneSampleResults(n, df, s, controller) {
+            const outputDiv = document.getElementById('ttest-output');
+            let html = `
+                <h2>One Sample t-Test - Step by Step</h2>
+
+                ${editToolbarHtml()}
+
+                <div class="step">
+                    <h3>Step 0: Summary</h3>
+                    <p>Null Hypothesis (H₀): μ = ${cell(controller, 'mu0', s.mu0, 2)}</p>
+                    <p>Alternative Hypothesis (H₁): μ ≠ ${s.mu0}</p>
+                    <p>Sample size (n): ${n}</p>
+                    <p><strong>Degrees of freedom = n - 1 = ${n} - 1 = ${df}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 1: Calculate Sample Mean (x̄)</h3>
+                    <p>x̄ = (${s.data.map(x => x.toFixed(2)).join(' + ')}) / ${n}</p>
+                    <p><strong>x̄ = ${cell(controller, 'mean', s.mean, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 2: Calculate Deviations from Mean</h3>
+                    <table>
+                        <tr>
+                            <th>Data Point (X)</th>
+                            ${s.data.map((x, i) => `<td>${cell(controller, `x_${i}`, x, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>X - x̄</th>
+                            ${s.deviations.map((d, i) => `<td>${cell(controller, `dev_${i}`, d, 3)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 3: Square Deviations and Sum</h3>
+                    <table>
+                        <tr>
+                            <th>(X - x̄)²</th>
+                            ${s.squaredDev.map((d, i) => `<td>${cell(controller, `sq_${i}`, d, 3)}</td>`).join('')}
+                        </tr>
+                    </table>
+                    <p>Σ(X - x̄)² = ${s.squaredDev.map(d => d.toFixed(3)).join(' + ')}</p>
+                    <p><strong>Σ(X - x̄)² = ${cell(controller, 'sumSq', s.sumSq, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 4: Calculate Sample Standard Deviation (s)</h3>
+                    <p>s = √[Σ(X - x̄)² / (n - 1)]</p>
+                    <p>s = √[${s.sumSq.toFixed(3)} / ${df}]</p>
+                    <p>s = √${(s.sumSq / df).toFixed(3)}</p>
+                    <p><strong>s = ${cell(controller, 'sd', s.sd, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 5: Calculate Standard Error (SE)</h3>
+                    <p>SE = s / √n</p>
+                    <p>SE = ${s.sd.toFixed(3)} / √${n}</p>
+                    <p>SE = ${s.sd.toFixed(3)} / ${Math.sqrt(n).toFixed(3)}</p>
+                    <p><strong>SE = ${cell(controller, 'se', s.se, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 6: Calculate t-Statistic</h3>
+                    <p>t = (x̄ - μ₀) / SE</p>
+                    <p>t = (${s.mean.toFixed(3)} - ${s.mu0}) / ${s.se.toFixed(3)}</p>
+                    <p>t = ${(s.mean - s.mu0).toFixed(3)} / ${s.se.toFixed(3)}</p>
+                    <div class="result-box">t = ${cell(controller, 't', s.t, 3)}</div>
+                </div>
+
+                ${displayCriticalValueInfo(df)}
+            `;
+            
+            outputDiv.innerHTML = html;
+        }
+
+        // Leaves here are the two summary stats (mean, s) for each group --
+        // the displayed table doesn't break individual data points into
+        // per-row deviations, so those two per-group step outputs are where
+        // a student's arithmetic mistake would show up. Everything after
+        // them (variances, pooled variance, SE, t) cascades the same way.
+        function computeTwoIndependentSteps(base, n1, n2, df, overrides) {
+            const ov = (key, fallback) => overrides.has(key) ? overrides.get(key) : fallback;
+
+            const mean1 = ov('mean1', base.mean1);
+            const mean2 = ov('mean2', base.mean2);
+            const sd1 = ov('sd1', base.sd1);
+            const sd2 = ov('sd2', base.sd2);
+            const var1 = ov('var1', sd1 * sd1);
+            const var2 = ov('var2', sd2 * sd2);
+            const varPooled = ov('varPooled', ((n1 - 1) * var1 + (n2 - 1) * var2) / df);
+            const sdPooled = ov('sdPooled', Math.sqrt(varPooled));
+            const se = ov('se', sdPooled * Math.sqrt(1 / n1 + 1 / n2));
+            const t = ov('t', (mean1 - mean2) / se);
+
+            return { mean1, mean2, sd1, sd2, var1, var2, varPooled, sdPooled, se, t };
+        }
+
+        function flattenTwoIndependentSteps(steps) {
+            const flat = new Map();
+            flat.set('mean1', steps.mean1);
+            flat.set('mean2', steps.mean2);
+            flat.set('sd1', steps.sd1);
+            flat.set('sd2', steps.sd2);
+            flat.set('var1', steps.var1);
+            flat.set('var2', steps.var2);
+            flat.set('varPooled', steps.varPooled);
+            flat.set('sdPooled', steps.sdPooled);
+            flat.set('se', steps.se);
+            flat.set('t', steps.t);
+            return flat;
+        }
+
+        function calculateTwoIndependent(errorDiv, outputDiv) {
+            const data1 = parseData(document.getElementById('ttest-sample1Data').value);
+            const data2 = parseData(document.getElementById('ttest-sample2Data').value);
+            
+            if (data1.length === 0 || data2.length === 0) {
+                errorDiv.innerHTML = '<div class="error">Error: Please enter data for both samples</div>';
+                document.getElementById('ttest-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            if (data1.length < 2 || data2.length < 2) {
+                errorDiv.innerHTML = '<div class="error">Error: Each sample needs at least 2 data points</div>';
+                document.getElementById('ttest-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            const n1 = data1.length;
+            const n2 = data2.length;
+            const df = n1 + n2 - 2;
+            const base = {
+                mean1: calculateMean(data1),
+                mean2: calculateMean(data2),
+                sd1: calculateSD(data1),
+                sd2: calculateSD(data2)
+            };
+
+            const controller = {
+                overrides: new Map(),
+                pristineFlat: null,
+                current: null,
+                compute() {
+                    this.current = computeTwoIndependentSteps(base, n1, n2, df, this.overrides);
+                    if (!this.pristineFlat) {
+                        this.pristineFlat = flattenTwoIndependentSteps(this.current);
+                    }
+                },
+                render() {
+                    displayTwoIndependentResults(data1, data2, n1, n2, df, this.current, this);
+                },
+                recalcAndRender() {
+                    this.compute();
+                    this.render();
+                },
+                reset() {
+                    this.overrides.clear();
+                    this.recalcAndRender();
+                }
+            };
+
+            controller.compute();
+            activeController = controller;
+            controller.render();
+            wireEditableOutput(outputDiv);
+            document.getElementById('ttest-resultsSection').style.display = 'block';
+        }
+
+        function displayTwoIndependentResults(data1, data2, n1, n2, df, s, controller) {
+            const outputDiv = document.getElementById('ttest-output');
+            let html = `
+                <h2>Two Independent Samples t-Test - Step by Step</h2>
+
+                ${editToolbarHtml()}
+
+                <div class="step">
+                    <h3>Step 0: Summary</h3>
+                    <p>Null Hypothesis (H₀): μ₁ = μ₂</p>
+                    <p>Alternative Hypothesis (H₁): μ₁ ≠ μ₂</p>
+                    <p>Sample 1 size (n₁): ${n1}</p>
+                    <p>Sample 2 size (n₂): ${n2}</p>
+                    <p><strong>Degrees of freedom = n₁ + n₂ - 2 = ${n1} + ${n2} - 2 = ${df}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 1: Calculate Sample Means and Standard Deviations</h3>
+                    <table>
+                        <tr>
+                            <th></th>
+                            <th>Sample 1</th>
+                            <th>Sample 2</th>
+                        </tr>
+                        <tr>
+                            <th>Data</th>
+                            <td>${data1.map(x => x.toFixed(1)).join(', ')}</td>
+                            <td>${data2.map(x => x.toFixed(1)).join(', ')}</td>
+                        </tr>
+                        <tr>
+                            <th>n</th>
+                            <td>${n1}</td>
+                            <td>${n2}</td>
+                        </tr>
+                        <tr>
+                            <th>x̄</th>
+                            <td>${cell(controller, 'mean1', s.mean1, 3)}</td>
+                            <td>${cell(controller, 'mean2', s.mean2, 3)}</td>
+                        </tr>
+                        <tr>
+                            <th>s</th>
+                            <td>${cell(controller, 'sd1', s.sd1, 3)}</td>
+                            <td>${cell(controller, 'sd2', s.sd2, 3)}</td>
+                        </tr>
+                        <tr>
+                            <th>s²</th>
+                            <td>${cell(controller, 'var1', s.var1, 3)}</td>
+                            <td>${cell(controller, 'var2', s.var2, 3)}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 2: Calculate Pooled Variance</h3>
+                    <p>s²<sub>pooled</sub> = [(n₁ - 1)s₁² + (n₂ - 1)s₂²] / (n₁ + n₂ - 2)</p>
+                    <p>s²<sub>pooled</sub> = [(${n1} - 1)(${s.var1.toFixed(3)}) + (${n2} - 1)(${s.var2.toFixed(3)})] / ${df}</p>
+                    <p>s²<sub>pooled</sub> = [${((n1 - 1) * s.var1).toFixed(3)} + ${((n2 - 1) * s.var2).toFixed(3)}] / ${df}</p>
+                    <p><strong>s²<sub>pooled</sub> = ${cell(controller, 'varPooled', s.varPooled, 3)}</strong></p>
+                    <p><strong>s<sub>pooled</sub> = ${cell(controller, 'sdPooled', s.sdPooled, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 3: Calculate Standard Error</h3>
+                    <p>SE = s<sub>pooled</sub> × √(1/n₁ + 1/n₂)</p>
+                    <p>SE = ${s.sdPooled.toFixed(3)} × √(1/${n1} + 1/${n2})</p>
+                    <p>SE = ${s.sdPooled.toFixed(3)} × √${(1/n1 + 1/n2).toFixed(3)}</p>
+                    <p>SE = ${s.sdPooled.toFixed(3)} × ${Math.sqrt(1/n1 + 1/n2).toFixed(3)}</p>
+                    <p><strong>SE = ${cell(controller, 'se', s.se, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 4: Calculate t-Statistic</h3>
+                    <p>t = (x̄₁ - x̄₂) / SE</p>
+                    <p>t = (${s.mean1.toFixed(3)} - ${s.mean2.toFixed(3)}) / ${s.se.toFixed(3)}</p>
+                    <p>t = ${(s.mean1 - s.mean2).toFixed(3)} / ${s.se.toFixed(3)}</p>
+                    <div class="result-box">t = ${cell(controller, 't', s.t, 3)}</div>
+                </div>
+
+                ${displayCriticalValueInfo(df)}
+            `;
+            
+            outputDiv.innerHTML = html;
+        }
+
+        // Before/After values are the leaves; differences, mean difference,
+        // deviations, squares, sum, s_d, SE, and t all cascade from whatever
+        // is current (edited or original) using the same formulas as before.
+        function computeTwoPairedSteps(beforeOrig, afterOrig, n, df, overrides) {
+            const ov = (key, fallback) => overrides.has(key) ? overrides.get(key) : fallback;
+
+            const before = beforeOrig.map((x, i) => ov(`before_${i}`, x));
+            const after = afterOrig.map((x, i) => ov(`after_${i}`, x));
+            const differences = before.map((b, i) => ov(`diff_${i}`, b - after[i]));
+            const meanDiff = ov('meanDiff', differences.reduce((a, b) => a + b, 0) / n);
+            const deviations = differences.map((d, i) => ov(`dev_${i}`, d - meanDiff));
+            const squaredDev = deviations.map((d, i) => ov(`sq_${i}`, d * d));
+            const sumSq = ov('sumSq', squaredDev.reduce((a, b) => a + b, 0));
+            const sdDiff = ov('sdDiff', Math.sqrt(sumSq / df));
+            const se = ov('se', sdDiff / Math.sqrt(n));
+            const t = ov('t', meanDiff / se);
+
+            return { before, after, differences, meanDiff, deviations, squaredDev, sumSq, sdDiff, se, t };
+        }
+
+        function flattenTwoPairedSteps(steps, n) {
+            const flat = new Map();
+            for (let i = 0; i < n; i++) {
+                flat.set(`before_${i}`, steps.before[i]);
+                flat.set(`after_${i}`, steps.after[i]);
+                flat.set(`diff_${i}`, steps.differences[i]);
+                flat.set(`dev_${i}`, steps.deviations[i]);
+                flat.set(`sq_${i}`, steps.squaredDev[i]);
+            }
+            flat.set('meanDiff', steps.meanDiff);
+            flat.set('sumSq', steps.sumSq);
+            flat.set('sdDiff', steps.sdDiff);
+            flat.set('se', steps.se);
+            flat.set('t', steps.t);
+            return flat;
+        }
+
+        function calculateTwoPaired(errorDiv, outputDiv) {
+            const before = parseData(document.getElementById('ttest-pairedBefore').value);
+            const after = parseData(document.getElementById('ttest-pairedAfter').value);
+            
+            if (before.length === 0 || after.length === 0) {
+                errorDiv.innerHTML = '<div class="error">Error: Please enter data for both measurements</div>';
+                document.getElementById('ttest-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            if (before.length !== after.length) {
+                errorDiv.innerHTML = '<div class="error">Error: Before and After must have the same number of values</div>';
+                document.getElementById('ttest-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            if (before.length < 2) {
+                errorDiv.innerHTML = '<div class="error">Error: Need at least 2 pairs</div>';
+                document.getElementById('ttest-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+            
+            const n = before.length;
+            const df = n - 1;
+
+            const controller = {
+                overrides: new Map(),
+                pristineFlat: null,
+                current: null,
+                compute() {
+                    this.current = computeTwoPairedSteps(before, after, n, df, this.overrides);
+                    if (!this.pristineFlat) {
+                        this.pristineFlat = flattenTwoPairedSteps(this.current, n);
+                    }
+                },
+                render() {
+                    displayTwoPairedResults(n, df, this.current, this);
+                },
+                recalcAndRender() {
+                    this.compute();
+                    this.render();
+                },
+                reset() {
+                    this.overrides.clear();
+                    this.recalcAndRender();
+                }
+            };
+
+            controller.compute();
+            activeController = controller;
+            controller.render();
+            wireEditableOutput(outputDiv);
+            document.getElementById('ttest-resultsSection').style.display = 'block';
+        }
+
+        function displayTwoPairedResults(n, df, s, controller) {
+            const outputDiv = document.getElementById('ttest-output');
+            let html = `
+                <h2>Paired Samples t-Test - Step by Step</h2>
+
+                ${editToolbarHtml()}
+
+                <div class="step">
+                    <h3>Step 0: Summary</h3>
+                    <p>Null Hypothesis (H₀): μ<sub>d</sub> = 0</p>
+                    <p>Alternative Hypothesis (H₁): μ<sub>d</sub> ≠ 0</p>
+                    <p>Number of pairs (n): ${n}</p>
+                    <p><strong>Degrees of freedom = n - 1 = ${n} - 1 = ${df}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 1: Calculate Differences</h3>
+                    <table>
+                        <tr>
+                            <th>Pair</th>
+                            ${Array.from({length: n}, (_, i) => `<th>${i + 1}</th>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>Before</th>
+                            ${s.before.map((x, i) => `<td>${cell(controller, `before_${i}`, x, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>After</th>
+                            ${s.after.map((x, i) => `<td>${cell(controller, `after_${i}`, x, 2)}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <th>d (Before - After)</th>
+                            ${s.differences.map((d, i) => `<td>${cell(controller, `diff_${i}`, d, 2)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 2: Calculate Mean of Differences (d̄)</h3>
+                    <p>d̄ = (${s.differences.map(d => d.toFixed(2)).join(' + ')}) / ${n}</p>
+                    <p><strong>d̄ = ${cell(controller, 'meanDiff', s.meanDiff, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 3: Calculate Deviations from Mean Difference</h3>
+                    <table>
+                        <tr>
+                            <th>d - d̄</th>
+                            ${s.deviations.map((d, i) => `<td>${cell(controller, `dev_${i}`, d, 3)}</td>`).join('')}
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="step">
+                    <h3>Step 4: Square Deviations and Sum</h3>
+                    <table>
+                        <tr>
+                            <th>(d - d̄)²</th>
+                            ${s.squaredDev.map((d, i) => `<td>${cell(controller, `sq_${i}`, d, 3)}</td>`).join('')}
+                        </tr>
+                    </table>
+                    <p>Σ(d - d̄)² = ${s.squaredDev.map(d => d.toFixed(3)).join(' + ')}</p>
+                    <p><strong>Σ(d - d̄)² = ${cell(controller, 'sumSq', s.sumSq, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 5: Calculate Standard Deviation of Differences (s_d)</h3>
+                    <p>s<sub>d</sub> = √[Σ(d - d̄)² / (n - 1)]</p>
+                    <p>s<sub>d</sub> = √[${s.sumSq.toFixed(3)} / ${df}]</p>
+                    <p>s<sub>d</sub> = √${(s.sumSq / df).toFixed(3)}</p>
+                    <p><strong>s<sub>d</sub> = ${cell(controller, 'sdDiff', s.sdDiff, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 6: Calculate Standard Error</h3>
+                    <p>SE = s<sub>d</sub> / √n</p>
+                    <p>SE = ${s.sdDiff.toFixed(3)} / √${n}</p>
+                    <p>SE = ${s.sdDiff.toFixed(3)} / ${Math.sqrt(n).toFixed(3)}</p>
+                    <p><strong>SE = ${cell(controller, 'se', s.se, 3)}</strong></p>
+                </div>
+
+                <div class="step">
+                    <h3>Step 7: Calculate t-Statistic</h3>
+                    <p>t = d̄ / SE</p>
+                    <p>t = ${s.meanDiff.toFixed(3)} / ${s.se.toFixed(3)}</p>
+                    <div class="result-box">t = ${cell(controller, 't', s.t, 3)}</div>
+                </div>
+
+                ${displayCriticalValueInfo(df)}
+            `;
+            
+            outputDiv.innerHTML = html;
+        }
+
+        function displayCriticalValueInfo(df) {
+            if (!tCriticalTable[df]) {
+                return `<div class="step">
+                    <h3>Critical Values</h3>
+                    <p>Degrees of freedom (${df}) not in standard table. Please refer to a comprehensive t-table.</p>
+                </div>`;
+            }
+            
+            const values = tCriticalTable[df];
+            const alphas = ['0.10', '0.05', '0.025', '0.01'];
+            
+            return `<div class="step critical-values-table">
+                <h3>Critical Values for df = ${df} (Two-Tailed)</h3>
+                <table>
+                    <tr>
+                        <th>Significance Level (α)</th>
+                        ${alphas.map(a => `<th>α = ${a}</th>`).join('')}
+                    </tr>
+                    <tr>
+                        <th>Critical Value</th>
+                        ${values.map(v => `<td>${v.toFixed(3)}</td>`).join('')}
+                    </tr>
+                </table>
+                <p style="margin-top: 15px; font-size: 13px;">
+                    <strong>Interpretation:</strong> If |t| > critical value, reject H₀. Otherwise, fail to reject H₀.
+                </p>
+            </div>`;
+        }
+
+        function ttest_clearAll() {
+            document.getElementById('ttest-testType').value = 'oneSample';
+            document.getElementById('ttest-populationMean').value = '100';
+            document.getElementById('ttest-oneSampleData').value = '';
+            document.getElementById('ttest-sample1Data').value = '';
+            document.getElementById('ttest-sample2Data').value = '';
+            document.getElementById('ttest-pairedBefore').value = '';
+            document.getElementById('ttest-pairedAfter').value = '';
+            document.getElementById('ttest-resultsSection').style.display = 'none';
+            document.getElementById('ttest-errorMessage').innerHTML = '';
+            document.getElementById('ttest-output').innerHTML = '';
+            ttest_updateSetup();
+        }
+
+        // Initialize on load
+        window.addEventListener('load', function() {
+            ttest_updateSetup();
+        });
+    
+
+        // expose handlers referenced from onclick/onchange attributes
+        window.ttest_calculate = ttest_calculate;
+        window.ttest_clearAll = ttest_clearAll;
+        window.ttest_resetActiveEdits = ttest_resetActiveEdits;
+        window.ttest_updateSetup = ttest_updateSetup;
+    })();
+
+(function() {
+
+        // ---- Statistic metadata ----
+        const STAT_ORDER = ['mean', 'median', 'mode', 'range', 'q1', 'q3', 'iqr', 'variance', 'sd'];
+        const STAT_LABELS = {
+            mean: 'Mean',
+            median: 'Median',
+            mode: 'Mode',
+            range: 'Range',
+            q1: 'Q1',
+            q3: 'Q3',
+            iqr: 'IQR',
+            variance: 'Variance',
+            sd: 'Standard Deviation'
+        };
+        // Clicking a stat also opens whatever it depends on, so the full
+        // chain is visible (e.g. Standard Deviation -> Variance -> Mean).
+        const DEPENDENCIES = {
+            mean: [],
+            median: [],
+            mode: [],
+            range: [],
+            q1: [],
+            q3: [],
+            iqr: ['q1', 'q3'],
+            variance: ['mean'],
+            sd: ['mean', 'variance']
+        };
+
+        function parseData(input) {
+            return input.trim().split(/[\s,]+/).map(x => parseFloat(x)).filter(x => !isNaN(x));
+        }
+
+        function getOrdinalSuffix(num) {
+            const j = num % 10;
+            const k = num % 100;
+            if (j === 1 && k !== 11) return "st";
+            if (j === 2 && k !== 12) return "nd";
+            if (j === 3 && k !== 13) return "rd";
+            return "th";
+        }
+
+        function formatNum(value, decimals) {
+            if (decimals === 'text') return String(value);
+            if (decimals === 'count') {
+                return Number.isInteger(value) ? String(value) : value.toFixed(2);
+            }
+            return value.toFixed(decimals);
+        }
+
+        // ---- Shared state ----
+        // One shared dataset + one shared overrides map drives every card, so
+        // an edit in one card (e.g. the Mean) correctly ripples into any other
+        // open card that depends on it (e.g. Variance, then Standard Deviation).
+        let state = null; // { xOrig, overrides, pristineFlat, current }
+        let openCards = new Set();
+        let editingWired = false;
+
+        // Same formulas as a plain calculator -- if a value has been manually
+        // overridden (in `overrides`, keyed by name) that value is used as-is;
+        // otherwise it's computed from the (possibly already-overridden)
+        // values feeding into it, so an edit cascades forward correctly.
+        //
+        // This includes the "structural" numbers inside each formula (the n
+        // you divide by, the n-1, the 0.25/0.75 multiplier, which position in
+        // the sorted list you read) -- not just the final results -- since
+        // those are exactly where a student is likely to go wrong. Editing
+        // one of them can change which branch of a formula applies (e.g. a
+        // quartile position that becomes a whole number), so that branch is
+        // re-decided fresh every time from whatever is current.
+        function computeStats(xOrig, overrides) {
+            const ov = (key, fallback) => overrides.has(key) ? overrides.get(key) : fallback;
+            const n = xOrig.length;
+            const clampIdx = (idx) => Math.max(0, Math.min(n - 1, Math.round(idx)));
+
+            const xVal = xOrig.map((v, i) => ov(`x_${i}`, v));
+            const sorted = [...xVal].sort((a, b) => a - b);
+
+            // Mean
+            const sum = ov('sum', xVal.reduce((a, b) => a + b, 0));
+            const meanN = ov('meanN', n);
+            const mean = ov('mean', sum / meanN);
+
+            // Median
+            const mid = Math.floor(n / 2);
+            let medianPosLow, medianPosHigh, medianValLow, medianValHigh, medianPos, medianVal, median;
+            if (n % 2 === 0) {
+                medianPosLow = ov('medianPosLow', mid);
+                medianPosHigh = ov('medianPosHigh', mid + 1);
+                medianValLow = ov('medianValLow', sorted[clampIdx(medianPosLow - 1)]);
+                medianValHigh = ov('medianValHigh', sorted[clampIdx(medianPosHigh - 1)]);
+                median = ov('median', (medianValLow + medianValHigh) / 2);
+            } else {
+                medianPos = ov('medianPos', mid + 1);
+                medianVal = ov('medianVal', sorted[clampIdx(medianPos - 1)]);
+                median = ov('median', medianVal);
+            }
+
+            // Mode -- frequency per distinct value is itself editable, and
+            // the "highest frequency" used to pick the mode(s) is too.
+            const freqBase = {};
+            sorted.forEach(v => { freqBase[v] = (freqBase[v] || 0) + 1; });
+            const freqKeys = Object.keys(freqBase).sort((a, b) => a - b);
+            const freqAdj = {};
+            freqKeys.forEach(k => { freqAdj[k] = ov(`freq_${k}`, freqBase[k]); });
+            const maxFreqBase = freqKeys.length ? Math.max(...freqKeys.map(k => freqAdj[k])) : 0;
+            const maxFreq = ov('maxFreq', maxFreqBase);
+            const modes = freqKeys.filter(k => freqAdj[k] === maxFreq).map(Number);
+            const modeBase = modes.length === freqKeys.length ? 'none' : modes.join(', ');
+            const modeStr = overrides.has('mode') ? overrides.get('mode') : modeBase;
+
+            // Range
+            const min = ov('min', sorted[0]);
+            const max = ov('max', sorted[sorted.length - 1]);
+            const range = ov('range', max - min);
+
+            // Q1 -- multiplier, n, and the resulting position(s) are all
+            // independently overridable; whether j1 is a whole number is
+            // re-checked every time, so the branch can change on edit.
+            const q1Mult = ov('q1Mult', 0.25);
+            const q1N = ov('q1N', n);
+            const j1 = ov('j1', q1Mult * q1N);
+            const q1IsInt = Number.isInteger(j1);
+            let q1PosLow, q1PosHigh, q1Low, q1High, q1Pos, q1PosVal, q1Base;
+            if (q1IsInt) {
+                q1PosLow = ov('q1PosLow', j1);
+                q1PosHigh = ov('q1PosHigh', j1 + 1);
+                q1Low = ov('q1Low', sorted[clampIdx(q1PosLow - 1)]);
+                q1High = ov('q1High', sorted[clampIdx(q1PosHigh - 1)]);
+                q1Base = (q1Low + q1High) / 2;
+            } else {
+                q1Pos = ov('q1Pos', Math.ceil(j1));
+                q1PosVal = ov('q1PosVal', sorted[clampIdx(q1Pos - 1)]);
+                q1Base = q1PosVal;
+            }
+            const q1 = ov('q1', q1Base);
+
+            // Q3 -- same pattern as Q1
+            const q3Mult = ov('q3Mult', 0.75);
+            const q3N = ov('q3N', n);
+            const j3 = ov('j3', q3Mult * q3N);
+            const q3IsInt = Number.isInteger(j3);
+            let q3PosLow, q3PosHigh, q3Low, q3High, q3Pos, q3PosVal, q3Base;
+            if (q3IsInt) {
+                q3PosLow = ov('q3PosLow', j3);
+                q3PosHigh = ov('q3PosHigh', j3 + 1);
+                q3Low = ov('q3Low', sorted[clampIdx(q3PosLow - 1)]);
+                q3High = ov('q3High', sorted[clampIdx(q3PosHigh - 1)]);
+                q3Base = (q3Low + q3High) / 2;
+            } else {
+                q3Pos = ov('q3Pos', Math.ceil(j3));
+                q3PosVal = ov('q3PosVal', sorted[clampIdx(q3Pos - 1)]);
+                q3Base = q3PosVal;
+            }
+            const q3 = ov('q3', q3Base);
+
+            const iqr = ov('iqr', q3 - q1);
+
+            // Variance / SD -- the divisor (normally n - 1) is directly
+            // editable as a single number, which is exactly where "divided
+            // by n instead of n - 1" shows up.
+            const dev = xVal.map((v, i) => ov(`dev_${i}`, v - mean));
+            const sq = dev.map((v, i) => ov(`sq_${i}`, v * v));
+            const sumSq = ov('sumSq', sq.reduce((a, b) => a + b, 0));
+            const varDivisor = ov('varDivisor', n - 1);
+            const variance = ov('variance', sumSq / varDivisor);
+            const sd = ov('sd', Math.sqrt(variance));
+
+            return {
+                n, xVal, sorted,
+                sum, meanN, mean,
+                mid, medianPosLow, medianPosHigh, medianValLow, medianValHigh, medianPos, medianVal, median,
+                freqKeys, freqAdj, maxFreq, modes, modeStr,
+                min, max, range,
+                q1Mult, q1N, j1, q1IsInt, q1PosLow, q1PosHigh, q1Low, q1High, q1Pos, q1PosVal, q1,
+                q3Mult, q3N, j3, q3IsInt, q3PosLow, q3PosHigh, q3Low, q3High, q3Pos, q3PosVal, q3,
+                iqr, dev, sq, sumSq, varDivisor, variance, sd
+            };
+        }
+
+        function flattenStats(s) {
+            const flat = new Map();
+            for (let i = 0; i < s.n; i++) {
+                flat.set(`x_${i}`, s.xVal[i]);
+                flat.set(`dev_${i}`, s.dev[i]);
+                flat.set(`sq_${i}`, s.sq[i]);
+            }
+            flat.set('sum', s.sum);
+            flat.set('meanN', s.meanN);
+            flat.set('mean', s.mean);
+
+            if (s.medianPosLow !== undefined) {
+                flat.set('medianPosLow', s.medianPosLow);
+                flat.set('medianPosHigh', s.medianPosHigh);
+                flat.set('medianValLow', s.medianValLow);
+                flat.set('medianValHigh', s.medianValHigh);
+            } else {
+                flat.set('medianPos', s.medianPos);
+                flat.set('medianVal', s.medianVal);
+            }
+            flat.set('median', s.median);
+
+            s.freqKeys.forEach(k => flat.set(`freq_${k}`, s.freqAdj[k]));
+            flat.set('maxFreq', s.maxFreq);
+            flat.set('mode', s.modeStr);
+
+            flat.set('min', s.min);
+            flat.set('max', s.max);
+            flat.set('range', s.range);
+
+            flat.set('q1Mult', s.q1Mult);
+            flat.set('q1N', s.q1N);
+            flat.set('j1', s.j1);
+            if (s.q1IsInt) {
+                flat.set('q1PosLow', s.q1PosLow);
+                flat.set('q1PosHigh', s.q1PosHigh);
+                flat.set('q1Low', s.q1Low);
+                flat.set('q1High', s.q1High);
+            } else {
+                flat.set('q1Pos', s.q1Pos);
+                flat.set('q1PosVal', s.q1PosVal);
+            }
+            flat.set('q1', s.q1);
+
+            flat.set('q3Mult', s.q3Mult);
+            flat.set('q3N', s.q3N);
+            flat.set('j3', s.j3);
+            if (s.q3IsInt) {
+                flat.set('q3PosLow', s.q3PosLow);
+                flat.set('q3PosHigh', s.q3PosHigh);
+                flat.set('q3Low', s.q3Low);
+                flat.set('q3High', s.q3High);
+            } else {
+                flat.set('q3Pos', s.q3Pos);
+                flat.set('q3PosVal', s.q3PosVal);
+            }
+            flat.set('q3', s.q3);
+
+            flat.set('iqr', s.iqr);
+            flat.set('sumSq', s.sumSq);
+            flat.set('varDivisor', s.varDivisor);
+            flat.set('variance', s.variance);
+            flat.set('sd', s.sd);
+            return flat;
+        }
+
+        // Builds one editable span bound to `key`. decimals is a number of
+        // decimal places, 'count' (integer-or-2-decimals), or 'text' (mode).
+        function cell(key, value, decimals) {
+            const isOverridden = state.overrides.has(key);
+            const pristineVal = state.pristineFlat.get(key);
+            let isAffected = false;
+            if (!isOverridden && pristineVal !== undefined) {
+                isAffected = decimals === 'text'
+                    ? String(value) !== String(pristineVal)
+                    : Math.abs(value - pristineVal) > 1e-9;
+            }
+            let cls = 'editable-num';
+            if (isOverridden) cls += ' overridden';
+            else if (isAffected) cls += ' affected';
+            const type = decimals === 'text' ? 'text' : 'num';
+            return `<span class="${cls}" data-key="${key}" data-type="${type}" contenteditable="true" spellcheck="false">${formatNum(value, decimals)}</span>`;
+        }
+
+        function editToolbarHtml() {
+            return `
+                <div class="edit-toolbar">
+                    Click any number below to type over it (e.g. to enter a student's mistake). Everything calculated from that number -- in this card or any other open card -- will update automatically.
+                    <div class="legend">
+                        <span class="legend-item"><span class="legend-swatch" style="background:#c0392b;"></span>value you edited</span>
+                        <span class="legend-item"><span class="legend-swatch" style="background:#d35400;"></span>recalculated because of an edit</span>
+                    </div>
+                    <button class="reset-btn" onclick="desc_resetEdits()" type="button">Reset All Edits</button>
+                </div>
+            `;
+        }
+
+        function closeBtn(stat) {
+            return `<button class="close-card-btn" onclick="desc_closeCard('${stat}')" title="Close">&times;</button>`;
+        }
+
+        function desc_calculate() {
+            const errorDiv = document.getElementById('desc-errorMessage');
+            const outputDiv = document.getElementById('desc-output');
+            errorDiv.innerHTML = '';
+
+            const values = parseData(document.getElementById('desc-datasetInput').value);
+
+            if (values.length < 2) {
+                errorDiv.innerHTML = '<div class="error">Error: Please enter at least 2 numeric values</div>';
+                document.getElementById('desc-resultsSection').style.display = 'block';
+                outputDiv.innerHTML = '';
+                return;
+            }
+
+            state = {
+                xOrig: values.slice(),
+                overrides: new Map(),
+                pristineFlat: null,
+                current: null
+            };
+            state.current = computeStats(state.xOrig, state.overrides);
+            state.pristineFlat = flattenStats(state.current);
+            openCards = new Set();
+
+            outputDiv.innerHTML = `
+                <h2>Descriptive Statistics - Step by Step</h2>
+
+                ${editToolbarHtml()}
+
+                <div class="step" id="desc-datasetStep">
+                    <h3>Dataset</h3>
+                    <p id="desc-datasetLine"></p>
+                </div>
+
+                <div class="step">
+                    <h3>Select a Statistic</h3>
+                    <div class="stat-buttons" id="desc-statButtons">
+                        ${STAT_ORDER.map(stat => `<button class="stat-btn" id="btn-${stat}" onclick="desc_toggleCard('${stat}')">${STAT_LABELS[stat]}</button>`).join('')}
+                    </div>
+                </div>
+
+                <div id="desc-cardsContainer"></div>
+            `;
+
+            renderDatasetLine();
+            renderCards();
+            wireEditableOutput(outputDiv);
+            document.getElementById('desc-resultsSection').style.display = 'block';
+        }
+
+        function renderDatasetLine() {
+            const s = state.current;
+            document.getElementById('desc-datasetLine').innerHTML =
+                `n = ${s.n} &nbsp;&nbsp; ${s.xVal.map((v, i) => cell(`x_${i}`, v, 'count')).join(', ')}`;
+        }
+
+        function updateButtonStyles() {
+            STAT_ORDER.forEach(stat => {
+                const btn = document.getElementById(`btn-${stat}`);
+                if (!btn) return;
+                btn.classList.toggle('active', openCards.has(stat));
+            });
+        }
+
+        function desc_toggleCard(stat) {
+            if (!state) return;
+            if (openCards.has(stat)) {
+                openCards.delete(stat);
+            } else {
+                const addWithDeps = (s) => {
+                    if (openCards.has(s)) return;
+                    openCards.add(s);
+                    (DEPENDENCIES[s] || []).forEach(addWithDeps);
+                };
+                addWithDeps(stat);
+            }
+            renderCards();
+        }
+
+        function desc_closeCard(stat) {
+            openCards.delete(stat);
+            renderCards();
+        }
+
+        function recalcAndRender() {
+            state.current = computeStats(state.xOrig, state.overrides);
+            renderDatasetLine();
+            renderCards();
+        }
+
+        function desc_resetEdits() {
+            if (!state) return;
+            state.overrides.clear();
+            recalcAndRender();
+        }
+
+        function renderCards() {
+            updateButtonStyles();
+            const s = state.current;
+            const generators = {
+                mean: generateMeanCard,
+                median: generateMedianCard,
+                mode: generateModeCard,
+                range: generateRangeCard,
+                q1: generateQ1Card,
+                q3: generateQ3Card,
+                iqr: generateIQRCard,
+                variance: generateVarianceCard,
+                sd: generateSDCard
+            };
+            const html = STAT_ORDER
+                .filter(stat => openCards.has(stat))
+                .map(stat => generators[stat](s))
+                .join('');
+            document.getElementById('desc-cardsContainer').innerHTML = html;
+        }
+
+        // ---- Card generators (annotated steps, no long explanatory prose) ----
+        function generateMeanCard(s) {
+            return `
+                <div class="step" id="card-mean">
+                    <h3>Mean ${closeBtn('mean')}</h3>
+                    <p>x&#772; = &Sigma;x / n</p>
+                    <p>&Sigma;x = (${s.xVal.map(v => formatNum(v, 'count')).join(' + ')}) = ${cell('sum', s.sum, 'count')}</p>
+                    <p>n = ${cell('meanN', s.meanN, 'count')}</p>
+                    <p>x&#772; = ${formatNum(s.sum, 'count')} / ${formatNum(s.meanN, 'count')}</p>
+                    <div class="result-box">x&#772; = ${cell('mean', s.mean, 3)}</div>
+                </div>
+            `;
+        }
+
+        function generateMedianCard(s) {
+            const n = s.n, mid = s.mid;
+            const midVisual = s.sorted.map((v, i) => {
+                const isMiddle = (n % 2 === 0 && (i === mid - 1 || i === mid)) || (n % 2 === 1 && i === mid);
+                return formatNum(v, 'count');
+            }).join(', ');
+
+            const calc = (n % 2 === 0)
+                ? `
+                    <p>Position(s) of the two middle values: ${cell('medianPosLow', s.medianPosLow, 'count')} and ${cell('medianPosHigh', s.medianPosHigh, 'count')}</p>
+                    <p>Values at those positions: ${cell('medianValLow', s.medianValLow, 'count')} and ${cell('medianValHigh', s.medianValHigh, 'count')}</p>
+                    <p>Median = (${formatNum(s.medianValLow, 'count')} + ${formatNum(s.medianValHigh, 'count')}) / 2</p>
+                `
+                : `
+                    <p>Position of the middle value: ${cell('medianPos', s.medianPos, 'count')}</p>
+                    <p>Value at that position: ${cell('medianVal', s.medianVal, 'count')}</p>
+                `;
+
+            return `
+                <div class="step" id="card-median">
+                    <h3>Median ${closeBtn('median')}</h3>
+                    <p>Sorted: ${midVisual}</p>
+                    ${calc}
+                    <div class="result-box">Median = ${cell('median', s.median, 3)}</div>
+                </div>
+            `;
+        }
+
+        function generateModeCard(s) {
+            let freqTable = '<table><tr><th>Value</th><th>Frequency</th></tr>';
+            s.freqKeys.forEach(k => {
+                freqTable += `<tr><td>${formatNum(Number(k), 'count')}</td><td>${cell(`freq_${k}`, s.freqAdj[k], 'count')}</td></tr>`;
+            });
+            freqTable += '</table>';
+
+            return `
+                <div class="step" id="card-mode">
+                    <h3>Mode ${closeBtn('mode')}</h3>
+                    <p>Sorted: ${s.sorted.map(v => formatNum(v, 'count')).join(', ')}</p>
+                    ${freqTable}
+                    <p>Highest frequency: ${cell('maxFreq', s.maxFreq, 'count')}</p>
+                    <div class="result-box">Mode = ${cell('mode', s.modeStr, 'text')}</div>
+                </div>
+            `;
+        }
+
+        function generateRangeCard(s) {
+            return `
+                <div class="step" id="card-range">
+                    <h3>Range ${closeBtn('range')}</h3>
+                    <p>Range = Max - Min</p>
+                    <p>Min = ${cell('min', s.min, 'count')} &nbsp;&nbsp; Max = ${cell('max', s.max, 'count')}</p>
+                    <p>Range = ${formatNum(s.max, 'count')} - ${formatNum(s.min, 'count')}</p>
+                    <div class="result-box">Range = ${cell('range', s.range, 'count')}</div>
+                </div>
+            `;
+        }
+
+        function generateQ1Card(s) {
+            const calc = s.q1IsInt
+                ? `
+                    <p>Since j is a whole number, average the values at positions j and j + 1:</p>
+                    <p>Positions: ${cell('q1PosLow', s.q1PosLow, 'count')} and ${cell('q1PosHigh', s.q1PosHigh, 'count')}</p>
+                    <p>Values at those positions: ${cell('q1Low', s.q1Low, 'count')} and ${cell('q1High', s.q1High, 'count')}</p>
+                    <p>Q1 = (${formatNum(s.q1Low, 'count')} + ${formatNum(s.q1High, 'count')}) / 2</p>
+                `
+                : `
+                    <p>Since j is not a whole number, round up to get the position:</p>
+                    <p>Position: ${cell('q1Pos', s.q1Pos, 'count')}</p>
+                    <p>Value at that position: ${cell('q1PosVal', s.q1PosVal, 'count')}</p>
+                `;
+
+            return `
+                <div class="step" id="card-q1">
+                    <h3>First Quartile (Q1) ${closeBtn('q1')}</h3>
+                    <p>Sorted: ${s.sorted.map(v => formatNum(v, 'count')).join(', ')}</p>
+                    <p>j = ${cell('q1Mult', s.q1Mult, 3)} &times; ${cell('q1N', s.q1N, 'count')}</p>
+                    <p>j = ${cell('j1', s.j1, 3)}</p>
+                    ${calc}
+                    <div class="result-box">Q1 = ${cell('q1', s.q1, 3)}</div>
+                </div>
+            `;
+        }
+
+        function generateQ3Card(s) {
+            const calc = s.q3IsInt
+                ? `
+                    <p>Since j is a whole number, average the values at positions j and j + 1:</p>
+                    <p>Positions: ${cell('q3PosLow', s.q3PosLow, 'count')} and ${cell('q3PosHigh', s.q3PosHigh, 'count')}</p>
+                    <p>Values at those positions: ${cell('q3Low', s.q3Low, 'count')} and ${cell('q3High', s.q3High, 'count')}</p>
+                    <p>Q3 = (${formatNum(s.q3Low, 'count')} + ${formatNum(s.q3High, 'count')}) / 2</p>
+                `
+                : `
+                    <p>Since j is not a whole number, round up to get the position:</p>
+                    <p>Position: ${cell('q3Pos', s.q3Pos, 'count')}</p>
+                    <p>Value at that position: ${cell('q3PosVal', s.q3PosVal, 'count')}</p>
+                `;
+
+            return `
+                <div class="step" id="card-q3">
+                    <h3>Third Quartile (Q3) ${closeBtn('q3')}</h3>
+                    <p>Sorted: ${s.sorted.map(v => formatNum(v, 'count')).join(', ')}</p>
+                    <p>j = ${cell('q3Mult', s.q3Mult, 3)} &times; ${cell('q3N', s.q3N, 'count')}</p>
+                    <p>j = ${cell('j3', s.j3, 3)}</p>
+                    ${calc}
+                    <div class="result-box">Q3 = ${cell('q3', s.q3, 3)}</div>
+                </div>
+            `;
+        }
+
+        function generateIQRCard(s) {
+            return `
+                <div class="step" id="card-iqr">
+                    <h3>Inter-Quartile Range (IQR) ${closeBtn('iqr')}</h3>
+                    <p>IQR = Q3 - Q1</p>
+                    <p>IQR = ${cell('q3', s.q3, 3)} - ${cell('q1', s.q1, 3)}</p>
+                    <div class="result-box">IQR = ${cell('iqr', s.iqr, 3)}</div>
+                </div>
+            `;
+        }
+
+        function generateVarianceCard(s) {
+            let table = '<table><tr><th>x</th><th>(x - x&#772;)</th><th>(x - x&#772;)&sup2;</th></tr>';
+            for (let i = 0; i < s.n; i++) {
+                table += `<tr><td>${formatNum(s.xVal[i], 'count')}</td><td>${cell(`dev_${i}`, s.dev[i], 3)}</td><td>${cell(`sq_${i}`, s.sq[i], 2)}</td></tr>`;
+            }
+            table += '</table>';
+
+            return `
+                <div class="step" id="card-variance">
+                    <h3>Variance ${closeBtn('variance')}</h3>
+                    <p>s&sup2; = &Sigma;(x - x&#772;)&sup2; / (n - 1)</p>
+                    <p>Mean (x&#772;) = ${cell('mean', s.mean, 3)}</p>
+                    ${table}
+                    <p>&Sigma;(x - x&#772;)&sup2; = ${cell('sumSq', s.sumSq, 2)}</p>
+                    <p>Divide by: ${cell('varDivisor', s.varDivisor, 'count')}</p>
+                    <p>Variance = ${formatNum(s.sumSq, 2)} / ${formatNum(s.varDivisor, 'count')}</p>
+                    <div class="result-box">s&sup2; = ${cell('variance', s.variance, 3)}</div>
+                </div>
+            `;
+        }
+
+        function generateSDCard(s) {
+            return `
+                <div class="step" id="card-sd">
+                    <h3>Standard Deviation ${closeBtn('sd')}</h3>
+                    <p>s = &radic;(variance)</p>
+                    <p>Variance = ${cell('variance', s.variance, 3)}</p>
+                    <p>s = &radic;${formatNum(s.variance, 3)}</p>
+                    <div class="result-box">s = ${cell('sd', s.sd, 3)}</div>
+                </div>
+            `;
+        }
+
+        function desc_clearAll() {
+            document.getElementById('desc-datasetInput').value = '';
+            document.getElementById('desc-resultsSection').style.display = 'none';
+            document.getElementById('desc-errorMessage').innerHTML = '';
+            document.getElementById('desc-output').innerHTML = '';
+            state = null;
+            openCards = new Set();
+        }
+
+        // ---- Generic interactive-editing wiring ----
+        // Wired once; the relevant pieces of #output are rebuilt on every
+        // recalculation, so listeners live on #output itself (event
+        // delegation) and keep working across re-renders.
+        function wireEditableOutput(outputDiv) {
+            if (editingWired) return;
+            editingWired = true;
+
+            outputDiv.addEventListener('focusin', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                e.target.dataset.beforeEdit = e.target.textContent;
+                const range = document.createRange();
+                range.selectNodeContents(e.target);
+                const sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            });
+
+            outputDiv.addEventListener('keydown', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.target.blur();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.target.textContent = e.target.dataset.beforeEdit;
+                    e.target.blur();
+                }
+            });
+
+            outputDiv.addEventListener('paste', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num')) return;
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                document.execCommand('insertText', false, text);
+            });
+
+            outputDiv.addEventListener('focusout', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num') || !state) return;
+                const key = e.target.dataset.key;
+                const type = e.target.dataset.type;
+                const before = e.target.dataset.beforeEdit;
+                const rawText = e.target.textContent.trim();
+
+                if (rawText === before) {
+                    recalcAndRender();
+                    return;
+                }
+
+                if (type === 'text') {
+                    if (rawText === '') {
+                        recalcAndRender();
+                        return;
+                    }
+                    state.overrides.set(key, rawText);
+                    recalcAndRender();
+                    return;
+                }
+
+                const parsed = parseFloat(rawText.replace(/[^\d.\-eE]/g, ''));
+                if (isNaN(parsed)) {
+                    recalcAndRender();
+                    return;
+                }
+
+                state.overrides.set(key, parsed);
+                recalcAndRender();
+            });
+
+            // Double-click an edited (red) value to clear just that override
+            outputDiv.addEventListener('dblclick', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('editable-num') || !state) return;
+                const key = e.target.dataset.key;
+                if (state.overrides.has(key)) {
+                    state.overrides.delete(key);
+                    recalcAndRender();
+                }
+            });
+        }
+    
+
+        // expose handlers referenced from onclick/onchange attributes
+        window.desc_calculate = desc_calculate;
+        window.desc_clearAll = desc_clearAll;
+        window.desc_closeCard = desc_closeCard;
+        window.desc_resetEdits = desc_resetEdits;
+        window.desc_toggleCard = desc_toggleCard;
+    })();
+    </script>
+</body>
+</html>

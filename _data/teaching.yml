@@ -1,9 +1,9 @@
 harvard:
-- {name: 'Introduction to Statistics for Behavioral Sciences', url: 'assets/syllabi/PSY1900.pdf', term: 'Spring 2026',
+- {name: 'Introduction to Statistics for Behavioral Sciences', url: 'assets/syllabi/PSY1900.pdf', term: 'Spring 2026, 2027',
     info: 'Instructor', extra: 'Lead lecture course in introductory statistics and programming for approximately 100 students in behavioral science majors. Lead team of five teaching assistants.'}
-- {name: 'The Psychology of Large Language Models', url: 'assets/syllabi/PSY1409.pdf', term: 'Spring 2026',
+- {name: 'The Psychology of Large Language Models', url: 'assets/syllabi/PSY1409.pdf', term: 'Spring 2026, 2027',
     info: 'Instructor', extra: 'Pitched, developed, and taught upper-level seminar course discussing large language models in the context of psychology.'}
-- {name: "The Brain's Conductor: The Psychology of Focus, Flexibility, and Control", url: 'assets/syllabi/PSY1351.pdf', term: 'Fall 2025',
+- {name: "The Brain's Conductor: The Psychology of Focus, Flexibility, and Control", url: 'assets/syllabi/PSY1351.pdf', term: 'Fall 2025, 2026',
     info: 'Instructor', extra: 'Pitched, developed, and taught upper-level lecture course discussing cognitive control and executive function.'}
 
 brown:
